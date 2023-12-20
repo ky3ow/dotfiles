@@ -19,4 +19,34 @@ alias v="nvim"
 alias che="chezmoi edit"
 alias chup="chezmoi update"
 
+alias gc="git commit"
+alias gupd="git commit --amend --no-edit"
+
+alias gco="git checkout"
+alias gcof="git checkout && ff"
+
+alias ga="git add"
+alias gp="git push"
+alias gP="git pull"
+
+alias gs="git status"
+
+alias gf="git fetch"
+alias ff="grp && git pull --ff-only"
+alias gpr="git remote prune origin"
+
+alias gR="git reset --hard"
+alias gr="git reset --soft"
+
+alias gcp="git cherry-pick"
+alias gcpc="gcp --continue"
+alias gcpa="gcp --abort"
+
+alias gre="git rebase"
+alias grec="gre --continue"
+alias grea="gre --abort"
+
+alias gm="git merge"
+alias gmr="git push -u origin HEAD"
+
 export EDITOR=nvim

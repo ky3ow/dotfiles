@@ -3,24 +3,3 @@
 	email = vova2341591@gmail.com
 [push]
 	default = current
-[alias]
-	co = checkout
-	c = commit
-	upd = commit --amend --no-edit	
-	a = add
-	p = push
-	P = pull
-	s = status
-	f = fetch
-	pr = remote prune origin
-	ff = pull --ff-only
-	R = reset --hard
-	r = reset --soft
-	cp = cherry-pick 
-	cpc = cherry-pick --continue
-	cpa = cherry-pick --abort
-	re = rebase
-	rec = rebase --continue
-	rea = rebase --abort
-	m = merge
-	mr = push -u origin HEAD
