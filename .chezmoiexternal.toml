@@ -1,0 +1,7 @@
+[".cache/zsh/plugins/zsh-abbr"]
+	type = "archive"
+	url = "https://github.com/olets/zsh-abbr/archive/main.tar.gz"
+	exact = true
+	stripComponents = 1
+	refreshPeriod = "672h"
+	include = ["*/zsh-abbr.zsh"]
