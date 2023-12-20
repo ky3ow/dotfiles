@@ -16,7 +16,7 @@ function take {
 alias alp="distrobox enter alpine"
 alias v="nvim"
 
-ABBREV_PLUGIN="/home/v/bash-abbrev-alias/abbrev-alias.plugin.bash"
+ABBREV_PLUGIN="$HOME/bash-abbrev-alias/abbrev-alias.plugin.bash"
 
 if [[ -f "$ABBREV_PLUGIN" ]]
 then
