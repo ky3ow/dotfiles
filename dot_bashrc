@@ -1,4 +1,12 @@
-source <(carapace _carapace bash)
-eval "$(starship init bash)"
+if command -v caparace
+then
+	source <(carapace _carapace bash)
+fi
+
+if command -v starship
+then 
+	eval "$(starship init bash)"
+fi
 
 export EDITOR=nvim
+alias v="nvim"
