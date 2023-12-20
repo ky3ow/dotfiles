@@ -10,6 +10,7 @@ fi
 
 export EDITOR=nvim
 
+alias alp="distrobox enter alpine"
 alias v="nvim"
 alias che="chezmoi edit"
 alias chup="chezmoi update"
