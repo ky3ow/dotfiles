@@ -27,3 +27,8 @@ alias gre="git rebase"
 alias gm="git merge"
 alias gr="git reset"
 alias gbr="git branch"
+
+function take {
+	mkdir $1
+	cd $1
+}
