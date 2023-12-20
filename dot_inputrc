@@ -1,3 +1,4 @@
 set completion-ignore-case On
 
 "\C- ": "\e\C-e " 
+"\ee": "\e\C-e"
