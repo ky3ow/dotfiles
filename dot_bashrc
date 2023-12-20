@@ -9,5 +9,11 @@ then
 fi
 
 export EDITOR=nvim
+
 alias v="nvim"
-alias ll="ls -l"
+alias che="chezmoi edit"
+alias chup="chezmoi update"
+alias ga="git add"
+alias gp="git push"
+alias gP="git pull"
+alias gc="git commit"
