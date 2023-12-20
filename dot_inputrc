@@ -1,3 +1,4 @@
 set completion-ignore-case On
 
-Space: "\e\C-e\C-v " 
+" ": "\e\C-e\C-v " 
+"\C- ": "\C-v "

@@ -32,7 +32,7 @@ alias gP="git pull"
 alias gs="git status"
 
 alias gf="git fetch"
-alias ff="grp && git pull --ff-only"
+alias ff="gpr && git pull --ff-only"
 alias gpr="git remote prune origin"
 
 alias gR="git reset --hard"
