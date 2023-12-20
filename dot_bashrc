@@ -29,6 +29,9 @@ alias gre="git rebase"
 alias gm="git merge"
 alias gr="git reset"
 alias gbr="git branch"
+alias gsl="git stash list"
+alias gsa="git stash apply"
+alias gss="git stash save"
 
 function take {
 	mkdir $1
