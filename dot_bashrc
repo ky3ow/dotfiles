@@ -16,37 +16,44 @@ function take {
 alias alp="distrobox enter alpine"
 alias v="nvim"
 
-alias che="chezmoi edit"
-alias chup="chezmoi update"
+ABBREV_PLUGIN="/home/v/bash-abbrev-alias/abbrev-alias.plugin.bash"
 
-alias gc="git commit"
-alias gupd="git commit --amend --no-edit"
+if [[ -f "$ABBREV_PLUGIN" ]]
+then
+	source $ABBREV_PLUGIN
 
-alias gco="git checkout"
-alias gcof="git checkout && ff"
+	abbrev-alias -g che="chezmoi edit"
+	abbrev-alias -g chup="chezmoi update"
 
-alias ga="git add"
-alias gp="git push"
-alias gP="git pull"
+	abbrev-alias -g gc="git commit"
+	abbrev-alias -g gupd="git commit --amend --no-edit"
 
-alias gs="git status"
+	abbrev-alias -g gco="git checkout"
+	abbrev-alias -g gcof="git checkout && ff"
 
-alias gf="git fetch"
-alias ff="grp && git pull --ff-only"
-alias gpr="git remote prune origin"
+	abbrev-alias -g ga="git add"
+	abbrev-alias -g gp="git push"
+	abbrev-alias -g gP="git pull"
 
-alias gR="git reset --hard"
-alias gr="git reset --soft"
+	abbrev-alias -g gs="git status"
 
-alias gcp="git cherry-pick"
-alias gcpc="gcp --continue"
-alias gcpa="gcp --abort"
+	abbrev-alias -g gf="git fetch"
+	abbrev-alias -g ff="grp && git pull --ff-only"
+	abbrev-alias -g gpr="git remote prune origin"
 
-alias gre="git rebase"
-alias grec="gre --continue"
-alias grea="gre --abort"
+	abbrev-alias -g gR="git reset --hard"
+	abbrev-alias -g gr="git reset --soft"
 
-alias gm="git merge"
-alias gmr="git push -u origin HEAD"
+	abbrev-alias -g gcp="git cherry-pick"
+	abbrev-alias -g gcpc="gcp --continue"
+	abbrev-alias -g gcpa="gcp --abort"
+
+	abbrev-alias -g gre="git rebase"
+	abbrev-alias -g grec="gre --continue"
+	abbrev-alias -g grea="gre --abort"
+
+	abbrev-alias -g gm="git merge"
+	abbrev-alias -g gmr="git push -u origin HEAD"
+fi
 
 export EDITOR=nvim
