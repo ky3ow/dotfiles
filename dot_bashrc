@@ -10,3 +10,4 @@ fi
 
 export EDITOR=nvim
 alias v="nvim"
+alias ll="ls -l"
