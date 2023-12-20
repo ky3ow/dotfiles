@@ -17,6 +17,8 @@ alias v="nvim"
 alias che="chezmoi edit"
 alias chup="chezmoi update"
 
+alias gco="git checkout"
+alias gcoo="git fetch && git checkout"
 alias ga="git add"
 alias gp="git push"
 alias gP="git pull"
