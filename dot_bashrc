@@ -11,10 +11,19 @@ fi
 export EDITOR=nvim
 
 alias alp="distrobox enter alpine"
+
 alias v="nvim"
+
 alias che="chezmoi edit"
 alias chup="chezmoi update"
+
 alias ga="git add"
 alias gp="git push"
 alias gP="git pull"
 alias gc="git commit"
+alias gs="git status"
+alias gcp="git cherry-pick"
+alias gre="git rebase"
+alias gm="git merge"
+alias gr="git reset"
+alias gbr="git branch"
