@@ -19,7 +19,6 @@ function make_fixup(id)
 		 end
 
 		cmd.args = wrapped
-		print(cmd)
 		return cmd
 	end
 end

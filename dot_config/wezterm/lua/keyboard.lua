@@ -37,7 +37,7 @@ return {
 				key = "l",
 				mods = "CTRL|SHIFT",
 				action = act.ShowLauncher,
-			}
+			},
 		}
 		M.key_map_preference = "Physical"
 	end

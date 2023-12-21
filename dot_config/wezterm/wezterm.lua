@@ -1,6 +1,7 @@
 local config = { keys = {}, unix_domains = {}, exec_domains = {} }
 local wezterm = require('wezterm')
 local act = wezterm.action
+
 -- Theme --
 require('lua/theme').setup(config)
 
