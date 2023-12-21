@@ -1,44 +1,14 @@
-local config = { keys = {}, unix_domains = {} }
+local config = { keys = {}, unix_domains = {}, exec_domains = {} }
 local wezterm = require('wezterm')
 local act = wezterm.action
 -- Theme --
-require('lua/theme').configure(config)
+require('lua/theme').setup(config)
 
 -- Keys --
-config.keys = {
-    {
-        key = "j",
-        mods = "CTRL|SHIFT",
-        action = act.ActivatePaneDirection "Down",
-    },
-    {
-        key = "k",
-        mods = "CTRL|SHIFT",
-        action = act.ActivatePaneDirection "Up",
-    },
-    {
-        key = "h",
-        mods = "CTRL|SHIFT",
-        action = act.ActivatePaneDirection "Left",
-    },
-    {
-        key = "l",
-        mods = "CTRL|SHIFT",
-        action = act.ActivatePaneDirection "Right",
-    },
-    {
-        key = "s",
-        mods = "CTRL|SHIFT",
-        action = act.PaneSelect { alphabet = "123456789" },
-    },
-    {
-        key = "y",
-        mods = "CTRL|SHIFT",
-        action = act.QuickSelect
-    }
-}
+require('lua/keyboard').setup(config)
 
-config.key_map_preference = "Physical"
+-- Distrobox --
+require('lua/podman').setup(config)
 
 -- WSL --
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
@@ -47,12 +17,12 @@ end
 
 -- ShitBook --
 if wezterm.target_triple == "x86_64-apple-darwin" then
-    require('lua/mac').configure_mac(config)
+    require('lua/mac').setup(config)
 end
 
 -- Linux --
 if wezterm.target_triple == "x86_64-unknown-linux-gnu" then
-    require('lua/linux').configure_linux(config)
+    require('lua/linux').setup(config)
 end
 
 return config

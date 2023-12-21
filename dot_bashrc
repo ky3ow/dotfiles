@@ -1,9 +1,9 @@
-if command -v caparace
+if command -v caparace &>/dev/null
 then
 	source <(carapace _carapace bash)
 fi
 
-if command -v starship
+if command -v starship &>/dev/null
 then 
 	eval "$(starship init bash)"
 fi
