@@ -6,12 +6,7 @@ add_newline = false
 
 # Change the default prompt format
 format = """ \
-$directory\
-$git_branch\
-$git_commit\
-$git_status\
-$fill\
-$line_break\
+$directory$git_branch$git_commit$git_status$fill$line_break\
 $character
 """
 
@@ -23,23 +18,24 @@ success_symbol = "[>](bold green)"
 error_symbol = "[>](bold red)"
 
 [git_branch]
-symbol = " "
-format = '[$symbol$branch(:$remote_branch)]($style) '
+format = '[on $branch(:$remote_branch)]($style)'
 style = 'bold yellow'
 
 [git_commit]
-format = '[ $hash$tag ]($style)'
+format = '[@$hash$tag]($style)'
 only_detached = false
 
 [git_status]
-format = '[$ahead_behind$all_status](bold red)'
-up_to_date = '[ ](bold yellow)'
-staged = '[+$count ](bold green)'
-ahead = '[⇡${count} ](bold blue)'
-diverged = '[⇡${ahead_count} ](bold blue)[⇣${behind_count} ](bold purple)'
-behind = '[⇣${count} ](bold purple)'
-modified = '!${count} '
-stashed = ''
+format = '[($ahead_behind )($conflicted )($deleted )($renamed )($modified )($staged )($untracked )($stashed )](bold red)'
+up_to_date = '[*](bold yellow)'
+diverged = '[A${ahead_count}](bold blue)[B${behind_count}](bold purple)'
+ahead = '[A${count}](bold blue)'
+behind = '[B${count}](bold purple)'
+conflicted = '=${count}(bold red)'
+deleted = 'x${count}(bold red)'
+staged = '[+$count](bold green)'
+modified = '!${count}'
+stashed = '\$${count}'
 
 [aws]
 symbol = "  "
