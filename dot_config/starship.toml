@@ -36,7 +36,7 @@ deleted = 'x${count}(bold red)'
 renamed = '>>${count}'
 modified = '!${count}'
 staged = '[+$count](bold green)'
-untracked = '?${count}'
+untracked = '?'
 stashed = '[\$${count}](bold purple)'
 
 [aws]
