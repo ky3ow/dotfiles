@@ -26,11 +26,11 @@ format = '[@$hash$tag]($style)'
 only_detached = false
 
 [git_status]
-format = '[($ahead_behind )($conflicted )($deleted )($renamed )($modified )($staged )($untracked )($stashed )](bold red)'
+format = '[([\(](bold green)$ahead_behind[\)](bold green) )($conflicted )($deleted )($renamed )($modified )($staged )($untracked )($stashed )](bold red)'
 up_to_date = '[*](bold yellow)'
-diverged = '[A${ahead_count}](bold blue)[B${behind_count}](bold purple)'
-ahead = '[A${count}](bold blue)'
-behind = '[B${count}](bold purple)'
+diverged = '[${ahead_count}](bold blue)[:](bold green)[${behind_count}](bold purple)'
+ahead = '[${count}](bold blue)'
+behind = '[${count}](bold purple)'
 conflicted = '=${count}(bold red)'
 deleted = 'x${count}(bold red)'
 staged = '[+$count](bold green)'
