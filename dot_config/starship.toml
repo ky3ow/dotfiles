@@ -31,8 +31,8 @@ up_to_date = '[*](bold yellow)'
 diverged = '[${ahead_count}](bold blue)[:](bold green)[${behind_count}](bold purple)'
 ahead = '[${count}](bold blue)'
 behind = '[${count}](bold purple)'
-conflicted = '=${count}(bold red)'
-deleted = 'x${count}(bold red)'
+conflicted = '=${count}'
+deleted = 'x${count}'
 renamed = '>>${count}'
 modified = '!${count}'
 staged = '[+$count](bold green)'
@@ -55,7 +55,7 @@ symbol = " "
 symbol = " "
 
 [directory]
-read_only = " "
+read_only = "R"
 style = "bold cyan"
 
 [docker_context]
