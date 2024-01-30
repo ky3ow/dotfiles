@@ -32,7 +32,7 @@ diverged = '[${ahead_count}](bold blue)[:](bold green)[${behind_count}](bold pur
 ahead = '[${count}](bold blue)'
 behind = '[${count}](bold purple)'
 conflicted = '=${count}'
-deleted = 'x${count}'
+deleted = '-${count}'
 renamed = '>>${count}'
 modified = '!${count}'
 staged = '[+$count](bold green)'
