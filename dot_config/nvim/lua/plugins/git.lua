@@ -6,11 +6,11 @@ return {
 			vim.keymap.set("n", "<leader>gu", "<cmd>diffget //2<CR>", { desc = 'Take left/right' })
 			vim.keymap.set("n", "<leader>gh", "<cmd>diffget //3<CR>", { desc = 'Take left/right' })
 
-			local fugitive = vim.api.nvim_create_augroup("fugitive", {})
+			local my_fugitive = vim.api.nvim_create_augroup("my_fugitive", {})
 			local autocmd = vim.api.nvim_create_autocmd
 
 			autocmd("BufWinEnter", {
-				group = fugitive,
+				group = my_fugitive,
 				pattern = "*",
 				callback = function()
 					if vim.bo.ft ~= "fugitive" then
