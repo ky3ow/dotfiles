@@ -3,8 +3,8 @@ return {
 		'tpope/vim-fugitive',
 		config = function()
 			vim.keymap.set("n", "<leader>gs", vim.cmd.Git, { desc = 'Git status' })
-			vim.keymap.set("n", "<leader>gu", "<cmd>diffget //2<CR>", { desc = 'Take left/right' })
-			vim.keymap.set("n", "<leader>gh", "<cmd>diffget //3<CR>", { desc = 'Take left/right' })
+			vim.keymap.set("n", "<leader>gu", "<cmd>diffget //2<CR>", { desc = 'Take upstream' })
+			vim.keymap.set("n", "<leader>gh", "<cmd>diffget //3<CR>", { desc = 'Take home' })
 
 			local my_fugitive = vim.api.nvim_create_augroup("my_fugitive", {})
 			local autocmd = vim.api.nvim_create_autocmd
