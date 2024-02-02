@@ -6,10 +6,6 @@ if command -v starship &>/dev/null; then
 	eval "$(starship init bash)"
 fi
 
-if command -v eza &>/dev/null; then 
-	alias ls=eza
-fi
-
 function take {
 	mkdir $1
 	cd $1
