@@ -121,6 +121,18 @@ return {
 			'hrsh7th/cmp-path',
 			'hrsh7th/cmp-cmdline',
 			'hrsh7th/cmp-buffer',
+			-- For formatters/linters
+			{
+				'nvimtools/none-ls.nvim',
+				config = function()
+					local null_ls = require('null-ls')
+					null_ls.setup({
+						sources = {
+							null_ls.builtins.formatting.stylua,
+						}
+					})
+				end,
+			},
 			-- Snippets
 			'L3MON4D3/LuaSnip',
 			'saadparwaiz1/cmp_luasnip',
