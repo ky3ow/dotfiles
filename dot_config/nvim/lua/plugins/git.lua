@@ -1,5 +1,35 @@
 return {
-	'tpope/vim-fugitive',
+	{
+		'tpope/vim-fugitive',
+		config = function()
+			vim.keymap.set("n", "<leader>gs", vim.cmd.Git, { desc = 'Git status' })
+			vim.keymap.set("n", "<leader>gu", "<cmd>diffget //2<CR>", { desc = 'Take left/right' })
+			vim.keymap.set("n", "<leader>gh", "<cmd>diffget //3<CR>", { desc = 'Take left/right' })
+
+			local fugitive = vim.api.nvim_create_augroup("fugitive", {})
+			local autocmd = vim.api.nvim_create_autocmd
+
+			autocmd("BufWinEnter", {
+				group = fugitive,
+				pattern = "*",
+				callback = function()
+					if vim.bo.ft ~= "fugitive" then
+						return
+					end
+
+					local bufnr = vim.api.nvim_get_current_buf()
+					vim.keymap.set("n", "<leader>p", function()
+						vim.cmd.Git('push')
+					end, { buffer = bufnr, remap = false, desc = 'Push' })
+
+					-- rebase always
+					vim.keymap.set("n", "<leader>P", function()
+						vim.cmd.Git({ 'pull', '--rebase' })
+					end, { buffer = bufnr, remap = false, desc = 'Pull' })
+				end
+			})
+		end
+	},
 	'tpope/vim-rhubarb',
 	{
 		'lewis6991/gitsigns.nvim',
