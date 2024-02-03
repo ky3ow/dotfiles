@@ -70,7 +70,7 @@ return {
 		init = function()
 			vim.o.foldmethod = "expr"
 			vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-			--vim.o.foldexpr = "nvim_treesitter#foldexpr()"
+			-- vim.o.foldexpr = "nvim_treesitter#foldexpr()"
 		end,
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter-textobjects",
