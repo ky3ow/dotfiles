@@ -18,10 +18,52 @@ local servers = {
 	},
 }
 
-local get_sources = function(m)
+local get_external_tools = function(_null_ls)
 	return {
-		m.builtins.formatting.stylua,
+		_null_ls.builtins.formatting.stylua,
 	}
+end
+
+local function setup_cmp()
+	local cmp = require("cmp")
+	local ls = require("luasnip")
+	cmp.setup({
+		snippet = {
+			expand = function(args)
+				ls.lsp_expand(args.body)
+			end,
+		},
+		completion = { completeopt = "menu,menuone,noinsert" },
+		mapping = cmp.mapping.preset.insert({
+			["<C-n>"] = cmp.mapping.select_next_item(),
+			["<C-p>"] = cmp.mapping.select_prev_item(),
+			["<C-y>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
+			["<C-Space>"] = cmp.mapping.complete(),
+		}),
+		sources = {
+			{ name = "nvim_lsp" },
+			{ name = "luasnip" },
+			{ name = "path" },
+			{ name = "buffer" },
+		},
+	})
+end
+
+local function setup_snippets()
+	require("luasnip.loaders.from_vscode").lazy_load()
+	local ls = require("luasnip")
+	-- ls.filetype_extend("javascript", { "jsdoc" })
+	vim.keymap.set({ "i", "s" }, "<C-J>", function()
+		ls.jump(1)
+	end, { silent = true })
+	vim.keymap.set({ "i", "s" }, "<C-K>", function()
+		ls.jump(-1)
+	end, { silent = true })
+	vim.keymap.set({ "i", "s" }, "<C-L>", function()
+		if ls.choice_active() then
+			ls.change_choice(1)
+		end
+	end, { silent = true })
 end
 
 local function on_attach(_, bufnr)
@@ -60,12 +102,11 @@ local function on_attach(_, bufnr)
 	end, { desc = "Format current buffer with LSP" })
 end
 
-local function setup()
+local function setup_lsp()
 	local cmp_lsp = require("cmp_nvim_lsp")
 	local capabilities =
 		vim.tbl_deep_extend("force", {}, vim.lsp.protocol.make_client_capabilities(), cmp_lsp.default_capabilities())
 
-	require("mason").setup()
 	require("mason-lspconfig").setup({
 		ensure_installed = vim.tbl_keys(servers),
 		handlers = {
@@ -79,69 +120,35 @@ local function setup()
 			end,
 		},
 	})
+end
 
-	local cmp = require("cmp")
-	local ls = require("luasnip")
-	cmp.setup({
-		snippet = {
-			expand = function(args)
-				ls.lsp_expand(args.body)
-			end,
-		},
-		completion = { completeopt = "menu,menuone,noinsert" },
-		mapping = cmp.mapping.preset.insert({
-			["<C-n>"] = cmp.mapping.select_next_item(),
-			["<C-p>"] = cmp.mapping.select_prev_item(),
-			["<C-y>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
-			["<C-Space>"] = cmp.mapping.complete(),
-		}),
-		sources = {
-			{ name = "nvim_lsp" },
-			{ name = "luasnip" },
-			{ name = "path" },
-			{ name = "buffer" },
-		},
-	})
-
-	-- ls.filetype_extend("javascript", { "jsdoc" })
-	vim.keymap.set({ "i", "s" }, "<C-J>", function()
-		ls.jump(1)
-	end, { silent = true })
-	vim.keymap.set({ "i", "s" }, "<C-K>", function()
-		ls.jump(-1)
-	end, { silent = true })
-	vim.keymap.set({ "i", "s" }, "<C-L>", function()
-		if ls.choice_active() then
-			ls.change_choice(1)
-		end
-	end, { silent = true })
-
+local function setup_external_tools()
 	local null_ls = require("null-ls")
 	null_ls.setup({
-		sources = get_sources(null_ls),
+		sources = get_external_tools(null_ls),
 	})
 end
 
 return {
 	{
 		"neovim/nvim-lspconfig",
-		config = setup,
 		dependencies = {
-			"williamboman/mason.nvim",
-			"williamboman/mason-lspconfig.nvim",
+			{ "williamboman/mason.nvim", opts = {} },
+			{ "williamboman/mason-lspconfig.nvim", config = setup_lsp },
 			{ "folke/neodev.nvim", opts = {} },
 			{ "j-hui/fidget.nvim", opts = {} },
 			-- Completion
-			"hrsh7th/nvim-cmp",
+			{ "hrsh7th/nvim-cmp", config = setup_cmp },
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-path",
 			"hrsh7th/cmp-cmdline",
 			"hrsh7th/cmp-buffer",
 			-- For formatters/linters
-			"nvimtools/none-ls.nvim",
+			{ "nvimtools/none-ls.nvim", config = setup_external_tools },
 			-- Snippets
-			"L3MON4D3/LuaSnip",
+			{ "L3MON4D3/LuaSnip", config = setup_snippets },
 			"saadparwaiz1/cmp_luasnip",
+			"rafamadriz/friendly-snippets",
 		},
 	},
 }
