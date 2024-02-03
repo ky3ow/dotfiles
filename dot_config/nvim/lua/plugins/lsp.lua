@@ -12,7 +12,7 @@ local servers = {
 			telemetry = { enable = false },
 			diagnostics = {
 				disable = { "missing-fields" },
-				globals = {},
+				globals = { "vim" },
 			},
 		},
 	},
