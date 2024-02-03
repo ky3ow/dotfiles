@@ -16,6 +16,7 @@ vim.o.termguicolors = true
 vim.o.foldmethod = "indent" -- indent by default, rewrite in treesitter configuration
 vim.o.foldlevel = 99 -- so file is not folded by default
 
+-- [[ Plugin manager ]]
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	vim.fn.system({
@@ -28,6 +29,8 @@ if not vim.loop.fs_stat(lazypath) then
 	})
 end
 vim.opt.rtp:prepend(lazypath)
+
+-- [[ Plugins ]] from lua/plugins directory
 require("lazy").setup("plugins")
 
 -- [[ Highlight on yank ]]
