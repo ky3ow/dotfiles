@@ -107,6 +107,8 @@ local function setup_lsp()
 	local capabilities =
 		vim.tbl_deep_extend("force", {}, vim.lsp.protocol.make_client_capabilities(), cmp_lsp.default_capabilities())
 
+	require("neodev").setup{}
+	require("mason").setup()
 	require("mason-lspconfig").setup({
 		ensure_installed = vim.tbl_keys(servers),
 		handlers = {
@@ -132,13 +134,15 @@ end
 return {
 	{
 		"neovim/nvim-lspconfig",
+		config = setup_lsp,
 		dependencies = {
-			{ "williamboman/mason.nvim", opts = {} },
-			{ "williamboman/mason-lspconfig.nvim", config = setup_lsp },
-			{ "folke/neodev.nvim", opts = {} },
+			"williamboman/mason.nvim",
+			"williamboman/mason-lspconfig.nvim",
+			"folke/neodev.nvim",
+			-- Progress
 			{ "j-hui/fidget.nvim", opts = {} },
 			-- Completion
-			{ "hrsh7th/nvim-cmp", config = setup_cmp },
+			{ "hrsh7th/nvim-cmp",  config = setup_cmp },
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-path",
 			"hrsh7th/cmp-cmdline",
@@ -146,7 +150,7 @@ return {
 			-- For formatters/linters
 			{ "nvimtools/none-ls.nvim", config = setup_external_tools },
 			-- Snippets
-			{ "L3MON4D3/LuaSnip", config = setup_snippets },
+			{ "L3MON4D3/LuaSnip",       config = setup_snippets },
 			"saadparwaiz1/cmp_luasnip",
 			"rafamadriz/friendly-snippets",
 		},
