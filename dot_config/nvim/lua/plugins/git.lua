@@ -23,7 +23,7 @@ return {
 					end, { buffer = bufnr, remap = false, desc = '[G]it [P]ush' })
 
 					-- rebase always
-					vim.keymap.set("n", "<leader>P", function()
+					vim.keymap.set("n", "<leader>gP", function()
 						vim.cmd.Git({ 'pull', '--rebase' })
 					end, { buffer = bufnr, remap = false, desc = '[G]it [P]ull' })
 				end

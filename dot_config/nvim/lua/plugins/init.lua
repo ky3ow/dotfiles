@@ -11,6 +11,18 @@ return {
 			ef.load()
 		end,
 	},
+	{
+		"rose-pine/neovim",
+		name = "rose-pine",
+		config = function ()
+			-- require("rose-pine").setup {
+			-- 	styles = {
+			-- 		italic = false,
+			-- 	},
+			-- }
+			-- vim.cmd.colorscheme("rose-pine")
+		end
+	},
 
 	{
 		"folke/which-key.nvim",
@@ -66,12 +78,12 @@ return {
 				highlight_on_key = true,
 				dim = true,
 			})
-			vim.api.nvim_set_hl(0, "EyelinerPrimary", { bold = true, fg = "#E67E80" })
-			vim.api.nvim_set_hl(0, "EyelinerSecondary", { bold = true, fg = "#DBBC7F" })
+			vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "@text.danger" })
+			vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "@text.warning" })
 		end,
 	},
 
 	{ "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
-	{ "numToStr/Comment.nvim", opts = {} },
+	{ "numToStr/Comment.nvim",               opts = {} },
 	"tpope/vim-sleuth",
 }
