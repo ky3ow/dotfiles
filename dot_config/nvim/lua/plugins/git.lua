@@ -2,9 +2,9 @@ return {
 	{
 		'tpope/vim-fugitive',
 		config = function()
-			vim.keymap.set("n", "<leader>gs", vim.cmd.Git, { desc = 'Git status' })
-			vim.keymap.set("n", "<leader>gu", "<cmd>diffget //2<CR>", { desc = 'Take upstream' })
-			vim.keymap.set("n", "<leader>gh", "<cmd>diffget //3<CR>", { desc = 'Take home' })
+			vim.keymap.set("n", "<leader>gs", vim.cmd.Git, { desc = '[G]it [S]tatus' })
+			vim.keymap.set("n", "<leader>gu", "<cmd>diffget //2<CR>", { desc = '[G]it [U]pstream' })
+			vim.keymap.set("n", "<leader>gh", "<cmd>diffget //3<CR>", { desc = '[G]it [H]ome' })
 
 			local my_fugitive = vim.api.nvim_create_augroup("my_fugitive", {})
 			local autocmd = vim.api.nvim_create_autocmd
@@ -18,14 +18,14 @@ return {
 					end
 
 					local bufnr = vim.api.nvim_get_current_buf()
-					vim.keymap.set("n", "<leader>p", function()
+					vim.keymap.set("n", "<leader>gp", function()
 						vim.cmd.Git('push')
-					end, { buffer = bufnr, remap = false, desc = 'Push' })
+					end, { buffer = bufnr, remap = false, desc = '[G]it [P]ush' })
 
 					-- rebase always
 					vim.keymap.set("n", "<leader>P", function()
 						vim.cmd.Git({ 'pull', '--rebase' })
-					end, { buffer = bufnr, remap = false, desc = 'Pull' })
+					end, { buffer = bufnr, remap = false, desc = '[G]it [P]ull' })
 				end
 			})
 		end
