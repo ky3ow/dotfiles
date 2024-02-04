@@ -40,12 +40,24 @@ local function setup_cmp()
 			["<C-y>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
 			["<C-Space>"] = cmp.mapping.complete(),
 		}),
-		sources = {
+		formatting = {
+			format = function(entry, vim_item)
+				vim_item.kind = "(" .. string.lower(vim_item.kind) .. ")"
+				vim_item.menu = ({
+					nvim_lsp = "[lsp]",
+					luasnip = "[snip]",
+					buffer = "[bufr]",
+					path = "[path]",
+				})[entry.source.name]
+				return vim_item
+			end,
+		},
+		sources = cmp.config.sources({
 			{ name = "nvim_lsp" },
 			{ name = "luasnip" },
-			{ name = "path" },
 			{ name = "buffer" },
-		},
+			{ name = "path" },
+		}),
 	})
 end
 
@@ -107,7 +119,7 @@ local function setup_lsp()
 	local capabilities =
 		vim.tbl_deep_extend("force", {}, vim.lsp.protocol.make_client_capabilities(), cmp_lsp.default_capabilities())
 
-	require("neodev").setup{}
+	require("neodev").setup({})
 	require("mason").setup()
 	require("mason-lspconfig").setup({
 		ensure_installed = vim.tbl_keys(servers),
