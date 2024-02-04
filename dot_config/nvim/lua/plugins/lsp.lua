@@ -77,6 +77,7 @@ return {
 		"neovim/nvim-lspconfig",
 		config = setup_lsp,
 		dependencies = {
+			-- Lsp installer
 			{ "williamboman/mason.nvim", opts = {} },
 			"williamboman/mason-lspconfig.nvim",
 			-- Extend lua lsp
