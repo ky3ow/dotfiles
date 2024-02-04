@@ -152,19 +152,29 @@ return {
 			"williamboman/mason-lspconfig.nvim",
 			"folke/neodev.nvim",
 			-- Progress
-			{ "j-hui/fidget.nvim", opts = {} },
+			{ "j-hui/fidget.nvim",      opts = {} },
 			-- Completion
-			{ "hrsh7th/nvim-cmp",  config = setup_cmp },
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/cmp-path",
-			"hrsh7th/cmp-cmdline",
-			"hrsh7th/cmp-buffer",
+			{
+				"hrsh7th/nvim-cmp",
+				config = setup_cmp,
+				dependencies = {
+					"hrsh7th/cmp-nvim-lsp",
+					"hrsh7th/cmp-path",
+					"hrsh7th/cmp-cmdline",
+					"hrsh7th/cmp-buffer",
+				},
+			},
 			-- For formatters/linters
 			{ "nvimtools/none-ls.nvim", config = setup_external_tools },
 			-- Snippets
-			{ "L3MON4D3/LuaSnip",       config = setup_snippets },
-			"saadparwaiz1/cmp_luasnip",
-			"rafamadriz/friendly-snippets",
+			{
+				"L3MON4D3/LuaSnip",
+				config = setup_snippets,
+				dependencies = {
+					"rafamadriz/friendly-snippets",
+					"saadparwaiz1/cmp_luasnip",
+				},
+			},
 		},
 	},
 }
