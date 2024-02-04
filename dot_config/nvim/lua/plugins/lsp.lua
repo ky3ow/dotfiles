@@ -18,94 +18,30 @@ local servers = {
 	},
 }
 
-local get_external_tools = function(_null_ls)
-	return {
-		_null_ls.builtins.formatting.stylua,
-	}
-end
-
-local function setup_cmp()
-	local cmp = require("cmp")
-	local ls = require("luasnip")
-	cmp.setup({
-		snippet = {
-			expand = function(args)
-				ls.lsp_expand(args.body)
-			end,
-		},
-		completion = { completeopt = "menu,menuone,noinsert" },
-		mapping = cmp.mapping.preset.insert({
-			["<C-n>"] = cmp.mapping.select_next_item(),
-			["<C-p>"] = cmp.mapping.select_prev_item(),
-			["<C-y>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
-			["<C-Space>"] = cmp.mapping.complete(),
-		}),
-		formatting = {
-			format = function(entry, vim_item)
-				vim_item.kind = "(" .. string.lower(vim_item.kind) .. ")"
-				vim_item.menu = ({
-					nvim_lsp = "[lsp]",
-					luasnip = "[snip]",
-					buffer = "[bufr]",
-					path = "[path]",
-				})[entry.source.name]
-				return vim_item
-			end,
-		},
-		sources = cmp.config.sources({
-			{ name = "nvim_lsp" },
-			{ name = "luasnip" },
-			{ name = "buffer" },
-			{ name = "path" },
-		}),
-	})
-end
-
-local function setup_snippets()
-	require("luasnip.loaders.from_vscode").lazy_load()
-	local ls = require("luasnip")
-	-- ls.filetype_extend("javascript", { "jsdoc" })
-	vim.keymap.set({ "i", "s" }, "<C-J>", function()
-		ls.jump(1)
-	end, { silent = true })
-	vim.keymap.set({ "i", "s" }, "<C-K>", function()
-		ls.jump(-1)
-	end, { silent = true })
-	vim.keymap.set({ "i", "s" }, "<C-L>", function()
-		if ls.choice_active() then
-			ls.change_choice(1)
-		end
-	end, { silent = true })
-end
-
 local function on_attach(_, bufnr)
 	local telescope = require("telescope.builtin")
-	local nmap = function(keys, func, desc)
-		if desc then
-			desc = "LSP: " .. desc
-		end
-
-		vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
+	local map = function(mode, keys, func, desc)
+		vim.keymap.set(mode, keys, func, { buffer = bufnr, desc = desc })
 	end
 
-	nmap("<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
-	nmap("<leader>la", vim.lsp.buf.code_action, "[L]sp Code [A]ction")
-	nmap("<leader>lf", vim.lsp.buf.format, "[L]SP [F]ormat")
-	nmap("<leader>ls", telescope.lsp_document_symbols, "[L]SP document [S]ymbols")
+	map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
+	map("n", "<leader>la", vim.lsp.buf.code_action, "[L]sp Code [A]ction")
+	map("n", "<leader>lf", vim.lsp.buf.format, "[L]SP [F]ormat")
+	map("n", "<leader>ls", telescope.lsp_document_symbols, "[L]SP document [S]ymbols")
 
-	nmap("gd", telescope.lsp_definitions, "[G]oto [D]efinition")
-	nmap("gr", telescope.lsp_references, "[G]oto [R]eferences")
-	nmap("gI", telescope.lsp_implementations, "[G]oto [I]mplementation")
-	nmap("<leader>D", telescope.lsp_type_definitions, "Type [D]efinition")
+	map("n", "gd", telescope.lsp_definitions, "[G]oto [D]efinition")
+	map("n", "gr", telescope.lsp_references, "[G]oto [R]eferences")
+	map("n", "gI", telescope.lsp_implementations, "[G]oto [I]mplementation")
+	map("n", "<leader>D", telescope.lsp_type_definitions, "Type [D]efinition")
 
-	nmap("K", vim.lsp.buf.hover, "Hover Documentation")
-	nmap("<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
+	map("n", "K", vim.lsp.buf.hover, "Hover Documentation")
+	map({ "n", "i" }, "<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
 
-	nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-	nmap("<leader>ws", telescope.lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
-	nmap("<leader>wa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
-	nmap("<leader>wr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
-	nmap("<leader>wl", function()
+	map("n", "gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+	map("n", "<leader>ws", telescope.lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+	map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
+	map("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
+	map("n", "<leader>wl", function()
 		print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
 	end, "[W]orkspace [L]ist Folders")
 
@@ -115,12 +51,12 @@ local function on_attach(_, bufnr)
 end
 
 local function setup_lsp()
-	local cmp_lsp = require("cmp_nvim_lsp")
-	local capabilities =
-		vim.tbl_deep_extend("force", {}, vim.lsp.protocol.make_client_capabilities(), cmp_lsp.default_capabilities())
+	local capabilities = vim.lsp.protocol.make_client_capabilities()
+	local cmp_installed, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+	if cmp_installed then
+		cmp_lsp.default_capabilities(capabilities)
+	end
 
-	require("neodev").setup({})
-	require("mason").setup()
 	require("mason-lspconfig").setup({
 		ensure_installed = vim.tbl_keys(servers),
 		handlers = {
@@ -136,45 +72,17 @@ local function setup_lsp()
 	})
 end
 
-local function setup_external_tools()
-	local null_ls = require("null-ls")
-	null_ls.setup({
-		sources = get_external_tools(null_ls),
-	})
-end
-
 return {
 	{
 		"neovim/nvim-lspconfig",
 		config = setup_lsp,
 		dependencies = {
-			"williamboman/mason.nvim",
+			{ "williamboman/mason.nvim", opts = {} },
 			"williamboman/mason-lspconfig.nvim",
-			"folke/neodev.nvim",
+			-- Extend lua lsp
+			{ "folke/neodev.nvim", opts = {} },
 			-- Progress
-			{ "j-hui/fidget.nvim",      opts = {} },
-			-- Completion
-			{
-				"hrsh7th/nvim-cmp",
-				config = setup_cmp,
-				dependencies = {
-					"hrsh7th/cmp-nvim-lsp",
-					"hrsh7th/cmp-path",
-					"hrsh7th/cmp-cmdline",
-					"hrsh7th/cmp-buffer",
-				},
-			},
-			-- For formatters/linters
-			{ "nvimtools/none-ls.nvim", config = setup_external_tools },
-			-- Snippets
-			{
-				"L3MON4D3/LuaSnip",
-				config = setup_snippets,
-				dependencies = {
-					"rafamadriz/friendly-snippets",
-					"saadparwaiz1/cmp_luasnip",
-				},
-			},
+			{ "j-hui/fidget.nvim", opts = {} },
 		},
 	},
 }
