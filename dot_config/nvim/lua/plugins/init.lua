@@ -77,7 +77,7 @@ return {
 		end,
 		init = function()
 			vim.o.updatetime = 250
-			vim.o.timeoutlen = 250
+			vim.o.timeoutlen = 0
 		end,
 	},
 
