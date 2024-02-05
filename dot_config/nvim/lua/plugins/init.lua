@@ -16,23 +16,34 @@ return {
 		"rose-pine/neovim",
 		priority = 1000,
 		name = "rose-pine",
-		config = function()
-			-- require("rose-pine").setup {
-			-- 	styles = {
-			-- 		italic = false,
-			-- 	},
-			-- }
-			-- vim.cmd.colorscheme("rose-pine")
-		end,
+		-- config = function()
+		-- require("rose-pine").setup {
+		-- 	styles = {
+		-- 		italic = false,
+		-- 	},
+		-- }
+		-- vim.cmd.colorscheme("rose-pine")
+		-- end,
 	},
 
 	{
-		"olimorris/onedarkpro.nvim",
+		"ellisonleao/gruvbox.nvim",
 		priority = 1000, -- Ensure it loads first
-		config = function ()
-			-- require("onedarkpro").setup {}
-			-- vim.cmd.colorscheme("onedark")
-		end
+		-- config = function()
+		-- 	require("gruvbox").setup({
+		-- 		undercurl = false,
+		-- 		underline = false,
+		-- 		bold = true,
+		-- 		italic = {
+		-- 			strings = false,
+		-- 			emphasis = true,
+		-- 			comments = false,
+		-- 			operators = false,
+		-- 			folds = false,
+		-- 		},
+		-- 	})
+		-- 	vim.cmd.colorscheme("gruvbox")
+		-- end,
 	},
 
 	{
@@ -120,6 +131,6 @@ return {
 	},
 
 	{ "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
-	{ "numToStr/Comment.nvim", opts = {} },
+	{ "numToStr/Comment.nvim",               opts = {} },
 	"tpope/vim-sleuth",
 }
