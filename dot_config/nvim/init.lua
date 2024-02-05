@@ -82,18 +82,14 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent" })
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move down" })
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move up" })
 
--- System register
+-- Magic with registers
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Copy to clip" })
 vim.keymap.set("n", "<leader>Y", '"+Y', { desc = "Copy end to clip" })
-
--- Paste over
 vim.keymap.set("v", "<leader>p", '"_dP', { desc = "Paste over" })
-
--- Delete to void
 vim.keymap.set("v", "<leader>d", '"_d', { desc = "Delete" })
 
 -- Substitute
-vim.keymap.set("n", "<leader>*", ":%s/<C-r><C-w>//gI<Left><Left><Left>", { desc = "Replace word" })
-vim.keymap.set("n", "<leader>_", ":%s/\\<<C-r><C-w>\\>//gI<Left><Left><Left>", { desc = "Replace whole word" })
+vim.keymap.set("n", "<leader>*", ":%s/<C-r><C-w>//gI<Left><Left><Left>", { desc = "Replace w[*]rd" })
+vim.keymap.set("n", "<leader>_", ":%s/\\<<C-r><C-w>\\>//gI<Left><Left><Left>", { desc = "Replace whole[_] word" })
 vim.keymap.set("n", "<leader>r", [[:%s/\v]], { desc = "Search and replace" })
 vim.keymap.set("v", "s", [[:s/\v]], { desc = "Substitute" })
