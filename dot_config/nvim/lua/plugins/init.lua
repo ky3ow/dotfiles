@@ -11,16 +11,27 @@ return {
 			ef.load()
 		end,
 	},
+
 	{
 		"rose-pine/neovim",
+		priority = 1000,
 		name = "rose-pine",
-		config = function ()
+		config = function()
 			-- require("rose-pine").setup {
 			-- 	styles = {
 			-- 		italic = false,
 			-- 	},
 			-- }
 			-- vim.cmd.colorscheme("rose-pine")
+		end,
+	},
+
+	{
+		"olimorris/onedarkpro.nvim",
+		priority = 1000, -- Ensure it loads first
+		config = function ()
+			-- require("onedarkpro").setup {}
+			-- vim.cmd.colorscheme("onedark")
 		end
 	},
 
@@ -28,7 +39,16 @@ return {
 		"folke/which-key.nvim",
 		config = function()
 			local wk = require("which-key")
-			wk.setup({})
+			wk.setup({
+				window = {
+					border = "single",
+					margin = { 1, 0, 2, 0.75 },
+					padding = { 0, 0, 0, 0 },
+				},
+				layout = {
+					height = { min = 4, max = 75 },
+				},
+			})
 			-- Normal
 			wk.register({
 				["<leader>g"] = { name = "[G]it", _ = "which_key_ignore" },
@@ -46,9 +66,19 @@ return {
 		end,
 		init = function()
 			vim.o.updatetime = 250
-			vim.o.timeoutlen = 150
+			vim.o.timeoutlen = 250
 		end,
 	},
+
+	-- {
+	-- 	"stevearc/oil.nvim",
+	-- 	config = function()
+	-- 		require("oil").setup({})
+	-- 		vim.api.nvim_create_user_command("Ex", function(_)
+	-- 			vim.cmd.Oil()
+	-- 		end, { desc = "Open oil explorer" })
+	-- 	end,
+	-- },
 
 	{
 		"nvim-lualine/lualine.nvim",
@@ -58,6 +88,12 @@ return {
 				theme = "auto",
 				component_separators = "|",
 				section_separators = "",
+			},
+			sections = {
+				lualine_c = { { "filename", path = 1 } },
+			},
+			tabline = {
+				lualine_a = { { "buffers", use_mode_colors = true } },
 			},
 		},
 	},
@@ -84,6 +120,6 @@ return {
 	},
 
 	{ "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
-	{ "numToStr/Comment.nvim",               opts = {} },
+	{ "numToStr/Comment.nvim", opts = {} },
 	"tpope/vim-sleuth",
 }
