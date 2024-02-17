@@ -26,3 +26,20 @@ magenta = "#d699b6"
 cyan = "#83c092"
 white = "#d3c6aa"
 
+[[hints.enabled]]
+action = "Copy"
+post_processing = true
+persist = false
+binding = { key = "Y", mods = "Control|Shift" }
+mouse.enabled = true
+regex = "[0-9a-f]{7,40}"
+
+[[hints.enabled]]
+command = "xdg-open"
+hyperlinks = true
+post_processing = true
+persist = false
+mouse.enabled = true
+binding = { key = "U", mods = "Control|Shift" }
+regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
+
