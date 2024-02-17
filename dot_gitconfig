@@ -3,3 +3,11 @@
 	email = vova2341591@gmail.com
 [push]
 	default = current
+[rerere]
+	enabled = true
+[fetch]
+	writeCommitGraph = true
+	prune = true
+[core]
+	fsmonitor = true
+	untrackedcache = true
