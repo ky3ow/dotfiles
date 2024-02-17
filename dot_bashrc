@@ -13,6 +13,12 @@ if command -v eza &>/dev/null; then
   alias ls=eza
 fi
 
+if command -v xpkg &>/dev/null; then
+  function xs () {
+    xpkg -a | fzf -m --preview 'xq {1}' --preview-window=right:66%:wrap | xargs -ro xi
+  }
+fi
+
 function take {
 	mkdir $1
 	cd $1
