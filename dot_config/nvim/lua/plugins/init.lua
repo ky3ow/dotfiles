@@ -110,6 +110,27 @@ return {
 	},
 
 	{
+		"akinsho/toggleterm.nvim",
+		version = "*",
+		config = function()
+			require("toggleterm").setup {
+				direction = "float",
+				open_mapping = [[<c-\>]]
+			}
+			local Terminal = require("toggleterm.terminal").Terminal
+			local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
+
+			local function lazygit_toggle()
+				lazygit:toggle()
+			end
+
+			vim.api.nvim_create_user_command("Lazygit", lazygit_toggle, { desc = "Open oil explorer" })
+
+			vim.keymap.set("n", "<leader>G", lazygit_toggle, { desc = "Lazy[G]it" })
+		end,
+	},
+
+	{
 		"kylechui/nvim-surround",
 		version = "*", -- Use for stability; omit to use `main` branch for the latest features
 		config = function()
@@ -118,6 +139,7 @@ return {
 			})
 		end,
 	},
+
 	{
 		"jinh0/eyeliner.nvim",
 		config = function()
