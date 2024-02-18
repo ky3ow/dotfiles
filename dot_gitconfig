@@ -3,6 +3,8 @@
 	email = vova2341591@gmail.com
 [push]
 	default = current
+[pull]
+	rebase = true
 [rerere]
 	enabled = true
 [fetch]
