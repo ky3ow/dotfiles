@@ -95,6 +95,7 @@ keybinding:
   commits:
     squashDown: 's'
     renameCommit: 'r'
+    renameCommitWithEditor: ''
     viewResetOptions: 'g'
     markCommitAsFixup: 'f'
     createFixupCommit: 'F' # create fixup commit for this commit
