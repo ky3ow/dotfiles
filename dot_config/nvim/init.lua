@@ -91,7 +91,7 @@ vim.keymap.set("v", "<leader>p", '"_dP', { desc = "Paste over" })
 vim.keymap.set("v", "<leader>d", '"_d', { desc = "Delete" })
 
 -- Substitute
-vim.keymap.set("n", "<leader>*", ":%s/<C-r><C-w>//gI<Left><Left><Left>", { desc = "Replace w[*]rd" })
-vim.keymap.set("n", "<leader>_", ":%s/\\<<C-r><C-w>\\>//gI<Left><Left><Left>", { desc = "Replace whole[_] word" })
+vim.keymap.set("n", "<leader>*", ":%s/<C-r><C-w>//gI<Left><Left><Left>", { desc = "Replace w*rd" })
+vim.keymap.set("n", "<leader>_", ":%s/\\<<C-r><C-w>\\>//gI<Left><Left><Left>", { desc = "Replace _word_" })
 vim.keymap.set("n", "<leader>sr", [[:%s/\v]], { desc = "[S]earch and [r]eplace" })
 vim.keymap.set("v", "s", [[:s/\v]], { desc = "Substitute" })

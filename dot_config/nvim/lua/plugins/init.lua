@@ -1,3 +1,11 @@
+local function gen_triggers(mode, keys)
+	local res = {}
+	for _, k in ipairs(keys) do
+		table.insert(res, { mode = mode, keys = k })
+	end
+	return res
+end
+
 return {
 	{
 		"neanias/everforest-nvim",
@@ -44,41 +52,6 @@ return {
 		-- 	})
 		-- 	vim.cmd.colorscheme("gruvbox")
 		-- end,
-	},
-
-	{
-		"folke/which-key.nvim",
-		config = function()
-			local wk = require("which-key")
-			wk.setup({
-				window = {
-					border = "single",
-					margin = { 1, 0, 2, 0.75 },
-					padding = { 0, 0, 0, 0 },
-				},
-				layout = {
-					height = { min = 4, max = 75 },
-				},
-			})
-			-- Normal
-			wk.register({
-				["<leader>g"] = { name = "[G]it", _ = "which_key_ignore" },
-				["<leader>h"] = { name = "Git [H]unk", _ = "which_key_ignore" },
-				["<leader>s"] = { name = "[S]earch", _ = "which_key_ignore" },
-				["<leader>t"] = { name = "[T]oggle", _ = "which_key_ignore" },
-				["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
-				["<leader>l"] = { name = "[L]SP", _ = "which_key_ignore" },
-			})
-			-- Visual
-			wk.register({
-				["<leader>"] = { name = "VISUAL <leader>" },
-				["<leader>h"] = { "Git [H]unk" },
-			}, { mode = "v" })
-		end,
-		init = function()
-			vim.o.updatetime = 250
-			vim.o.timeoutlen = 0
-		end,
 	},
 
 	{ -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -140,7 +113,7 @@ return {
 
 			vim.api.nvim_create_user_command("Lazygit", lazygit_toggle, { desc = "Lazygit ui" })
 
-			vim.keymap.set("n", "<leader>gl", lazygit_toggle, { desc = "[L]azy[G]it" })
+			vim.keymap.set("n", "<leader>g", lazygit_toggle, { desc = "[G]it" })
 		end,
 	},
 
@@ -169,4 +142,27 @@ return {
 	{ "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
 	{ "numToStr/Comment.nvim",               opts = {} },
 	"tpope/vim-sleuth",
+	{
+		'echasnovski/mini.nvim',
+		version = false,
+		config = function()
+			local miniclue = require('mini.clue')
+			local triggers = {}
+			vim.list_extend(triggers, gen_triggers('n', { '<Leader>', 'g', "'", '`', '"', '<C-w>', 'z', '[', ']' }))
+			vim.list_extend(triggers, gen_triggers('x', { '<Leader>', 'g', "'", '`', '"', 'z', '[', ']' }))
+			vim.list_extend(triggers, { { mode = 'i', keys = '<C-r>' }, { mode = 'c', keys = '<C-r>' } })
+			miniclue.setup({
+				triggers = triggers,
+				clues = {
+					{ mode = 'n', keys = '<Leader>l', desc = "+[L]sp" },
+					{ mode = 'n', keys = '<Leader>s', desc = "+[S]earch" },
+					{ mode = 'n', keys = '<Leader>w', desc = "+[W]orkspace" },
+					miniclue.gen_clues.builtin_completion(), miniclue.gen_clues.g(),
+					miniclue.gen_clues.marks(), miniclue.gen_clues.registers(),
+					miniclue.gen_clues.windows(), miniclue.gen_clues.z(),
+				},
+				window = { delay = 0 },
+			})
+		end
+	},
 }
