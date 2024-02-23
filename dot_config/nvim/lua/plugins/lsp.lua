@@ -39,11 +39,13 @@ local function on_attach(_, bufnr)
 		vim.keymap.set(mode, keys, func, { buffer = bufnr, desc = desc })
 	end
 
+	local function fmt(_)
+		require("conform").format({ lsp_fallback = true, timeout_ms = 500 })
+	end
+
 	map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
 	map("n", "<leader>la", vim.lsp.buf.code_action, "[L]sp Code [A]ction")
-	map("n", "<leader>lf", function()
-		require("conform").format({ lsp_fallback = true, timeout_ms = 500 })
-	end, "[L]SP [F]ormat")
+	map("n", "<leader>lf", fmt, "[L]SP [F]ormat")
 	map("n", "<leader>ls", telescope.lsp_document_symbols, "[L]SP document [S]ymbols")
 
 	map("n", "gd", telescope.lsp_definitions, "[G]oto [D]efinition")
@@ -62,9 +64,7 @@ local function on_attach(_, bufnr)
 		print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
 	end, "[W]orkspace [L]ist Folders")
 
-	vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
-		vim.lsp.buf.format()
-	end, { desc = "Format current buffer with LSP" })
+	vim.api.nvim_buf_create_user_command(bufnr, "Format", fmt, { desc = "Format current buffer with LSP" })
 end
 
 local function setup()
