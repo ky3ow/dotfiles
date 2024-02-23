@@ -2,7 +2,7 @@
 local servers = {
 	-- clangd = {},
 	-- gopls = {},
-	-- pyright = {},
+	pyright = {},
 	-- rust_analyzer = {},
 	-- tsserver = {},
 	-- html = { filetypes = { 'html', 'twig', 'hbs'} },
@@ -21,6 +21,7 @@ local servers = {
 -- By filetype
 local formatters = {
 	lua = { "stylua" },
+	python = { "black" },
 	-- Conform can also run multiple formatters sequentially
 	-- python = { "isort", "black" },
 	-- You can use a sub-list to tell conform to run *until* a formatter
@@ -29,7 +30,7 @@ local formatters = {
 }
 
 local linters = {
-	python = { "flake8" }
+	python = { "flake8" },
 }
 
 local function on_attach(_, bufnr)
@@ -40,7 +41,9 @@ local function on_attach(_, bufnr)
 
 	map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
 	map("n", "<leader>la", vim.lsp.buf.code_action, "[L]sp Code [A]ction")
-	map("n", "<leader>lf", vim.lsp.buf.format, "[L]SP [F]ormat")
+	map("n", "<leader>lf", function()
+		require("conform").format({ lsp_fallback = true, timeout_ms = 500 })
+	end, "[L]SP [F]ormat")
 	map("n", "<leader>ls", telescope.lsp_document_symbols, "[L]SP document [S]ymbols")
 
 	map("n", "gd", telescope.lsp_definitions, "[G]oto [D]efinition")
@@ -95,26 +98,26 @@ return {
 			{ "williamboman/mason.nvim", opts = {} },
 			"williamboman/mason-lspconfig.nvim",
 			-- Extend lua lsp
-			{ "folke/neodev.nvim",       opts = {} },
+			{ "folke/neodev.nvim", opts = {} },
 			-- Progress
-			{ "j-hui/fidget.nvim",       opts = {} },
+			{ "j-hui/fidget.nvim", opts = {} },
 			-- Fmt
 			{
 				"stevearc/conform.nvim",
-				opts = { formatters_by_ft = formatters, },
+				opts = { formatters_by_ft = formatters },
 			},
 			-- Lint
 			{
 				"mfussenegger/nvim-lint",
 				config = function()
-					require('lint').linters_by_ft = linters
+					require("lint").linters_by_ft = linters
 
 					vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 						callback = function()
 							require("lint").try_lint()
 						end,
 					})
-				end
+				end,
 			},
 		},
 	},
