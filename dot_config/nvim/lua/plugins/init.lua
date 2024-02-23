@@ -140,7 +140,7 @@ return {
 
 			vim.api.nvim_create_user_command("Lazygit", lazygit_toggle, { desc = "Lazygit ui" })
 
-			vim.keymap.set("n", "<leader>gl", lazygit_toggle, { desc = "[L]azy[G]it" })
+			vim.keymap.set("n", "<leader>g", lazygit_toggle, { desc = "[G]it" })
 		end,
 	},
 
