@@ -16,34 +16,34 @@ return {
 		"rose-pine/neovim",
 		priority = 1000,
 		name = "rose-pine",
-		-- config = function()
-		-- require("rose-pine").setup {
-		-- 	styles = {
-		-- 		italic = false,
-		-- 	},
-		-- }
-		-- vim.cmd.colorscheme("rose-pine")
-		-- end,
+		config = function()
+			require("rose-pine").setup {
+				styles = {
+					italic = false,
+				},
+			}
+			-- vim.cmd.colorscheme("rose-pine")
+		end,
 	},
 
 	{
 		"ellisonleao/gruvbox.nvim",
 		priority = 1000, -- Ensure it loads first
-		-- config = function()
-		-- 	require("gruvbox").setup({
-		-- 		undercurl = false,
-		-- 		underline = false,
-		-- 		bold = true,
-		-- 		italic = {
-		-- 			strings = false,
-		-- 			emphasis = true,
-		-- 			comments = false,
-		-- 			operators = false,
-		-- 			folds = false,
-		-- 		},
-		-- 	})
-		-- 	vim.cmd.colorscheme("gruvbox")
-		-- end,
+		config = function()
+			require("gruvbox").setup({
+				undercurl = false,
+				underline = false,
+				bold = true,
+				italic = {
+					strings = false,
+					emphasis = true,
+					comments = false,
+					operators = false,
+					folds = false,
+				},
+			})
+		--	vim.cmd.colorscheme("gruvbox")
+		end,
 	},
 
 	{
@@ -62,18 +62,10 @@ return {
 			})
 			-- Normal
 			wk.register({
-				["<leader>g"] = { name = "[G]it", _ = "which_key_ignore" },
-				["<leader>h"] = { name = "Git [H]unk", _ = "which_key_ignore" },
 				["<leader>s"] = { name = "[S]earch", _ = "which_key_ignore" },
-				["<leader>t"] = { name = "[T]oggle", _ = "which_key_ignore" },
 				["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
 				["<leader>l"] = { name = "[L]SP", _ = "which_key_ignore" },
 			})
-			-- Visual
-			wk.register({
-				["<leader>"] = { name = "VISUAL <leader>" },
-				["<leader>h"] = { "Git [H]unk" },
-			}, { mode = "v" })
 		end,
 		init = function()
 			vim.o.updatetime = 250
