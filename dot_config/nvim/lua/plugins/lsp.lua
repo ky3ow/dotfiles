@@ -34,7 +34,7 @@ local function on_attach(_, bufnr)
 	map("n", "gI", telescope.lsp_implementations, "[G]oto [I]mplementation")
 	map("n", "<leader>D", telescope.lsp_type_definitions, "Type [D]efinition")
 
-	map("n", "K", vim.lsp.buf.hover, "Hover Documentation")
+	map("n", "<leader>k", vim.lsp.buf.hover, "Hover Documentation")
 	map({ "n", "i" }, "<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
 
 	map("n", "gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
