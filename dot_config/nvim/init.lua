@@ -4,17 +4,17 @@ vim.g.maplocalleader = " "
 -- [[ Options ]]
 vim.wo.signcolumn = "yes"
 vim.wo.relativenumber = true
-vim.o.hlsearch = false
-vim.o.mouse = "a"
-vim.o.tabstop = 4
-vim.o.gdefault = true
-vim.o.breakindent = true
-vim.o.undofile = true
-vim.o.ignorecase = true
-vim.o.smartcase = true
-vim.o.termguicolors = true
-vim.o.foldmethod = "indent" -- indent by default, rewrite in treesitter configuration
-vim.o.foldlevel = 99 -- so file is not folded by default
+vim.opt.hlsearch = true
+vim.opt.mouse = "a"
+vim.opt.tabstop = 4
+vim.opt.gdefault = true
+vim.opt.breakindent = true
+vim.opt.undofile = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.termguicolors = true
+vim.opt.foldmethod = "indent" -- indent by default, rewrite in treesitter configuration
+vim.opt.foldlevel = 99 -- so file is not folded by default
 
 -- [[ Plugin manager ]]
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -47,6 +47,8 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("n", "<C-e>", "<Nop>")
+
+vim.keymap.set("n", "<esc>", vim.cmd.nohlsearch, { desc = "Clear highlight" })
 
 vim.keymap.set("n", "<leader>e", vim.cmd.Ex, { desc = "[E]xplorer" })
 
@@ -91,5 +93,5 @@ vim.keymap.set("v", "<leader>d", '"_d', { desc = "Delete" })
 -- Substitute
 vim.keymap.set("n", "<leader>*", ":%s/<C-r><C-w>//gI<Left><Left><Left>", { desc = "Replace w[*]rd" })
 vim.keymap.set("n", "<leader>_", ":%s/\\<<C-r><C-w>\\>//gI<Left><Left><Left>", { desc = "Replace whole[_] word" })
-vim.keymap.set("n", "<leader>r", [[:%s/\v]], { desc = "Search and replace" })
+vim.keymap.set("n", "<leader>sr", [[:%s/\v]], { desc = "[S]earch and [r]eplace" })
 vim.keymap.set("v", "s", [[:s/\v]], { desc = "Substitute" })

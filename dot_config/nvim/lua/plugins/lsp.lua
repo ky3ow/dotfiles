@@ -1,3 +1,4 @@
+-- Config language servers
 local servers = {
 	-- clangd = {},
 	-- gopls = {},
@@ -5,7 +6,6 @@ local servers = {
 	-- rust_analyzer = {},
 	-- tsserver = {},
 	-- html = { filetypes = { 'html', 'twig', 'hbs'} },
-
 	lua_ls = {
 		Lua = {
 			workspace = { checkThirdParty = false },
@@ -16,6 +16,20 @@ local servers = {
 			},
 		},
 	},
+}
+
+-- By filetype
+local formatters = {
+	lua = { "stylua" },
+	-- Conform can also run multiple formatters sequentially
+	-- python = { "isort", "black" },
+	-- You can use a sub-list to tell conform to run *until* a formatter
+	-- is found.
+	-- javascript = { { "prettierd", "prettier" } },
+}
+
+local linters = {
+	python = { "flake8" }
 }
 
 local function on_attach(_, bufnr)
@@ -50,7 +64,7 @@ local function on_attach(_, bufnr)
 	end, { desc = "Format current buffer with LSP" })
 end
 
-local function setup_lsp()
+local function setup()
 	local capabilities = vim.lsp.protocol.make_client_capabilities()
 	local cmp_installed, cmp_lsp = pcall(require, "cmp_nvim_lsp")
 	if cmp_installed then
@@ -70,20 +84,38 @@ local function setup_lsp()
 			end,
 		},
 	})
+
+	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+		callback = function()
+			require("lint").try_lint()
+		end,
+	})
 end
 
 return {
 	{
 		"neovim/nvim-lspconfig",
-		config = setup_lsp,
+		config = setup,
 		dependencies = {
-			-- Lsp installer
+			-- Tools manager(lsp, linter, formatter)
 			{ "williamboman/mason.nvim", opts = {} },
 			"williamboman/mason-lspconfig.nvim",
 			-- Extend lua lsp
-			{ "folke/neodev.nvim", opts = {} },
+			{ "folke/neodev.nvim",       opts = {} },
 			-- Progress
-			{ "j-hui/fidget.nvim", opts = {} },
+			{ "j-hui/fidget.nvim",       opts = {} },
+			-- Fmt
+			{
+				"stevearc/conform.nvim",
+				opts = { formatters_by_ft = formatters, },
+			},
+			-- Lint
+			{
+				"mfussenegger/nvim-lint",
+				config = function()
+					require('lint').linters_by_ft = linters
+				end
+			},
 		},
 	},
 }

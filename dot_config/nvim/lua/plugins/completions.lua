@@ -1,4 +1,6 @@
-local function setup_cmp()
+local function setup()
+	require("luasnip.loaders.from_vscode").lazy_load()
+	-- ls.filetype_extend("javascript", { "jsdoc" })
 	local cmp = require("cmp")
 	local ls = require("luasnip")
 	cmp.setup({
@@ -13,6 +15,21 @@ local function setup_cmp()
 			["<C-p>"] = cmp.mapping.select_prev_item(),
 			["<C-y>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
 			["<C-Space>"] = cmp.mapping.complete(),
+			["<C-l>"] = cmp.mapping(function()
+				if ls.expand_or_locally_jumpable() then
+					ls.expand_or_jump()
+				end
+			end, { "i", "s" }),
+			["<C-h>"] = cmp.mapping(function()
+				if ls.locally_jumpable(-1) then
+					ls.jump(-1)
+				end
+			end, { "i", "s" }),
+			["<C-j>"] = cmp.mapping(function()
+				if ls.choice_active() then
+					ls.change_choice(1)
+				end
+			end, { "i", "s" }),
 		}),
 		formatting = {
 			format = function(entry, vim_item)
@@ -35,40 +52,18 @@ local function setup_cmp()
 	})
 end
 
-local function setup_snippets()
-	require("luasnip.loaders.from_vscode").lazy_load()
-	local ls = require("luasnip")
-	-- ls.filetype_extend("javascript", { "jsdoc" })
-	vim.keymap.set({ "i", "s" }, "<C-L>", function()
-		ls.jump(1)
-	end, { silent = true })
-	vim.keymap.set({ "i", "s" }, "<C-H>", function()
-		ls.jump(-1)
-	end, { silent = true })
-	vim.keymap.set({ "i", "s" }, "<C-J>", function()
-		if ls.choice_active() then
-			ls.change_choice(1)
-		end
-	end, { silent = true })
-end
-
 return {
 	-- Completion
 	{
 		"hrsh7th/nvim-cmp",
-		config = setup_cmp,
+		config = setup,
 		dependencies = {
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-path",
 			"hrsh7th/cmp-cmdline",
 			"hrsh7th/cmp-buffer",
-		},
-	},
-	-- Snippets
-	{
-		"L3MON4D3/LuaSnip",
-		config = setup_snippets,
-		dependencies = {
+			-- Snippets
+			"L3MON4D3/LuaSnip",
 			"rafamadriz/friendly-snippets",
 			"saadparwaiz1/cmp_luasnip",
 		},
