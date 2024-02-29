@@ -67,3 +67,5 @@ alias grea="gre --abort"
 
 alias gm="git merge"
 alias gmr="git push -u origin HEAD"
+
+export PATH=$PATH:~/.local/bin
