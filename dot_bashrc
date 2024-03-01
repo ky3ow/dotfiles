@@ -30,6 +30,9 @@ fi
 
 if command -v zypper &>/dev/null; then
   alias zy="zypper"
+  function zyi() {
+    zypper se * | fzf -m --preview 'zypper if {1}' | xargs -ro zypper in
+  }
 fi
 
 function take {
