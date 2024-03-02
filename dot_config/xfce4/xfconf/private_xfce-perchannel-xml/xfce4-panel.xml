@@ -65,15 +65,18 @@
       <property name="menu-is-primary" type="bool" value="false"/>
       <property name="icon-size" type="int" value="22"/>
       <property name="hidden-items" type="array">
+        <value type="string" value="dnfdragora-updater"/>
       </property>
       <property name="known-items" type="array">
+        <value type="string" value="dnfdragora-updater"/>
+        <value type="string" value="blueman"/>
         <value type="string" value="TelegramDesktop"/>
       </property>
     </property>
     <property name="plugin-8" type="string" value="pulseaudio">
       <property name="enable-keyboard-shortcuts" type="bool" value="true"/>
       <property name="show-notifications" type="bool" value="true"/>
-      <property name="known-players" type="string" value="Firefox Web Browser"/>
+      <property name="known-players" type="string" value="firefox;Firefox Web Browser"/>
     </property>
     <property name="plugin-9" type="string" value="power-manager-plugin"/>
     <property name="plugin-10" type="string" value="notification-plugin"/>
@@ -100,14 +103,14 @@
     <property name="plugin-23" type="string" value="whiskermenu">
       <property name="recent" type="array">
         <value type="string" value="org.telegram.desktop.desktop"/>
-        <value type="string" value="firefox.desktop"/>
         <value type="string" value="com.logseq.Logseq.desktop"/>
-        <value type="string" value="btop.desktop"/>
-        <value type="string" value="xfce4-taskmanager.desktop"/>
-        <value type="string" value="com.github.tchx84.Flatseal.desktop"/>
-        <value type="string" value="xfce4-mime-settings.desktop"/>
-        <value type="string" value="org.onlyoffice.desktopeditors.desktop"/>
-        <value type="string" value="nm-connection-editor.desktop"/>
+        <value type="string" value="org.mozilla.firefox.desktop"/>
+        <value type="string" value="thunar.desktop"/>
+        <value type="string" value="xfce-session-settings.desktop"/>
+        <value type="string" value="xfce-mouse-settings.desktop"/>
+        <value type="string" value="xfce-ui-settings.desktop"/>
+        <value type="string" value="geany.desktop"/>
+        <value type="string" value="xfce-wm-settings.desktop"/>
         <value type="string" value="xfce-wmtweaks-settings.desktop"/>
       </property>
       <property name="view-mode" type="int" value="2"/>
