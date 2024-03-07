@@ -71,4 +71,11 @@ alias gmr="git push -u origin HEAD"
 
 alias nul=">/dev/null 2>&1"
 
+bash_fzf=/usr/share/fzf/key-bindings.bash
+if [ -f "$bash_fzf" ]; then 
+  export FZF_ALT_C_COMMAND="fd -HL --type d"
+  export FZF_ALT_C_OPTS="--preview 'tree {}'"
+  source "$bash_fzf"
+fi
+
 export PATH=$PATH:$HOME/go/bin
