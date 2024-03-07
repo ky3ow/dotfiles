@@ -37,6 +37,7 @@ alias v="nvim"
 
 alias che="chezmoi edit"
 alias chup="chezmoi update"
+alias chap="chezmoi apply"
 
 alias gc="git commit"
 alias gupd="git commit --amend --no-edit"
@@ -67,5 +68,7 @@ alias grea="gre --abort"
 
 alias gm="git merge"
 alias gmr="git push -u origin HEAD"
+
+alias nul=">/dev/null 2>&1"
 
 export PATH=$PATH:$HOME/go/bin
