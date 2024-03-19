@@ -69,6 +69,7 @@
       <property name="hidden-items" type="array">
       </property>
       <property name="known-items" type="array">
+        <value type="string" value="blueman"/>
         <value type="string" value="TelegramDesktop"/>
       </property>
     </property>
@@ -101,16 +102,16 @@
     </property>
     <property name="plugin-23" type="string" value="whiskermenu">
       <property name="recent" type="array">
-        <value type="string" value="org.telegram.desktop.desktop"/>
-        <value type="string" value="com.logseq.Logseq.desktop"/>
-        <value type="string" value="grub-customizer.desktop"/>
-        <value type="string" value="lightdm-gtk-greeter-settings.desktop"/>
-        <value type="string" value="firefox.desktop"/>
-        <value type="string" value="xfce-wm-settings.desktop"/>
         <value type="string" value="xfce-session-settings.desktop"/>
-        <value type="string" value="xfce4-taskmanager.desktop"/>
         <value type="string" value="xfce4-mime-settings.desktop"/>
+        <value type="string" value="com.tomjwatson.Emote.desktop"/>
+        <value type="string" value="com.logseq.Logseq.desktop"/>
+        <value type="string" value="org.telegram.desktop.desktop"/>
+        <value type="string" value="org.onlyoffice.desktopeditors.desktop"/>
+        <value type="string" value="com.github.tchx84.Flatseal.desktop"/>
         <value type="string" value="nm-connection-editor.desktop"/>
+        <value type="string" value="blueman-adapters.desktop"/>
+        <value type="string" value="blueman-manager.desktop"/>
       </property>
       <property name="view-mode" type="int" value="2"/>
       <property name="button-icon" type="string" value="pack-less"/>
