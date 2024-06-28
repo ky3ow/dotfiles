@@ -13,3 +13,7 @@
 [core]
 	fsmonitor = true
 	untrackedcache = true
+[format]
+	pretty = %C(auto)%h %d %s
+[init]
+	defaultBranch = main
