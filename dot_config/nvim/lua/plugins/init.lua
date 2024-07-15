@@ -50,6 +50,9 @@ return {
 		"folke/which-key.nvim",
 		opts = {
 			preset = "helix",
+			delay = function(_) -- ctx.plugin
+				return 0
+			end,
 			spec = {
 				{ "<leader>l", group = "[L]SP" },
 				{ "<leader>s", group = "[S]earch" },

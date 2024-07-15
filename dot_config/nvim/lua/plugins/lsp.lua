@@ -7,12 +7,14 @@ local servers = {
 	-- tsserver = {},
 	-- html = { filetypes = { 'html', 'twig', 'hbs'} },
 	lua_ls = {
-		Lua = {
-			workspace = { checkThirdParty = false },
-			telemetry = { enable = false },
-			diagnostics = {
-				disable = { "missing-fields" },
-				globals = { "vim" },
+		settings = {
+			Lua = {
+				workspace = { checkThirdParty = false },
+				telemetry = { enable = false },
+				diagnostics = {
+					disable = { "missing-fields" },
+					globals = { "vim" },
+				},
 			},
 		},
 	},
@@ -78,12 +80,10 @@ local function setup()
 		ensure_installed = vim.tbl_keys(servers),
 		handlers = {
 			function(server_name)
-				require("lspconfig")[server_name].setup({
-					capabilities = capabilities,
-					on_attach = on_attach,
-					settings = servers[server_name],
-					filetypes = (servers[server_name] or {}).filetypes,
-				})
+				local server = servers[server_name] or {}
+				server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+				server.on_attach = on_attach
+				require("lspconfig")[server_name].setup(server)
 			end,
 		},
 	})
@@ -98,7 +98,7 @@ return {
 			{ "williamboman/mason.nvim", opts = {} },
 			"williamboman/mason-lspconfig.nvim",
 			-- Extend lua lsp
-			{ "folke/neodev.nvim", opts = {} },
+			-- { "folke/neodev.nvim", opts = {} },
 			-- Progress
 			{ "j-hui/fidget.nvim", opts = {} },
 			-- Fmt
