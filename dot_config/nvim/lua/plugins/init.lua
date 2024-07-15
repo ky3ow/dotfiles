@@ -17,11 +17,11 @@ return {
 		priority = 1000,
 		name = "rose-pine",
 		config = function()
-			require("rose-pine").setup {
+			require("rose-pine").setup({
 				styles = {
 					italic = false,
 				},
-			}
+			})
 			-- vim.cmd.colorscheme("rose-pine")
 		end,
 	},
@@ -42,47 +42,32 @@ return {
 					folds = false,
 				},
 			})
-		--	vim.cmd.colorscheme("gruvbox")
+			--	vim.cmd.colorscheme("gruvbox")
 		end,
 	},
 
 	{
 		"folke/which-key.nvim",
-		config = function()
-			local wk = require("which-key")
-			wk.setup({
-				window = {
-					border = "single",
-					margin = { 1, 0, 2, 0.75 },
-					padding = { 0, 0, 0, 0 },
-				},
-				layout = {
-					height = { min = 4, max = 75 },
-				},
-			})
-			-- Normal
-			wk.register({
-				["<leader>s"] = { name = "[S]earch", _ = "which_key_ignore" },
-				["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
-				["<leader>l"] = { name = "[L]SP", _ = "which_key_ignore" },
-			})
-		end,
-		init = function()
-			vim.o.updatetime = 250
-			vim.o.timeoutlen = 0
-		end,
+		opts = {
+			preset = "helix",
+			spec = {
+				{ "<leader>l", group = "[L]SP" },
+				{ "<leader>s", group = "[S]earch" },
+				{ "<leader>w", group = "[W]orkspace" },
+			},
+		},
 	},
 
 	{ -- Adds git related signs to the gutter, as well as utilities for managing changes
-		'lewis6991/gitsigns.nvim',
+		"lewis6991/gitsigns.nvim",
 		opts = {
 			-- See `:help gitsigns.txt`
 			signs = {
-				add = { text = '+' },
-				change = { text = '~' },
-				delete = { text = '_' },
-				topdelete = { text = '‾' },
-				changedelete = { text = '~' },
+				add = { text = "+" },
+				change = { text = "~" },
+				delete = { text = "_" },
+				topdelete = { text = "‾" },
+				changedelete = { text = "~" },
 			},
 		},
 	},
@@ -119,10 +104,10 @@ return {
 		"akinsho/toggleterm.nvim",
 		version = "*",
 		config = function()
-			require("toggleterm").setup {
+			require("toggleterm").setup({
 				direction = "float",
-				open_mapping = [[<c-\>]]
-			}
+				open_mapping = [[<c-\>]],
+			})
 			local Terminal = require("toggleterm.terminal").Terminal
 			local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
 
@@ -159,6 +144,6 @@ return {
 	},
 
 	{ "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
-	{ "numToStr/Comment.nvim",               opts = {} },
+	{ "numToStr/Comment.nvim", opts = {} },
 	"tpope/vim-sleuth",
 }

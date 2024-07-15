@@ -4,6 +4,8 @@ vim.g.maplocalleader = " "
 -- [[ Options ]]
 vim.wo.signcolumn = "yes"
 vim.wo.relativenumber = true
+vim.opt.updatetime = 250
+vim.opt.timeoutlen = 0
 vim.opt.hlsearch = true
 vim.opt.mouse = "a"
 vim.opt.tabstop = 4

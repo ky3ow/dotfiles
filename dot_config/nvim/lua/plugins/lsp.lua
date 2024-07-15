@@ -71,7 +71,7 @@ local function setup()
 	local capabilities = vim.lsp.protocol.make_client_capabilities()
 	local cmp_installed, cmp_lsp = pcall(require, "cmp_nvim_lsp")
 	if cmp_installed then
-		capabilities = vim.tbl_deep_extend('force', capabilities, cmp_lsp.default_capabilities())
+		capabilities = vim.tbl_deep_extend("force", capabilities, cmp_lsp.default_capabilities())
 	end
 
 	require("mason-lspconfig").setup({
