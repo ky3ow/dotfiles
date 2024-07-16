@@ -1,0 +1,53 @@
+# This is your rocks.nvim plugins declaration file.
+# Here is a small yet pretty detailed example on how to use it:
+#
+# [plugins]
+# nvim-treesitter = "semver_version"  # e.g. "1.0.0"
+
+# List of non-Neovim rocks.
+# This includes things like `toml` or other lua packages.
+[rocks]
+
+# List of Neovim plugins to install alongside their versions.
+# If the plugin name contains a dot then you must add quotes to the key name!
+[plugins]
+"rocks.nvim" = "2.35.2"
+"rocks-git.nvim" = "2.0.0"
+"rocks-config.nvim" = "2.1.4"
+"gruvbox.nvim" = "2.0.0"
+"monokai.nvim" = "scm"
+"nightfox.nvim" = "3.9.3"
+"which-key.nvim" = "3.4.0"
+"gitsigns.nvim" = { git = "lewis6991/gitsigns.nvim" }
+"lualine.nvim" = "scm"
+"toggleterm.nvim" = "2.11.0"
+nvim-surround = "2.1.5"
+"indent-blankline.nvim" = "3.7.1"
+"comment.nvim" = "0.8.0"
+"eyeliner.nvim" = { git = "jinh0/eyeliner.nvim" }
+"telescope.nvim" = "scm"
+"telescope-ui-select.nvim" = "scm"
+"telescope-fzf-native.nvim" = "scm"
+
+[bundles.init]
+items = [
+		"which-key.nvim",
+		"gitsigns.nvim",
+		"lualine.nvim",
+		"toggleterm.nvim",
+		"nvim-surround",
+		"indent-blankline.nvim",
+		"comment.nvim",
+		"eyeliner.nvim"
+]
+
+[bundles.telescope]
+items = [
+		"telescope.nvim",
+		"telescope-ui-select.nvim",
+		"telescope-fzf-native.nvim"
+]
+
+[config]
+plugin_dir = "plugins/"
+auto_setup = false
