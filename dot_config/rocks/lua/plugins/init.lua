@@ -16,8 +16,6 @@ require("eyeliner").setup {
 		highlight_on_key = true,
 		dim = true,
 }
--- vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "@text.danger" })
--- vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "@text.warning" })
 vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "@keyword.return" })
 vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "@attribute" })
 

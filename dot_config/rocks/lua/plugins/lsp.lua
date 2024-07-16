@@ -2,7 +2,7 @@
 local servers = {
 	-- clangd = {},
 	-- gopls = {},
-	pyright = {},
+	-- pyright = {},
 	-- rust_analyzer = {},
 	-- tsserver = {},
 	-- html = { filetypes = { 'html', 'twig', 'hbs'} },
@@ -69,56 +69,43 @@ local function on_attach(_, bufnr)
 	vim.api.nvim_buf_create_user_command(bufnr, "Format", fmt, { desc = "Format current buffer with LSP" })
 end
 
-local function setup()
-	local capabilities = vim.lsp.protocol.make_client_capabilities()
-	local cmp_installed, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-	if cmp_installed then
-		capabilities = vim.tbl_deep_extend("force", capabilities, cmp_lsp.default_capabilities())
-	end
+-- Spinny thingy
+require("fidget").setup {}
 
-	require("mason-lspconfig").setup({
-		ensure_installed = vim.tbl_keys(servers),
-		handlers = {
-			function(server_name)
-				local server = servers[server_name] or {}
-				server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-				server.on_attach = on_attach
-				require("lspconfig")[server_name].setup(server)
-			end,
-		},
-	})
+-- Lsp
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local cmp_installed, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+if cmp_installed then
+	capabilities = vim.tbl_deep_extend("force", capabilities, cmp_lsp.default_capabilities())
 end
 
-return {
-	{
-		"neovim/nvim-lspconfig",
-		config = setup,
-		dependencies = {
-			-- Tools manager(lsp, linter, formatter)
-			{ "williamboman/mason.nvim", opts = {} },
-			"williamboman/mason-lspconfig.nvim",
-			-- Extend lua lsp
-			-- { "folke/neodev.nvim", opts = {} },
-			-- Progress
-			{ "j-hui/fidget.nvim", opts = {} },
-			-- Fmt
-			{
-				"stevearc/conform.nvim",
-				opts = { formatters_by_ft = formatters },
-			},
-			-- Lint
-			{
-				"mfussenegger/nvim-lint",
-				config = function()
-					require("lint").linters_by_ft = linters
-
-					vim.api.nvim_create_autocmd({ "BufWritePost" }, {
-						callback = function()
-							require("lint").try_lint()
-						end,
-					})
-				end,
-			},
-		},
+require("mason").setup {}
+require("mason-lspconfig").setup {
+	ensure_installed = vim.tbl_keys(servers),
+	handlers = {
+		function(server_name)
+			local server = servers[server_name] or {}
+			server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+			server.on_attach = on_attach
+			require("lspconfig")[server_name].setup(server)
+		end,
 	},
 }
+
+-- Formatter
+require("conform").setup {
+	formatters_by_ft = formatters,
+}
+
+-- Linter
+local linter = require("lint")
+linter.linters_by_ft = linters
+
+local function lint()
+	linter.try_lint()
+end
+
+vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+	callback = lint
+})
+vim.api.nvim_create_user_command("Lint", lint, { desc = "Lint current buffer" })
