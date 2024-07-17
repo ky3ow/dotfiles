@@ -1,53 +1,18 @@
--- Config language servers
-local servers = {
-	-- clangd = {},
-	-- gopls = {},
-	-- pyright = {},
-	-- rust_analyzer = {},
-	-- tsserver = {},
-	-- html = { filetypes = { 'html', 'twig', 'hbs'} },
-	lua_ls = {
-		settings = {
-			Lua = {
-				workspace = { checkThirdParty = false },
-				telemetry = { enable = false },
-				diagnostics = {
-					disable = { "missing-fields" },
-					globals = { "vim" },
-				},
-			},
-		},
-	},
-}
+local config = require("config")
 
--- By filetype
-local formatters = {
-	lua = { "stylua" },
-	python = { "black" },
-	-- Conform can also run multiple formatters sequentially
-	-- python = { "isort", "black" },
-	-- You can use a sub-list to tell conform to run *until* a formatter
-	-- is found.
-	-- javascript = { { "prettierd", "prettier" } },
-}
+-- Spinny thingy
+require("fidget").setup {}
 
-local linters = {
-	python = { "flake8" },
-}
-
+-- Lsp
 local function on_attach(_, bufnr)
 	local telescope = require("telescope.builtin")
 	local map = function(mode, keys, func, desc)
 		vim.keymap.set(mode, keys, func, { buffer = bufnr, desc = desc })
 	end
 
-	local function fmt(_)
-		require("conform").format({ lsp_fallback = true, timeout_ms = 500 })
-	end
-
 	map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
 	map("n", "<leader>la", vim.lsp.buf.code_action, "[L]sp Code [A]ction")
-	map("n", "<leader>lf", fmt, "[L]SP [F]ormat")
+	map("n", "<leader>lf", vim.cmd.Format, "[L]SP [F]ormat")
 	map("n", "<leader>ls", telescope.lsp_document_symbols, "[L]SP document [S]ymbols")
 
 	map("n", "gd", telescope.lsp_definitions, "[G]oto [D]efinition")
@@ -65,14 +30,8 @@ local function on_attach(_, bufnr)
 	map("n", "<leader>wl", function()
 		print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
 	end, "[W]orkspace [L]ist Folders")
-
-	vim.api.nvim_buf_create_user_command(bufnr, "Format", fmt, { desc = "Format current buffer with LSP" })
 end
 
--- Spinny thingy
-require("fidget").setup {}
-
--- Lsp
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 local cmp_installed, cmp_lsp = pcall(require, "cmp_nvim_lsp")
 if cmp_installed then
@@ -81,10 +40,9 @@ end
 
 require("mason").setup {}
 require("mason-lspconfig").setup {
-	ensure_installed = vim.tbl_keys(servers),
 	handlers = {
 		function(server_name)
-			local server = servers[server_name] or {}
+			local server = config.servers[server_name] or {}
 			server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
 			server.on_attach = on_attach
 			require("lspconfig")[server_name].setup(server)
@@ -93,13 +51,18 @@ require("mason-lspconfig").setup {
 }
 
 -- Formatter
-require("conform").setup {
-	formatters_by_ft = formatters,
+local formatter = require("conform")
+formatter.setup {
+	formatters_by_ft = config.formatters,
 }
+local function fmt(_)
+	formatter.format({ lsp_fallback = true, timeout_ms = 500 })
+end
+vim.api.nvim_create_user_command("Format", fmt, { desc = "Format current buffer with LSP" })
 
 -- Linter
 local linter = require("lint")
-linter.linters_by_ft = linters
+linter.linters_by_ft = config.linters
 
 local function lint()
 	linter.try_lint()

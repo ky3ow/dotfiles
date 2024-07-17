@@ -1,65 +1,65 @@
 -- Which key
 require("which-key").setup {
-		preset = "helix",
-		delay = function(_) -- ctx.plugin
-				return 0
-		end,
-		spec = {
-				{ "<leader>l", group = "[L]SP" },
-				{ "<leader>s", group = "[S]earch" },
-				{ "<leader>w", group = "[W]orkspace" },
-		},
+	preset = "helix",
+	delay = function(_) -- ctx.plugin
+		return 0
+	end,
+	spec = {
+		{ "<leader>l", group = "[L]SP" },
+		{ "<leader>s", group = "[S]earch" },
+		{ "<leader>w", group = "[W]orkspace" },
+	},
 }
 
 -- Eyeliner
 require("eyeliner").setup {
-		highlight_on_key = true,
-		dim = true,
+	highlight_on_key = true,
+	dim = true,
 }
 vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "@keyword.return" })
 vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "@attribute" })
 
 -- Git gutter
 require("gitsigns").setup {
-		signs = {
-				add = { text = "+" },
-				change = { text = "~" },
-				delete = { text = "_" },
-				topdelete = { text = "‾" },
-				changedelete = { text = "~" },
-		},
+	signs = {
+		add = { text = "+" },
+		change = { text = "~" },
+		delete = { text = "_" },
+		topdelete = { text = "‾" },
+		changedelete = { text = "~" },
+	},
 }
 
 -- Bufferline+tabline
 require("lualine").setup {
-		options = {
-				icons_enabled = false,
-				theme = "auto",
-				component_separators = "|",
-				section_separators = "",
+	options = {
+		icons_enabled = false,
+		theme = "auto",
+		component_separators = "|",
+		section_separators = "",
+	},
+	sections = {
+		lualine_c = {
+			{ "filename", path = 1 }
 		},
-		sections = {
-				lualine_c = {
-						{ "filename", path = 1 }
-				},
+	},
+	tabline = {
+		lualine_a = {
+			{ "buffers", use_mode_colors = true }
 		},
-		tabline = {
-				lualine_a = {
-						{ "buffers", use_mode_colors = true }
-				},
-		},
+	},
 }
 
 -- Toggleterm
 require("toggleterm").setup {
-		direction = "float",
-		open_mapping = [[<c-\>]],
+	direction = "float",
+	open_mapping = [[<c-\>]],
 }
 local Terminal = require("toggleterm.terminal").Terminal
 local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
 
 local function lazygit_toggle()
-		lazygit:toggle()
+	lazygit:toggle()
 end
 
 vim.api.nvim_create_user_command("Lazygit", lazygit_toggle, { desc = "Lazygit ui" })
@@ -83,7 +83,7 @@ require("nvim-surround").setup {}
 -- 			ef.load()
 -- 		end,
 -- 	},
--- 
+--
 -- 	{
 -- 		"rose-pine/neovim",
 -- 		priority = 1000,
@@ -97,7 +97,7 @@ require("nvim-surround").setup {}
 -- 			-- vim.cmd.colorscheme("rose-pine")
 -- 		end,
 -- 	},
--- 
+--
 -- 	{
 -- 		"ellisonleao/gruvbox.nvim",
 -- 		priority = 1000, -- Ensure it loads first
@@ -117,7 +117,7 @@ require("nvim-surround").setup {}
 -- 			--	vim.cmd.colorscheme("gruvbox")
 -- 		end,
 -- 	},
--- 
+--
 -- 	-- {
 -- 	-- 	"stevearc/oil.nvim",
 -- 	-- 	config = function()
@@ -127,7 +127,7 @@ require("nvim-surround").setup {}
 -- 	-- 		end, { desc = "Open oil explorer" })
 -- 	-- 	end,
 -- 	-- },
--- 
--- 
+--
+--
 -- 	"tpope/vim-sleuth",
 -- }
