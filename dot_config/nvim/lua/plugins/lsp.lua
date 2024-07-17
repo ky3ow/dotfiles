@@ -1,39 +1,4 @@
--- Config language servers
-local servers = {
-	-- clangd = {},
-	-- gopls = {},
-	pyright = {},
-	-- rust_analyzer = {},
-	-- tsserver = {},
-	-- html = { filetypes = { 'html', 'twig', 'hbs'} },
-	lua_ls = {
-		settings = {
-			Lua = {
-				workspace = { checkThirdParty = false },
-				telemetry = { enable = false },
-				diagnostics = {
-					disable = { "missing-fields" },
-					globals = { "vim" },
-				},
-			},
-		},
-	},
-}
-
--- By filetype
-local formatters = {
-	lua = { "stylua" },
-	python = { "black" },
-	-- Conform can also run multiple formatters sequentially
-	-- python = { "isort", "black" },
-	-- You can use a sub-list to tell conform to run *until* a formatter
-	-- is found.
-	-- javascript = { { "prettierd", "prettier" } },
-}
-
-local linters = {
-	python = { "flake8" },
-}
+local settings = require("settings")
 
 local function on_attach(_, bufnr)
 	local telescope = require("telescope.builtin")
@@ -41,13 +6,9 @@ local function on_attach(_, bufnr)
 		vim.keymap.set(mode, keys, func, { buffer = bufnr, desc = desc })
 	end
 
-	local function fmt(_)
-		require("conform").format({ lsp_fallback = true, timeout_ms = 500 })
-	end
-
 	map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
 	map("n", "<leader>la", vim.lsp.buf.code_action, "[L]sp Code [A]ction")
-	map("n", "<leader>lf", fmt, "[L]SP [F]ormat")
+	map("n", "<leader>lf", vim.cmd.Format, "[L]SP [F]ormat")
 	map("n", "<leader>ls", telescope.lsp_document_symbols, "[L]SP document [S]ymbols")
 
 	map("n", "gd", telescope.lsp_definitions, "[G]oto [D]efinition")
@@ -65,8 +26,6 @@ local function on_attach(_, bufnr)
 	map("n", "<leader>wl", function()
 		print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
 	end, "[W]orkspace [L]ist Folders")
-
-	vim.api.nvim_buf_create_user_command(bufnr, "Format", fmt, { desc = "Format current buffer with LSP" })
 end
 
 local function setup()
@@ -77,11 +36,11 @@ local function setup()
 	end
 
 	require("mason-lspconfig").setup({
-		ensure_installed = vim.tbl_keys(servers),
+		ensure_installed = vim.tbl_keys(settings.language_servers),
 		handlers = {
 			function(server_name)
-				local server = servers[server_name] or {}
-				server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+				local server = settings.language_servers[server_name] or {}
+				server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
 				server.on_attach = on_attach
 				require("lspconfig")[server_name].setup(server)
 			end,
@@ -93,32 +52,60 @@ return {
 	{
 		"neovim/nvim-lspconfig",
 		config = setup,
-		dependencies = {
-			-- Tools manager(lsp, linter, formatter)
-			{ "williamboman/mason.nvim", opts = {} },
-			"williamboman/mason-lspconfig.nvim",
-			-- Extend lua lsp
-			-- { "folke/neodev.nvim", opts = {} },
-			-- Progress
-			{ "j-hui/fidget.nvim", opts = {} },
-			-- Fmt
-			{
-				"stevearc/conform.nvim",
-				opts = { formatters_by_ft = formatters },
-			},
-			-- Lint
-			{
-				"mfussenegger/nvim-lint",
-				config = function()
-					require("lint").linters_by_ft = linters
+	},
+	-- Tools manager(lsp, linter, formatter)
+	{ "williamboman/mason.nvim", opts = {} },
+	"williamboman/mason-lspconfig.nvim",
+	-- Progress thingy
+	{ "j-hui/fidget.nvim", opts = {} },
+	-- Fmt
+	{
+		"stevearc/conform.nvim",
+		config = function()
+			local conform = require("conform")
 
-					vim.api.nvim_create_autocmd({ "BufWritePost" }, {
-						callback = function()
-							require("lint").try_lint()
-						end,
-					})
+			conform.setup({ formatters_by_ft = settings.formatters })
+			local function fmt(_)
+				conform.format({ lsp_fallback = true, timeout_ms = 500 })
+			end
+			vim.api.nvim_create_user_command("Format", fmt, { desc = "Format current buffer with LSP" })
+		end,
+	},
+	-- Lint
+	{
+		"mfussenegger/nvim-lint",
+		config = function()
+			require("lint").linters_by_ft = settings.linters
+
+			vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+				callback = function()
+					require("lint").try_lint()
 				end,
+			})
+		end,
+	},
+	-- lazydev config
+	{
+		"folke/lazydev.nvim",
+		ft = "lua", -- only load on lua files
+		opts = {
+			library = {
+				-- See the configuration section for more details
+				-- Load luvit types when the `vim.uv` word is found
+				{ path = "luvit-meta/library", words = { "vim%.uv" } },
 			},
 		},
+		enabled = false,
+	},
+	{ "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
+	{
+		"hrsh7th/nvim-cmp",
+		opts = function(_, opts)
+			opts.sources = opts.sources or {}
+			table.insert(opts.sources, {
+				name = "lazydev",
+				group_index = 0, -- set group index to 0 to skip loading LuaLS completions
+			})
+		end,
 	},
 }
