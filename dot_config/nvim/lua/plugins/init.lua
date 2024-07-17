@@ -1,52 +1,5 @@
 return {
 	{
-		"neanias/everforest-nvim",
-		priority = 1000,
-		config = function()
-			local ef = require("everforest")
-			ef.setup({
-				background = "hard",
-				disable_italic_comments = true,
-			})
-			ef.load()
-		end,
-	},
-
-	{
-		"rose-pine/neovim",
-		priority = 1000,
-		name = "rose-pine",
-		config = function()
-			require("rose-pine").setup({
-				styles = {
-					italic = false,
-				},
-			})
-			-- vim.cmd.colorscheme("rose-pine")
-		end,
-	},
-
-	{
-		"ellisonleao/gruvbox.nvim",
-		priority = 1000, -- Ensure it loads first
-		config = function()
-			require("gruvbox").setup({
-				undercurl = false,
-				underline = false,
-				bold = true,
-				italic = {
-					strings = false,
-					emphasis = true,
-					comments = false,
-					operators = false,
-					folds = false,
-				},
-			})
-			--	vim.cmd.colorscheme("gruvbox")
-		end,
-	},
-
-	{
 		"folke/which-key.nvim",
 		opts = {
 			preset = "helix",
@@ -107,10 +60,10 @@ return {
 		"akinsho/toggleterm.nvim",
 		version = "*",
 		config = function()
-			require("toggleterm").setup({
+			require("toggleterm").setup {
 				direction = "float",
 				open_mapping = [[<c-\>]],
-			})
+			}
 			local Terminal = require("toggleterm.terminal").Terminal
 			local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
 
@@ -128,21 +81,21 @@ return {
 		"kylechui/nvim-surround",
 		version = "*", -- Use for stability; omit to use `main` branch for the latest features
 		config = function()
-			require("nvim-surround").setup({
+			require("nvim-surround").setup {
 				-- Configuration here, or leave empty to use defaults
-			})
+			}
 		end,
 	},
 
 	{
 		"jinh0/eyeliner.nvim",
 		config = function()
-			require("eyeliner").setup({
+			require("eyeliner").setup {
 				highlight_on_key = true,
 				dim = true,
-			})
-			vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "@text.danger" })
-			vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "@text.warning" })
+			}
+			vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "@keyword.return" })
+			vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "@attribute" })
 		end,
 	},
 
