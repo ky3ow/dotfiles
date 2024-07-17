@@ -28,16 +28,6 @@ return {
 		},
 	},
 
-	-- {
-	-- 	"stevearc/oil.nvim",
-	-- 	config = function()
-	-- 		require("oil").setup({})
-	-- 		vim.api.nvim_create_user_command("Ex", function(_)
-	-- 			vim.cmd.Oil()
-	-- 		end, { desc = "Open oil explorer" })
-	-- 	end,
-	-- },
-
 	{
 		"nvim-lualine/lualine.nvim",
 		opts = {
