@@ -15,6 +15,8 @@ local function setup()
 			["<C-p>"] = cmp.mapping.select_prev_item(),
 			["<C-y>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
 			["<C-Space>"] = cmp.mapping.complete(),
+			["<C-b>"] = cmp.mapping.scroll_docs(-4),
+			["<C-f>"] = cmp.mapping.scroll_docs(4),
 			["<C-l>"] = cmp.mapping(function()
 				if ls.expand_or_locally_jumpable() then
 					ls.expand_or_jump()
@@ -62,10 +64,10 @@ return {
 			"hrsh7th/cmp-path",
 			"hrsh7th/cmp-cmdline",
 			"hrsh7th/cmp-buffer",
-			-- Snippets
-			"L3MON4D3/LuaSnip",
-			"rafamadriz/friendly-snippets",
-			"saadparwaiz1/cmp_luasnip",
 		},
 	},
+	-- Snippets
+	{ "L3MON4D3/LuaSnip" },
+	{ "rafamadriz/friendly-snippets" },
+	{ "saadparwaiz1/cmp_luasnip" },
 }

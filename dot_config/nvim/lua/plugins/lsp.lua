@@ -1,9 +1,9 @@
 local settings = require("settings")
 
-local function on_attach(_, bufnr)
+local function lsp_attach(_, buf)
 	local telescope = require("telescope.builtin")
 	local map = function(mode, keys, func, desc)
-		vim.keymap.set(mode, keys, func, { buffer = bufnr, desc = desc })
+		vim.keymap.set(mode, keys, func, { buffer = buf, desc = desc })
 	end
 
 	map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
@@ -28,34 +28,29 @@ local function on_attach(_, bufnr)
 	end, "[W]orkspace [L]ist Folders")
 end
 
-local function setup()
-	local capabilities = vim.lsp.protocol.make_client_capabilities()
-	local cmp_installed, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-	if cmp_installed then
-		capabilities = vim.tbl_deep_extend("force", capabilities, cmp_lsp.default_capabilities())
-	end
-
-	require("mason-lspconfig").setup({
-		ensure_installed = vim.tbl_keys(settings.language_servers),
-		handlers = {
-			function(server_name)
-				local server = settings.language_servers[server_name] or {}
-				server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-				server.on_attach = on_attach
-				require("lspconfig")[server_name].setup(server)
-			end,
-		},
-	})
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local cmp_installed, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+if cmp_installed then
+	capabilities = vim.tbl_deep_extend("force", capabilities, cmp_lsp.default_capabilities())
 end
 
 return {
-	{
-		"neovim/nvim-lspconfig",
-		config = setup,
-	},
 	-- Tools manager(lsp, linter, formatter)
 	{ "williamboman/mason.nvim", opts = {} },
-	"williamboman/mason-lspconfig.nvim",
+	{ "neovim/nvim-lspconfig" },
+	{
+		"williamboman/mason-lspconfig.nvim",
+		opts = {
+			handlers = {
+				function(server_name)
+					local server = settings.language_servers[server_name] or {}
+					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+					server.on_attach = lsp_attach
+					require("lspconfig")[server_name].setup(server)
+				end,
+			},
+		},
+	},
 	-- Progress thingy
 	{ "j-hui/fidget.nvim", opts = {} },
 	-- Fmt
@@ -95,7 +90,6 @@ return {
 				{ path = "luvit-meta/library", words = { "vim%.uv" } },
 			},
 		},
-		enabled = false,
 	},
 	{ "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
 	{
