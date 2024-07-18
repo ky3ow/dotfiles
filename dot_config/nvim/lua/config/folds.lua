@@ -8,7 +8,7 @@ return {
 			local indent, text = start_content:match("^(%s*)(%S.*)")
 			local spaces = string.rep(" ", vim.fn.strdisplaywidth(indent))
 
-			local marker = spaces .. "[>]----| " .. text .. " |----[" .. lines .. "]"
+			local marker = spaces .. "[>] " .. text .. " [" .. lines .. "]"
 			return marker .. string.rep(" ", width - vim.fn.strchars(marker))
 		end
 
