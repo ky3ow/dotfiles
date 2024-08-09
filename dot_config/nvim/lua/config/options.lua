@@ -5,7 +5,7 @@ return {
 		vim.wo.relativenumber = true
 		vim.wo.number = true
 		vim.opt.updatetime = 250
-		vim.opt.timeoutlen = 100 -- setting this to 0 will break things
+		vim.opt.timeoutlen = 500 -- how long nvim waits on unresolved keybinds
 		vim.opt.hlsearch = true
 		vim.opt.mouse = "a"
 		vim.opt.tabstop = 4
