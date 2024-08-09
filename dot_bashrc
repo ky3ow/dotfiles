@@ -2,6 +2,7 @@
 export EDITOR=nvim
 export TERM=xterm-256color
 export LS_COLORS=
+export LESS=-RFX
 
 if command -v carapace &>/dev/null; then
   source <(carapace _carapace bash)
@@ -79,4 +80,4 @@ if [ -f "$bash_fzf" ]; then
   source "$bash_fzf"
 fi
 
-export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin:$HOME/venv/bin
