@@ -15,6 +15,8 @@ return {
 		vim.opt.ignorecase = true
 		vim.opt.smartcase = true
 		vim.opt.termguicolors = true
+		vim.opt.splitbelow = true
+		vim.opt.splitright = true
 		vim.opt.cursorline = true
 		vim.opt.foldmethod = "indent" -- indent by default, rewrite in treesitter configuration
 		vim.opt.foldlevel = 99 -- so file is not folded by default
