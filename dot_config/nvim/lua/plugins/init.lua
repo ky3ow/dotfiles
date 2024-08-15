@@ -1,17 +1,47 @@
 return {
 	{
 		"folke/which-key.nvim",
-		opts = {
-			preset = "helix",
-			delay = function(_) -- ctx.plugin
-				return 0
-			end,
-			spec = {
-				{ "<leader>l", group = "[L]SP" },
-				{ "<leader>s", group = "[S]earch" },
-				{ "<leader>w", group = "[W]orkspace" },
-			},
-		},
+		config = function()
+			local lualine_buffers = require("lualine.components.buffers")
+			local function create_goto_keymap(number)
+				return {
+					"<leader>" .. number,
+					function()
+						lualine_buffers.buffer_jump(number, "!")
+					end,
+					desc = function()
+						local actual_bufnr = lualine_buffers.bufpos2nr[number]
+						local bufname = actual_bufnr and vim.api.nvim_buf_get_name(actual_bufnr) or "-"
+						-- :h filename-modifiers
+						-- full path, reduced relative to current directory
+						local name = vim.fn.fnamemodify(bufname, ":p:.")
+						-- name = vim.fn.pathshorten(name)
+						return "Go to " .. name
+					end,
+				}
+			end
+
+			require("which-key").setup({
+				preset = "helix",
+				delay = function(_) -- ctx.plugin
+					return 0
+				end,
+				spec = {
+					{ "<leader>l", group = "[L]SP" },
+					{ "<leader>s", group = "[S]earch" },
+					{ "<leader>w", group = "[W]orkspace" },
+					create_goto_keymap(1),
+					create_goto_keymap(2),
+					create_goto_keymap(3),
+					create_goto_keymap(4),
+					create_goto_keymap(5),
+					create_goto_keymap(6),
+					create_goto_keymap(7),
+					create_goto_keymap(8),
+					create_goto_keymap(9),
+				},
+			})
+		end,
 	},
 
 	{ -- Adds git related signs to the gutter, as well as utilities for managing changes
