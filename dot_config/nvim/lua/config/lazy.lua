@@ -19,6 +19,9 @@ return {
 
 		-- Setup lazy.nvim
 		require("lazy").setup({
+			change_detection = {
+				notify = false,
+			},
 			spec = {
 				-- import your plugins
 				{ import = "plugins" },

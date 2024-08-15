@@ -9,6 +9,7 @@ return {
 		vim.opt.hlsearch = true
 		vim.opt.mouse = "a"
 		vim.opt.tabstop = 4
+		vim.opt.scrolloff = 8
 		vim.opt.gdefault = true
 		vim.opt.breakindent = true
 		vim.opt.undofile = true
