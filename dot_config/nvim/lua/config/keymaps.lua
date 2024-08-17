@@ -52,6 +52,11 @@ return {
 		vim.keymap.set("n", "<leader>sr", [[:%s/\v]], { desc = "[S]earch and [r]eplace" })
 		vim.keymap.set("x", "s", [[:s/\v]], { desc = "Substitute" })
 
-		vim.keymap.set("x", "@", [[:<C-u>echo "macro: @" | execute "normal @".getcharstr()<CR>]], { desc = "Visual at" })
+		vim.keymap.set(
+			"x",
+			"@",
+			[[:<C-u>echo "macro: @" | execute "'<,'>normal @".getcharstr()<CR>]],
+			{ desc = "Visual at" }
+		)
 	end,
 }
