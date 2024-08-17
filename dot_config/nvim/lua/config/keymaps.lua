@@ -50,6 +50,8 @@ return {
 		vim.keymap.set("n", "<leader>*", ":%s/<C-r><C-w>//gI<Left><Left><Left>", { desc = "Replace w*rd" })
 		vim.keymap.set("n", "<leader>_", ":%s/\\<<C-r><C-w>\\>//gI<Left><Left><Left>", { desc = "Replace _word_" })
 		vim.keymap.set("n", "<leader>sr", [[:%s/\v]], { desc = "[S]earch and [r]eplace" })
-		vim.keymap.set("v", "s", [[:s/\v]], { desc = "Substitute" })
+		vim.keymap.set("x", "s", [[:s/\v]], { desc = "Substitute" })
+
+		vim.keymap.set("x", "@", [[:<C-u>echo "macro: @" | execute "normal @".getcharstr()<CR>]], { desc = "Visual at" })
 	end,
 }

@@ -85,7 +85,8 @@ return {
 				callback = function(_)
 					local opts = { buffer = 0 }
 
-					vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], opts)
+					vim.keymap.set("t", "<C-w><esc>", [[<C-\><C-n>]], opts)
+					vim.keymap.set("t", "<C-w>]", [[<C-\><C-n>]], opts)
 					vim.keymap.set("t", "<C-w>.", "<C-w>", opts)
 					for _, value in ipairs({ "h", "j", "k", "l" }) do
 						vim.keymap.set("t", "<C-w>" .. value, "<C-\\><C-n>:wincmd " .. value .. "<CR>", opts)
