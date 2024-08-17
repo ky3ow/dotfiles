@@ -2,6 +2,19 @@ return {
 	{
 		"folke/which-key.nvim",
 		config = function()
+			local wk = require("which-key")
+			wk.setup({
+				preset = "helix",
+				delay = function(_) -- ctx.plugin
+					return 0
+				end,
+				spec = {
+					{ "<leader>l", group = "[L]SP" },
+					{ "<leader>s", group = "[S]earch" },
+					{ "<leader>w", group = "[W]orkspace" },
+				},
+			})
+
 			local lualine_buffers = require("lualine.components.buffers")
 			local function create_goto_keymap(number)
 				return {
@@ -21,25 +34,40 @@ return {
 				}
 			end
 
-			require("which-key").setup({
-				preset = "helix",
-				delay = function(_) -- ctx.plugin
-					return 0
+			for i = 1, 9 do
+				wk.add(create_goto_keymap(i))
+			end
+
+			vim.keymap.del("x", "@") -- delete default mapping
+			wk.add({
+				"@",
+				group = "M[@]cro over selection",
+				mode = { "x", "n" },
+				expand = function()
+					local registers = require("which-key.plugins.registers").expand()
+
+					local specs = {} --- @type wk.Spec[]
+					for _, reg in ipairs(registers) do
+						local bytes = string.byte(reg.key)
+						if bytes >= 97 and bytes <= 122 then
+							local spec = { --- @type wk.Spec
+								reg.key,
+								function()
+									local cmd = vim.api.nvim_replace_termcodes(
+										":normal @" .. reg.key .. "<CR>",
+										true,
+										true,
+										true
+									)
+									vim.api.nvim_feedkeys(cmd, "n", false)
+								end,
+								desc = reg.value,
+							}
+							table.insert(specs, spec)
+						end
+					end
+					return specs
 				end,
-				spec = {
-					{ "<leader>l", group = "[L]SP" },
-					{ "<leader>s", group = "[S]earch" },
-					{ "<leader>w", group = "[W]orkspace" },
-					create_goto_keymap(1),
-					create_goto_keymap(2),
-					create_goto_keymap(3),
-					create_goto_keymap(4),
-					create_goto_keymap(5),
-					create_goto_keymap(6),
-					create_goto_keymap(7),
-					create_goto_keymap(8),
-					create_goto_keymap(9),
-				},
 			})
 		end,
 	},

@@ -52,11 +52,12 @@ return {
 		vim.keymap.set("n", "<leader>sr", [[:%s/\v]], { desc = "[S]earch and [r]eplace" })
 		vim.keymap.set("x", "s", [[:s/\v]], { desc = "Substitute" })
 
-		vim.keymap.set(
-			"x",
-			"@",
-			[[:<C-u>echo "macro: @" | execute "'<,'>normal @".getcharstr()<CR>]],
-			{ desc = "Visual at" }
-		)
+		-- Instead which-key nested keymap to make beautiful
+		-- vim.keymap.set(
+		-- 	"x",
+		-- 	"<leader>@",
+		-- 	[[:<C-u>echo "macro: @" | execute "'<,'>normal @".getcharstr()<CR>]],
+		-- 	{ desc = "Visual at" }
+		-- )
 	end,
 }
