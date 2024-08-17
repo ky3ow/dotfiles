@@ -4,6 +4,8 @@ export TERM=xterm-256color
 export LS_COLORS=
 export LESS=-RFX
 
+complete -Ef
+
 if command -v carapace &>/dev/null; then
   source <(carapace _carapace bash)
 fi
