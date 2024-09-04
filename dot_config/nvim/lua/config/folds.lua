@@ -1,10 +1,9 @@
 return {
 	setup = function(_)
 		local function set_fold_hl()
-			local cl = vim.api.nvim_get_hl(0, { name = "CursorLineNr" })
-			local txt = vim.api.nvim_get_hl(0, { name = "@text" })
+			local cl = vim.api.nvim_get_hl(0, { name = "Number" })
+
 			vim.api.nvim_set_hl(0, "FoldedText", { bg = cl.bg, fg = cl.fg })
-			vim.api.nvim_set_hl(0, "FoldedIcon", { fg = txt.fg })
 		end
 
 		set_fold_hl()
@@ -12,18 +11,20 @@ return {
 			callback = set_fold_hl,
 		})
 
-		FoldText = function()
-			local lines = vim.v.foldend - vim.v.foldstart + 1
 
-			local start_content = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
-			local indent, text = start_content:match("^(%s*)(%S.*)")
-			local spaces = string.rep(" ", vim.fn.strdisplaywidth(indent))
+		vim.opt.foldtext = 'v:lua.require("config.folds").fold_text()'
+	end,
 
-			local marker =
-				{ { spaces .. "> ", "FoldedIcon" }, { text }, { "[" }, { tostring(lines), "FoldedText" }, { "]" } }
-			return marker
-		end
 
-		vim.opt.foldtext = "v:lua.FoldText()"
+	fold_text = function()
+		local lines = vim.v.foldend - vim.v.foldstart + 1
+
+		local start_content = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
+		local indent, text = start_content:match("^(%s*)(%S.*)")
+		local spaces = string.rep(" ", vim.fn.strdisplaywidth(indent))
+
+		local marker =
+			{ { spaces .. "> ", "FoldedText" }, { text }, { "[" }, { tostring(lines), "FoldedText" }, { "]" }, { "...", "FoldedText" } }
+		return marker
 	end,
 }

@@ -21,6 +21,6 @@ return {
 		vim.opt.cursorline = true
 		vim.opt.foldmethod = "indent" -- indent by default, rewrite in treesitter configuration
 		vim.opt.foldlevel = 99 -- so file is not folded by default
-		vim.opt.fillchars = [[fold: ]]
+		vim.opt.fillchars = { fold = " " }
 	end,
 }
