@@ -6,7 +6,7 @@ add_newline = false
 
 # Change the default prompt format
 format = """ \
-$directory$git_branch$git_commit$git_status$fill$line_break\
+$directory$git_branch$git_commit$git_status$python$fill$line_break\
 $character\
 """
 
@@ -149,7 +149,8 @@ Windows = " "
 symbol = " "
 
 [python]
-symbol = " "
+format = "[${symbol}(\\($virtualenv\\))]($style)"
+symbol = "🐍"
 
 [rlang]
 symbol = "ﳒ "
