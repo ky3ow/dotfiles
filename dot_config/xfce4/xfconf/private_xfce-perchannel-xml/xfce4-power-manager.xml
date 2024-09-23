@@ -13,6 +13,13 @@
     <property name="general-notification" type="bool" value="false"/>
     <property name="power-button-action" type="uint" value="0"/>
     <property name="lid-action-on-battery" type="uint" value="1"/>
-    <property name="inactivity-on-battery" type="uint" value="60"/>
+    <property name="inactivity-on-battery" type="uint" value="15"/>
+    <property name="logind-handle-lid-switch" type="bool" value="true"/>
+    <property name="logind-handle-power-key" type="bool" value="false"/>
+    <property name="logind-handle-suspend-key" type="bool" value="false"/>
+    <property name="logind-handle-hibernate-key" type="bool" value="false"/>
+    <property name="inactivity-sleep-mode-on-battery" type="uint" value="2"/>
+    <property name="battery-button-action" type="uint" value="0"/>
+    <property name="sleep-button-action" type="uint" value="0"/>
   </property>
 </channel>

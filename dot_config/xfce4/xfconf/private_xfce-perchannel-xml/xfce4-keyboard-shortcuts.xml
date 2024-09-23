@@ -34,7 +34,6 @@
     <property name="custom" type="empty">
       <property name="XF86WWW" type="string" value="exo-open --launch WebBrowser"/>
       <property name="XF86Mail" type="string" value="exo-open --launch MailReader"/>
-      <property name="Print" type="string" value="xfce4-screenshooter"/>
       <property name="&lt;Primary&gt;Escape" type="string" value="xfdesktop --menu"/>
       <property name="&lt;Primary&gt;&lt;Alt&gt;Delete" type="string" value="xfce4-session-logout"/>
       <property name="&lt;Alt&gt;&lt;Super&gt;s" type="string" value="orca"/>
@@ -50,8 +49,9 @@
       <property name="override" type="bool" value="true"/>
       <property name="&lt;Super&gt;d" type="string" value="xfce4-popup-whiskermenu"/>
       <property name="&lt;Super&gt;t" type="string" value="exo-open --launch TerminalEmulator"/>
-      <property name="&lt;Shift&gt;Print" type="string" value="xfce4-screenshooter -rc"/>
-      <property name="&lt;Alt&gt;Print" type="string" value="xfce4-screenshooter -wc"/>
+      <property name="&lt;Shift&gt;&lt;Super&gt;s" type="string" value="xfce4-screenshooter -rc"/>
+      <property name="&lt;Super&gt;s" type="string" value="xfce4-screenshooter -wc"/>
+      <property name="&lt;Primary&gt;&lt;Super&gt;s" type="string" value="xfce4-screenshooter"/>
     </property>
   </property>
   <property name="xfwm4" type="empty">
