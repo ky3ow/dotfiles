@@ -40,18 +40,22 @@ return {
 		vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move down" })
 		vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move up" })
 
-		-- Magic with registers
-		vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Copy to clip" })
-		vim.keymap.set("n", "<leader>Y", '"+Y', { desc = "Copy end to clip" })
-		vim.keymap.set("v", "<leader>p", '"_dP', { desc = "Paste over" })
-		vim.keymap.set("v", "<leader>d", '"_d', { desc = "Delete" })
+		-- Clipboard
+		vim.keymap.set({ "n", "x" }, "gy", '"+y', { desc = "Copy to clip" })
+		vim.keymap.set("n", "gp", '"+p', { desc = "Paste from clipboard" })
+		vim.keymap.set("x", "gp", '"+P', { desc = "Paste from clipboard" })
 
 		-- Substitute
-		vim.keymap.set("n", "<leader>*", ":%s/<C-r><C-w>//gI<Left><Left><Left>", { desc = "Replace w*rd" })
-		vim.keymap.set("n", "<leader>_", ":%s/\\<<C-r><C-w>\\>//gI<Left><Left><Left>", { desc = "Replace _word_" })
-		vim.keymap.set("n", "<leader>sr", [[:%s/\v]], { desc = "[S]earch and [r]eplace" })
+		vim.keymap.set("n", "<leader>rW", ":%s/<C-r><C-w>//gI<Left><Left><Left>", { desc = "Replace WORD" })
+		vim.keymap.set("n", "<leader>rw", ":%s/\\<<C-r><C-w>\\>//gI<Left><Left><Left>", { desc = "Replace word" })
+		vim.keymap.set("n", "<leader>rs", [[:%s/\v]], { desc = "[S]earch and [r]eplace" })
 		vim.keymap.set("x", "s", [[:s/\v]], { desc = "Substitute" })
 
+		-- Regional search
+		vim.keymap.set("n", "g/", [[/\%<c-r>=line('.')<cr>l]], { desc = "Search inside current line" })
+		vim.keymap.set("x", "g/", '<esc>/\\%V', { desc = "Search inside selection" })
+
+		vim.keymap.set('n', 'gV', '"`[" . strpart(getregtype(), 0, 1) . "`]"', { expr = true, replace_keycodes = false, desc = 'Visually select changed text' })
 		-- Instead which-key nested keymap to make beautiful
 		-- vim.keymap.set(
 		-- 	"x",
