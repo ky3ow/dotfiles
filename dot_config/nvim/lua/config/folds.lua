@@ -13,6 +13,7 @@ return {
 
 
 		vim.opt.foldtext = 'v:lua.require("config.folds").fold_text()'
+		vim.opt.foldopen:remove('block')
 	end,
 
 
