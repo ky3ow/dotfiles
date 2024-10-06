@@ -1,74 +1,149 @@
 local function setup_buffers()
-	local wk = require("which-key")
+	local function create_goto_keymaps(excluded_buf)
+		local buffers = vim.fn.getbufinfo({ buflisted = 1 })
+		local filtered_buffers = {}
+		for _, buf in ipairs(buffers) do
+			if buf.bufnr ~= excluded_buf then
+				table.insert(filtered_buffers, buf)
+			end
+		end
+		for i = 1, 9 do
+			local buffer = filtered_buffers[i] or { name = "" }
+			local name = vim.fn.fnamemodify(buffer.name, ":p:.")
 
-	local lualine_buffers = require("lualine.components.buffers")
-	local function create_goto_keymap(number)
-		return {
-			"<leader>" .. number,
-			function()
-				lualine_buffers.buffer_jump(number, "!")
-			end,
-			desc = function()
-				local actual_bufnr = lualine_buffers.bufpos2nr[number]
-				local bufname = actual_bufnr and vim.api.nvim_buf_get_name(actual_bufnr) or "-"
-				-- :h filename-modifiers
-				-- full path, reduced relative to current directory
-				local name = vim.fn.fnamemodify(bufname, ":p:.")
-				-- name = vim.fn.pathshorten(name)
-				return "Go to " .. name
-			end,
-		}
+			vim.api.nvim_set_keymap(
+				"n",
+				"<leader>" .. i,
+				"<cmd>silent! buffer " .. buffer.name .. "<cr>",
+				{ noremap = true, silent = true, desc = "Go to: " .. (name:len() > 0 and name or "-") }
+			)
+		end
 	end
 
-	for i = 1, 9 do
-		wk.add(create_goto_keymap(i))
-	end
+	vim.api.nvim_create_autocmd({ "BufDelete", "BufAdd" }, {
+		pattern = "*",
+		callback = function(e)
+			create_goto_keymaps(e.event == "BufDelete" and e.buf or -1)
+		end,
+	})
 end
 
 local function setup_visual_at()
-	local wk = require("which-key")
-	vim.keymap.del("x", "@") -- delete default mapping
-	wk.add({
-		"@",
-		group = "M[@]cro over selection",
-		mode = { "x", "n" },
-		expand = function()
-			local registers = require("which-key.plugins.registers").expand()
+	local alphabet = vim.split("abcdefghijklmnopqrstuvwxyz", "")
 
-			local specs = {} --- @type wk.Spec[]
-			for _, reg in ipairs(registers) do
-				local bytes = string.byte(reg.key)
-				if bytes >= 97 and bytes <= 122 then -- ascii lowercase
-					table.insert(specs, {
-						reg.key,
-						function()
-							local cmd =
-								vim.api.nvim_replace_termcodes(":normal @" .. reg.key .. "<CR>", true, true, true)
-							vim.api.nvim_feedkeys(cmd, "n", false)
-						end,
-						desc = reg.value,
-					})
+	vim.keymap.del("x", "@")
+	vim.api.nvim_create_autocmd({ "VimEnter" }, {
+		pattern = "*",
+		callback = function()
+			for _, reg in ipairs(alphabet) do
+				local content = vim.fn.getreg(reg)
+				if content ~= "" then
+					vim.keymap.set({ "x" }, "@" .. reg, ":normal @" .. reg .. "<CR>", { desc = content })
+					vim.keymap.set({ "n" }, "@" .. reg, "@" .. reg, { desc = content })
 				end
 			end
-			return specs
+		end,
+	})
+
+	vim.api.nvim_create_autocmd({ "RecordingLeave" }, {
+		pattern = "*",
+		callback = function()
+			local regname = vim.v.event.regname
+			local content = vim.v.event.regcontents
+			if vim.list_contains(alphabet, regname) then
+				vim.keymap.set({ "x" }, "@" .. regname, ":normal @" .. regname .. "<CR>", { desc = content })
+				vim.keymap.set({ "n" }, "@" .. regname, "@" .. regname, { desc = content })
+			end
 		end,
 	})
 end
 
 return {
+
+	-- {
+	-- 	"folke/which-key.nvim",
+	-- 	config = function()
+	-- 		local wk = require("which-key")
+	-- 		wk.setup({
+	-- 			preset = "helix",
+	-- 			delay = function(_) -- ctx.plugin
+	-- 				return 0
+	-- 			end,
+	-- 			spec = {
+	-- 				{ "<leader>l", group = "[L]SP" },
+	-- 				{ "<leader>s", group = "[S]earch" },
+	-- 				{ "<leader>w", group = "[W]orkspace" },
+	-- 			},
+	-- 		})
+	--
+	-- 		setup_buffers()
+	-- 		setup_visual_at()
+	-- 	end,
+	-- },
+
 	{
-		"folke/which-key.nvim",
+		"echasnovski/mini.nvim",
+		verison = false,
 		config = function()
-			local wk = require("which-key")
-			wk.setup({
-				preset = "helix",
-				delay = function(_) -- ctx.plugin
-					return 0
-				end,
-				spec = {
-					{ "<leader>l", group = "[L]SP" },
-					{ "<leader>s", group = "[S]earch" },
-					{ "<leader>w", group = "[W]orkspace" },
+			local miniclue = require("mini.clue")
+			miniclue.setup({
+				triggers = {
+					-- Leader triggers
+					{ mode = "n", keys = "<Leader>" },
+					{ mode = "x", keys = "<Leader>" },
+
+					-- Macro
+					{ mode = "n", keys = "@" },
+					{ mode = "x", keys = "@" },
+
+					{ mode = "n", keys = "[" },
+					{ mode = "n", keys = "]" },
+
+					-- Built-in completion
+					{ mode = "i", keys = "<C-x>" },
+
+					-- `g` key
+					{ mode = "n", keys = "g" },
+					{ mode = "x", keys = "g" },
+
+					-- Marks
+					{ mode = "n", keys = "'" },
+					{ mode = "n", keys = "`" },
+					{ mode = "x", keys = "'" },
+					{ mode = "x", keys = "`" },
+
+					-- Registers
+					{ mode = "n", keys = '"' },
+					{ mode = "x", keys = '"' },
+					{ mode = "i", keys = "<C-r>" },
+					{ mode = "c", keys = "<C-r>" },
+
+					-- Window commands
+					{ mode = "n", keys = "<C-w>" },
+
+					-- `z` key
+					{ mode = "n", keys = "z" },
+					{ mode = "x", keys = "z" },
+				},
+
+				window = {
+					delay = 0,
+					config = {
+						width = 50,
+					},
+				},
+
+				clues = {
+					miniclue.gen_clues.builtin_completion(),
+					miniclue.gen_clues.g(),
+					miniclue.gen_clues.marks(),
+					miniclue.gen_clues.registers({ show_contents = true }),
+					miniclue.gen_clues.windows(),
+					miniclue.gen_clues.z(),
+					{ mode = "n", keys = "<Leader>s", desc = "[S]earch" },
+					{ mode = "n", keys = "<Leader>r", desc = "[R]eplace" },
+					{ mode = "n", keys = "<Leader>l", desc = "[L]SP" },
+					{ mode = "n", keys = "<Leader>w", desc = "[W]orkspace" },
 				},
 			})
 
@@ -76,4 +151,5 @@ return {
 			setup_visual_at()
 		end,
 	},
+
 }
