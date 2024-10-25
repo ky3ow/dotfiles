@@ -1,45 +1,54 @@
-local function setup_buffers()
-	local function create_goto_keymaps(excluded_buf)
-		local buffers = vim.fn.getbufinfo({ buflisted = 1 })
-		local filtered_buffers = {}
-		for _, buf in ipairs(buffers) do
-			if buf.bufnr ~= excluded_buf then
-				table.insert(filtered_buffers, buf)
-			end
-		end
-		for i = 1, 9 do
-			local buffer = filtered_buffers[i] or { name = "" }
-			local name = vim.fn.fnamemodify(buffer.name, ":p:.")
+local H = {}
 
-			vim.api.nvim_set_keymap(
-				"n",
-				"<leader>" .. i,
-				"<cmd>silent! buffer " .. buffer.name .. "<cr>",
-				{ noremap = true, silent = true, desc = "Go to: " .. (name:len() > 0 and name or "-") }
-			)
-		end
-	end
+function H.setup_buffers()
+	local buffers_augroup = vim.api.nvim_create_augroup("ky3ow.Buffers", { clear = true })
 
-	vim.api.nvim_create_autocmd({ "BufDelete", "BufAdd" }, {
+	vim.api.nvim_create_autocmd({ "BufDelete", "BufAdd", "VimEnter" }, {
 		pattern = "*",
+		group = buffers_augroup,
 		callback = function(e)
-			create_goto_keymaps(e.event == "BufDelete" and e.buf or -1)
+			local buffers = {}
+			for _, buf in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+				if not (e.event == "BufDelete" and buf.bufnr == e.buf) then
+					table.insert(buffers, buf)
+				end
+			end
+
+			for i = 1, 9 do
+				local buffer = buffers[i] or { name = "", bufnr = -1 }
+				local name = vim.fn.fnamemodify(buffer.name, ":p:.")
+
+				vim.api.nvim_set_keymap(
+					"n",
+					"<leader>" .. i,
+					":silent! buffer " .. buffer.bufnr .. "<cr>",
+					{ noremap = true, silent = true, desc = "Go to: " .. (name:len() > 0 and name or "-") }
+				)
+			end
 		end,
 	})
 end
 
-local function setup_visual_at()
+function H.setup_visual_at()
+	---@param reg string
+	---@param content string
+	local function create_register_keymap(reg, content)
+		vim.keymap.set({ "x" }, "@" .. reg, ":normal @" .. reg .. "<CR>", { desc = content })
+		vim.keymap.set({ "n" }, "@" .. reg, "@" .. reg, { desc = content })
+	end
+
 	local alphabet = vim.split("abcdefghijklmnopqrstuvwxyz", "")
+	local macro_augroup = vim.api.nvim_create_augroup("ky3ow.Macros", { clear = true })
 
 	vim.keymap.del("x", "@")
 	vim.api.nvim_create_autocmd({ "VimEnter" }, {
 		pattern = "*",
+		group = macro_augroup,
 		callback = function()
-			for _, reg in ipairs(alphabet) do
-				local content = vim.fn.getreg(reg)
+			for _, regname in ipairs(alphabet) do
+				local content = vim.fn.getreg(regname)
 				if content ~= "" then
-					vim.keymap.set({ "x" }, "@" .. reg, ":normal @" .. reg .. "<CR>", { desc = content })
-					vim.keymap.set({ "n" }, "@" .. reg, "@" .. reg, { desc = content })
+					create_register_keymap(regname, content)
 				end
 			end
 		end,
@@ -47,12 +56,12 @@ local function setup_visual_at()
 
 	vim.api.nvim_create_autocmd({ "RecordingLeave" }, {
 		pattern = "*",
+		group = macro_augroup,
 		callback = function()
 			local regname = vim.v.event.regname
 			local content = vim.v.event.regcontents
 			if vim.list_contains(alphabet, regname) then
-				vim.keymap.set({ "x" }, "@" .. regname, ":normal @" .. regname .. "<CR>", { desc = content })
-				vim.keymap.set({ "n" }, "@" .. regname, "@" .. regname, { desc = content })
+				create_register_keymap(regname, content)
 			end
 		end,
 	})
@@ -147,9 +156,8 @@ return {
 				},
 			})
 
-			setup_buffers()
-			setup_visual_at()
+			H.setup_buffers()
+			H.setup_visual_at()
 		end,
 	},
-
 }
