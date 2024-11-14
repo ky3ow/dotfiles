@@ -159,5 +159,5 @@ return {
 			H.setup_buffers()
 			H.setup_visual_at()
 		end,
-	},
+	}
 }

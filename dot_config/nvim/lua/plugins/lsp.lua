@@ -52,7 +52,7 @@ return {
 		},
 	},
 	-- Progress thingy
-	{ "j-hui/fidget.nvim", opts = {} },
+	{ "j-hui/fidget.nvim",    opts = {} },
 	-- Fmt
 	{
 		"stevearc/conform.nvim",
@@ -74,7 +74,7 @@ return {
 
 			vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 				callback = function()
-					require("lint").try_lint()
+					require("lint").try_lint(nil, { ignore_errors = true })
 				end,
 			})
 		end,
