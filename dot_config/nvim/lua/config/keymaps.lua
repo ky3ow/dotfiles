@@ -56,12 +56,13 @@ return {
 		vim.keymap.set("x", "g/", '<esc>/\\%V', { desc = "Search inside selection" })
 
 		vim.keymap.set('n', 'gV', '"`[" . strpart(getregtype(), 0, 1) . "`]"', { expr = true, replace_keycodes = false, desc = 'Visually select changed text' })
+
 		-- Instead which-key nested keymap to make beautiful
-		-- vim.keymap.set(
-		-- 	"x",
-		-- 	"<leader>@",
-		-- 	[[:<C-u>echo "macro: @" | execute "'<,'>normal @".getcharstr()<CR>]],
-		-- 	{ desc = "Visual at" }
-		-- )
+		vim.keymap.set(
+			"x",
+			"@",
+			[[mode() == 'V' ? ':normal! @'.getcharstr().'<CR>' : '@']],
+			{ desc = "Visual at", expr = true }
+		)
 	end,
 }
