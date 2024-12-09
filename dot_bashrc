@@ -35,6 +35,10 @@ if command -v xpkg &>/dev/null; then
   }
 fi
 
+if command -v kubectl &>/dev/null; then
+  alias k=kubectl
+fi
+
 function take {
   mkdir $1
   cd $1
