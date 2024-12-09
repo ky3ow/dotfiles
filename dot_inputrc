@@ -1,5 +1,11 @@
-set completion-ignore-case On
+set completion-ignore-case on
+set bind-tty-special-chars off
 
-"\ea": alias-expand-line
-"\C- ": "\ea "
-"\e\e": nop
+"\C-x\C-m": set-mark
+"\C-x\C-w": kill-region
+
+"\C-w": unix-filename-rubout
+"\e\C-w": unix-filename-rubout
+
+"\C-x\C-a": alias-expand-line
+" ": "\C-v \C-x\C-a"
