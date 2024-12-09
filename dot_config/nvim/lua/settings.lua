@@ -1,5 +1,5 @@
 return {
-	colorscheme = "everforest",
+	colorscheme = "duskfox",
 
 	language_servers = {
 		-- clangd = {},
