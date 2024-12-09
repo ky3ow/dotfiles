@@ -5,7 +5,7 @@ set bind-tty-special-chars off
 "\C-x\C-w": kill-region
 
 "\C-w": unix-filename-rubout
-"\e\C-w": unix-filename-rubout
+"\e\C-w": unix-word-rubout
 
 "\C-x\C-a": alias-expand-line
 " ": "\C-v \C-x\C-a"
