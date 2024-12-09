@@ -4,4 +4,4 @@ set completion-ignore-case on
 "\C-x\C-w": kill-region
 
 "\C-x\C-a": alias-expand-line
-" ": "\C-v \C-x\C-a"
+"\C- ": "\C-v \C-x\C-a"
