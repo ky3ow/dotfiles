@@ -6,7 +6,7 @@
 [pull]
 	rebase = true
 [rerere]
-	enabled = true
+	enabled = false
 [fetch]
 	writeCommitGraph = true
 	prune = true

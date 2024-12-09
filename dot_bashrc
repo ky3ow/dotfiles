@@ -79,36 +79,35 @@ fi
 
 if command -v chezmoi &>/dev/null; then
   alias che="chezmoi edit"
-  alias chup="chezmoi update"
-  alias chap="chezmoi apply"
+  alias chu="chezmoi update"
+  alias cha="chezmoi apply"
+  alias chr="chezmoi re-add"
+  alias chc="chezmoi cd"
 fi
 
 if command -v git &>/dev/null; then
-  alias gc="git commit"
-  alias gca="git commit --amend --no-edit"
-
-  alias gf="git fetch"
-  alias gpr="git remote prune origin"
-  alias gff="git pull --ff-only"
-
-  alias gco="git switch"
-
   alias ga="git add"
   alias gp="git push"
   alias gP="git pull"
 
+  alias gc="git commit"
+  alias gA="git commit --amend --no-edit"
+
+  alias gf="git fetch"
+  alias gco="git switch"
+
   alias gs="git status"
   alias gd="git diff"
-  alias gds="git diff --staged"
+  alias gD="git diff --staged"
 
+  alias gr="git reset"
   alias gR="git reset --hard"
-  alias gr="git reset --soft"
 
-  alias gcp="git cherry-pick"
-  alias gre="git rebase"
-  alias gm="git merge"
+  alias gC="git cherry-pick"
+  alias gB="git rebase"
+  alias gM="git merge"
 
-  alias gmr="git push -u origin HEAD"
+  alias gm="git push -u origin HEAD"
 fi
 
 bash_fzf=/usr/share/fzf/key-bindings.bash
