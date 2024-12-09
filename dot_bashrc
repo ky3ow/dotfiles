@@ -3,12 +3,24 @@ if [ -f /etc/profile ]; then
   source /etc/profile
 fi
 
+complete -Ef # so wsl doesn't die on empty completion
+
 export EDITOR=nvim
 export TERM=xterm-256color
-export LS_COLORS=
+export LS_COLORS= # bc default stuff sometimes overrides with ugly LS_COLORS, use terminal colors
+export PAGER=less
 export LESS=-RFQ
+export WEZTERM_SHELL_SKIP_ALL=1
+export PATH=$PATH:$HOME/go/bin:$HOME/venv/bin
 
-complete -Ef
+font_reset="$(tput sgr0)"
+font_bold="$(tput bold)"
+font_underline="$(tput smul)"
+font_black="$(tput setaf 0)"
+font_red="$(tput setaf 1)"
+font_green="$(tput setaf 2)"
+font_cyan="$(tput setaf 6)"
+bg_yellow="$(tput setab 3)"
 
 if command -v carapace &>/dev/null; then
   source <(carapace _carapace bash)
@@ -30,7 +42,7 @@ fi
 
 if command -v xpkg &>/dev/null; then
   alias xrm="sudo xbps-remove"
-  function xs () {
+  xs() {
     xpkg -a | fzf -m --preview 'xq {1}' --preview-window=right:66%:wrap | xargs -ro xi
   }
 fi
@@ -39,49 +51,65 @@ if command -v kubectl &>/dev/null; then
   alias k=kubectl
 fi
 
-function take {
-  mkdir $1
-  cd $1
-}
+if command -v bat &>/dev/null; then
+  manless() {
+    for cmd in "$@"; do
+      man "$cmd"
+    done | sed -u -e "s/\\x1B\[[0-9;]*m//g; s/.\\x08//g" | bat -p -l man
+  }
+else
+  manless() {
+    LESS_TERMCAP_mb="${font_bold}${font_green}" \
+    LESS_TERMCAP_md="${font_bold}${font_cyan}" \
+    LESS_TERMCAP_me="${font_reset}" \
+    LESS_TERMCAP_se="${font_reset}" \
+    LESS_TERMCAP_ue="${font_reset}" \
+    LESS_TERMCAP_so="${font_black}${bg_yellow}" \
+    LESS_TERMCAP_us="${font_underline}${font_red}" \
+    LESSOPEN='|man %s' less -is "$@"
+  }
+fi
 
-alias alp="distrobox enter alpine"
-alias v="nvim"
+if command -v nvim &>/dev/null; then
+  alias v="nvim"
+  export MANPAGER="nvim +Man!"
+elif command -v vim &>/dev/null; then
+  export MANPAGER="vim +MANPAGER"
+fi
 
-alias che="chezmoi edit"
-alias chup="chezmoi update"
-alias chap="chezmoi apply"
+if command -v chezmoi &>/dev/null; then
+  alias che="chezmoi edit"
+  alias chup="chezmoi update"
+  alias chap="chezmoi apply"
+fi
 
-alias gc="git commit"
-alias gupd="git commit --amend --no-edit"
+if command -v git &>/dev/null; then
+  alias gc="git commit"
+  alias gca="git commit --amend --no-edit"
 
-alias gco="git checkout"
-alias gcof="git checkout && ff"
+  alias gf="git fetch"
+  alias gpr="git remote prune origin"
+  alias gff="git pull --ff-only"
 
-alias ga="git add"
-alias gp="git push"
-alias gP="git pull"
+  alias gco="git switch"
 
-alias gs="git status"
+  alias ga="git add"
+  alias gp="git push"
+  alias gP="git pull"
 
-alias gf="git fetch"
-alias ff="gpr && git pull --ff-only"
-alias gpr="git remote prune origin"
+  alias gs="git status"
+  alias gd="git diff"
+  alias gds="git diff --staged"
 
-alias gR="git reset --hard"
-alias gr="git reset --soft"
+  alias gR="git reset --hard"
+  alias gr="git reset --soft"
 
-alias gcp="git cherry-pick"
-alias gcpc="gcp --continue"
-alias gcpa="gcp --abort"
+  alias gcp="git cherry-pick"
+  alias gre="git rebase"
+  alias gm="git merge"
 
-alias gre="git rebase"
-alias grec="gre --continue"
-alias grea="gre --abort"
-
-alias gm="git merge"
-alias gmr="git push -u origin HEAD"
-
-alias nul=">/dev/null 2>&1"
+  alias gmr="git push -u origin HEAD"
+fi
 
 bash_fzf=/usr/share/fzf/key-bindings.bash
 if [ -f "$bash_fzf" ]; then 
@@ -90,4 +118,7 @@ if [ -f "$bash_fzf" ]; then
   source "$bash_fzf"
 fi
 
-export PATH=$PATH:$HOME/go/bin:$HOME/venv/bin
+take() {
+  mkdir "$1"
+  cd "$1"
+}
