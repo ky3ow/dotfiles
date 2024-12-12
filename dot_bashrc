@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-if [ -f /etc/profile ]; then
-  source /etc/profile
-fi
-
 complete -Ef # so wsl doesn't die on empty completion
 
 export EDITOR=nvim
