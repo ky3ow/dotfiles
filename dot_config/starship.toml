@@ -6,7 +6,7 @@ add_newline = false
 
 # Change the default prompt format
 format = """ \
-$directory$git_branch$git_commit$git_status$python$fill$line_break\
+$username$directory$git_branch$git_commit$git_status$python$fill$line_break\
 $character\
 """
 
@@ -38,6 +38,9 @@ modified = '!${count}'
 staged = '[+$count](bold green)'
 untracked = '?'
 stashed = '[\$${count}](bold purple)'
+
+[username]
+show_always = true
 
 [aws]
 symbol = "  "
