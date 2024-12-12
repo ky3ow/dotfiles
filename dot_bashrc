@@ -6,6 +6,12 @@ esac
 
 complete -Ef # so wsl doesn't die on empty completion
 
+shopt -s histappend # don't overwrite history
+
+HISTCONTROL=ignoreboth # remove duplicates and ignore whitespace
+HISTSIZE=1000 # size in memory
+HISTFILESIZE=2000 # size in file
+
 font_reset="$(tput sgr0)"
 font_bold="$(tput bold)"
 font_underline="$(tput smul)"
@@ -15,8 +21,11 @@ font_green="$(tput setaf 2)"
 font_cyan="$(tput setaf 6)"
 bg_yellow="$(tput setab 3)"
 
-if command -v carapace &>/dev/null; then
+_use_carapace=1
+if [ -n "$_use_carapace" ] && command -v carapace &>/dev/null; then
   source <(carapace _carapace bash)
+elif [ -f /usr/share/bash-completion/bash_completion ]; then
+  source /usr/share/bash-completion/bash_completion
 fi
 
 if command -v starship &>/dev/null; then 
@@ -102,6 +111,8 @@ if command -v git &>/dev/null; then
 
   alias gm="git push -u origin HEAD"
 fi
+
+alias grep="grep --color=auto"
 
 bash_fzf=/usr/share/fzf/key-bindings.bash
 if [ -f "$bash_fzf" ]; then 
