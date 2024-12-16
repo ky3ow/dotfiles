@@ -115,11 +115,18 @@ fi
 
 alias grep="grep --color=auto"
 
-bash_fzf=/usr/share/fzf/key-bindings.bash
-if [ -f "$bash_fzf" ]; then 
-  export FZF_ALT_C_COMMAND="fd -HL --type d"
-  export FZF_ALT_C_OPTS="--preview 'tree {}'"
-  source "$bash_fzf"
+if command -v fzf &>/dev/null; then 
+  FZF_CUR_VER="$(fzf --version | grep -o '^\d*\.\d*')"
+  FZF_MIN_VER="0.48"
+  FZF_IS_COMPATIBLE="$(printf "%.2f > %.2f\n" "$FZF_CUR_VER" "$FZF_MIN_VER" | bc)"
+
+  if [ "$FZF_IS_COMPATIBLE" -eq 1 ]; then
+    export FZF_ALT_C_COMMAND="fd -HL --type d"
+    export FZF_ALT_C_OPTS="--preview 'tree {}'"
+    eval "$(fzf --bash)"
+  fi
+
+  unset FZF_CUR_VER FZF_MIN_VER FZF_IS_COMPATIBLE
 fi
 
 take() {
