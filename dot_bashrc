@@ -21,10 +21,11 @@ font_green="$(tput setaf 2)"
 font_cyan="$(tput setaf 6)"
 bg_yellow="$(tput setab 3)"
 
-_use_carapace=1
-if [ -n "$_use_carapace" ] && command -v carapace &>/dev/null; then
+_use_carapace=true
+if "$_use_carapace" && command -v carapace &>/dev/null; then
   source <(carapace _carapace bash)
-elif [ -f /usr/share/bash-completion/bash_completion ]; then
+  unset BASH_COMPLETION_VERSINFO
+elif [ -f /usr/share/bash-completion/bash_completion ] && [ -z "$BASH_COMPLETION_VERSINFO" ]; then
   source /usr/share/bash-completion/bash_completion
 fi
 
