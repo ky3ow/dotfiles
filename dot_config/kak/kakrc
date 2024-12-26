@@ -1,0 +1,53 @@
+ eval %sh{kak-lsp --kakoune -s $kak_session}  # Not needed if you load it with plug.kak.
+ hook global WinSetOption filetype=(rust|python|go|javascript|typescript|c|cpp|python) %{
+     lsp-enable-window
+ }
+ map global user l %{:enter-user-mode lsp<ret>} -docstring "LSP mode"
+ map global insert <tab> '<a-;>:try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>' -docstring 'Select next snippet placeholder'
+ map global object a '<a-semicolon>lsp-object<ret>' -docstring 'LSP any symbol'
+ map global object <a-a> '<a-semicolon>lsp-object<ret>' -docstring 'LSP any symbol'
+ map global object e '<a-semicolon>lsp-object Function Method<ret>' -docstring 'LSP function or method'
+ map global object k '<a-semicolon>lsp-object Class Interface Struct<ret>' -docstring 'LSP class interface or struct'
+ map global object d '<a-semicolon>lsp-diagnostic-object --include-warnings<ret>' -docstring 'LSP errors and warnings'
+ map global object D '<a-semicolon>lsp-diagnostic-object<ret>' -docstring 'LSP errors'
+define-command open_rg_picker %{
+  prompt grep: %{
+    prompt select: -menu -shell-script-candidates "rg -in --column '%val{text}'" %{
+        eval "edit -existing %sh{
+            printf %s\\n ""$kak_text"" | awk -F: '{printf ""\""%s\"" %s %s\n"", $1, $2, $3}'
+        }"
+    }
+  }
+}
+
+map global user F ':open_rg_picker<ret>' -docstring "grep"
+
+define-command -docstring 'Invoke fzf to open a file' -params 0 fzf-edit %{
+    evaluate-commands %sh{
+        if [ -z "${kak_client_env_TMUX}" ]; then
+            printf 'fail "client was not started under tmux"\n'
+        else
+            file="$(find . -type f |TMUX="${kak_client_env_TMUX}" fzf-tmux -p)"
+            if [ -n "$file" ]; then
+                printf 'edit "%s"\n' "$file"
+            fi
+        fi
+    }
+}
+
+evaluate-commands %sh{
+  kcr init kakoune
+}
+
+define-command tmux-terminal-popup -params 1.. -shell-completion -docstring '
+tmux-terminal-popup <program> [<arguments>]: create a new terminal as a tmux popup
+The program passed as argument will be executed in the new popup' \
+%{
+    tmux-terminal-impl 'display-popup -E -h 75% -d #{pane_current_path}' %arg{@}
+}
+
+alias global terminal-popup tmux-terminal-popup
+
+define-command find -docstring "Find a file to open" -params .. %{
+    tmux-terminal-vertical fzf --bind %exp{enter:execute(echo eval -verbatim -client %val{client} edit '"{}"' | kak -p %val{session})+abort}
+}

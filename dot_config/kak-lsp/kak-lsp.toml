@@ -1,0 +1,42 @@
+snippet_support = true
+verbosity = 2
+
+[server]
+# exit session if no requests were received during given period in seconds
+# set to 0 to disable
+timeout = 1800 # seconds = 30 minutes
+
+[language_server.pylsp]
+filetypes = ["python"]
+roots = ["requirements.txt", "setup.py", ".git", ".hg"]
+command = "pylsp"
+settings_section = "_"
+
+[language_server.lua-language-server]
+filetypes = ["lua"]
+roots = [".git", ".hg"]
+command = "lua-language-server"
+settings_section = "Lua"
+[language_server.lua-language-server.settings.Lua]
+diagnostics.enable = true
+
+#[language_server.snippets-ls]
+#filetypes = ["lua"]
+#roots = [".git", ".hg"]
+#command = "snippets-ls"
+#args = ["-config", "/root/.config/snippets.json"]
+ 
+[semantic_tokens]
+faces = [
+    {face="documentation", token="comment", modifiers=["documentation"]},
+    {face="comment", token="comment"},
+    {face="function", token="function"},
+    {face="keyword", token="keyword"},
+    {face="module", token="namespace"},
+    {face="operator", token="operator"},
+    {face="string", token="string"},
+    {face="type", token="type"},
+    {face="default+d", token="variable", modifiers=["readonly"]},
+    {face="default+d", token="variable", modifiers=["constant"]},
+    {face="variable", token="variable"},
+]
