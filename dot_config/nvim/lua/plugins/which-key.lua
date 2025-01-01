@@ -8,7 +8,7 @@ function H.setup_buffers()
 		group = buffers_augroup,
 		callback = function(e)
 			local buffers = {}
-			for _, buf in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+			for _, buf in ipairs(vim.fn.getbufinfo { buflisted = 1 }) do
 				if not (e.event == "BufDelete" and buf.bufnr == e.buf) then
 					table.insert(buffers, buf)
 				end
@@ -94,8 +94,8 @@ return {
 		"echasnovski/mini.nvim",
 		verison = false,
 		config = function()
-			local miniclue = require("mini.clue")
-			miniclue.setup({
+			local miniclue = require "mini.clue"
+			miniclue.setup {
 				triggers = {
 					-- Leader triggers
 					{ mode = "n", keys = "<Leader>" },
@@ -146,7 +146,7 @@ return {
 					miniclue.gen_clues.builtin_completion(),
 					miniclue.gen_clues.g(),
 					miniclue.gen_clues.marks(),
-					miniclue.gen_clues.registers({ show_contents = true }),
+					miniclue.gen_clues.registers { show_contents = true },
 					miniclue.gen_clues.windows(),
 					miniclue.gen_clues.z(),
 					{ mode = "n", keys = "<Leader>s", desc = "[S]earch" },
@@ -154,10 +154,10 @@ return {
 					{ mode = "n", keys = "<Leader>l", desc = "[L]SP" },
 					{ mode = "n", keys = "<Leader>w", desc = "[W]orkspace" },
 				},
-			})
+			}
 
 			H.setup_buffers()
 			H.setup_visual_at()
 		end,
-	}
+	},
 }

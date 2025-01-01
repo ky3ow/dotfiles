@@ -53,9 +53,14 @@ return {
 
 		-- Regional search
 		vim.keymap.set("n", "g/", [[/\%<c-r>=line('.')<cr>l]], { desc = "Search inside current line" })
-		vim.keymap.set("x", "g/", '<esc>/\\%V', { desc = "Search inside selection" })
+		vim.keymap.set("x", "g/", "<esc>/\\%V", { desc = "Search inside selection" })
 
-		vim.keymap.set('n', 'gV', '"`[" . strpart(getregtype(), 0, 1) . "`]"', { expr = true, replace_keycodes = false, desc = 'Visually select changed text' })
+		vim.keymap.set(
+			"n",
+			"gV",
+			'"`[" . strpart(getregtype(), 0, 1) . "`]"',
+			{ expr = true, replace_keycodes = false, desc = "Visually select changed text" }
+		)
 
 		-- Instead which-key nested keymap to make beautiful
 		vim.keymap.set(

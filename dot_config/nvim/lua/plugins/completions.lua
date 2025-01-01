@@ -1,19 +1,19 @@
 local function setup()
 	require("luasnip.loaders.from_vscode").lazy_load()
 	-- ls.filetype_extend("javascript", { "jsdoc" })
-	local cmp = require("cmp")
-	local ls = require("luasnip")
-	cmp.setup({
+	local cmp = require "cmp"
+	local ls = require "luasnip"
+	cmp.setup {
 		snippet = {
 			expand = function(args)
 				ls.lsp_expand(args.body)
 			end,
 		},
 		completion = { completeopt = "menu,menuone,noinsert" },
-		mapping = cmp.mapping.preset.insert({
+		mapping = cmp.mapping.preset.insert {
 			["<C-n>"] = cmp.mapping.select_next_item(),
 			["<C-p>"] = cmp.mapping.select_prev_item(),
-			["<C-y>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
+			["<C-y>"] = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = true },
 			["<C-Space>"] = cmp.mapping.complete(),
 			["<C-b>"] = cmp.mapping.scroll_docs(-4),
 			["<C-f>"] = cmp.mapping.scroll_docs(4),
@@ -32,7 +32,7 @@ local function setup()
 					ls.change_choice(1)
 				end
 			end, { "i", "s" }),
-		}),
+		},
 		formatting = {
 			format = function(entry, vim_item)
 				vim_item.kind = "(" .. string.lower(vim_item.kind) .. ")"
@@ -45,13 +45,13 @@ local function setup()
 				return vim_item
 			end,
 		},
-		sources = cmp.config.sources({
+		sources = cmp.config.sources {
 			{ name = "nvim_lsp" },
 			{ name = "luasnip" },
 			{ name = "buffer" },
 			{ name = "path" },
-		}),
-	})
+		},
+	}
 end
 
 return {

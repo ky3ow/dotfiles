@@ -8,10 +8,10 @@ return {
 			filetypes = { "matlab" },
 			settings = {
 				matlab = {
-					installPath = "/home/v/.local/MATLAB/"
+					installPath = "/home/v/.local/MATLAB/",
 				},
 			},
-			single_file_support = true
+			single_file_support = true,
 		},
 		pyright = {},
 		-- rust_analyzer = {},

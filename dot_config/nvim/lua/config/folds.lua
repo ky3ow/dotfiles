@@ -11,21 +11,25 @@ return {
 			callback = set_fold_hl,
 		})
 
-
 		vim.opt.foldtext = 'v:lua.require("config.folds").fold_text()'
-		vim.opt.foldopen:remove('block')
+		vim.opt.foldopen:remove "block"
 	end,
-
 
 	fold_text = function()
 		local lines = vim.v.foldend - vim.v.foldstart + 1
 
 		local start_content = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
-		local indent, text = start_content:match("^(%s*)(%S.*)")
+		local indent, text = start_content:match "^(%s*)(%S.*)"
 		local spaces = string.rep(" ", vim.fn.strdisplaywidth(indent))
 
-		local marker =
-			{ { spaces .. "> ", "FoldedText" }, { text }, { "[" }, { tostring(lines), "FoldedText" }, { "]" }, { "...", "FoldedText" } }
+		local marker = {
+			{ spaces .. "> ", "FoldedText" },
+			{ text },
+			{ "[" },
+			{ tostring(lines), "FoldedText" },
+			{ "]" },
+			{ "...", "FoldedText" },
+		}
 		return marker
 	end,
 }

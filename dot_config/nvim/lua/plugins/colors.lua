@@ -1,14 +1,14 @@
-local settings = require("settings")
+local settings = require "settings"
 
 local spec = {
 	{
 		"neanias/everforest-nvim",
 		theme_name = "everforest",
 		config = function()
-			require("everforest").setup({
+			require("everforest").setup {
 				background = "hard",
 				disable_italic_comments = true,
-			})
+			}
 		end,
 	},
 
@@ -21,11 +21,11 @@ local spec = {
 			"rose-pine-moon",
 		},
 		config = function()
-			require("rose-pine").setup({
+			require("rose-pine").setup {
 				styles = {
 					italic = false,
 				},
-			})
+			}
 		end,
 	},
 
@@ -33,7 +33,7 @@ local spec = {
 		"ellisonleao/gruvbox.nvim",
 		theme_name = "gruvbox",
 		config = function()
-			require("gruvbox").setup({
+			require("gruvbox").setup {
 				undercurl = false,
 				underline = false,
 				bold = true,
@@ -44,7 +44,7 @@ local spec = {
 					operators = false,
 					folds = false,
 				},
-			})
+			}
 		end,
 	},
 	{

@@ -5,10 +5,10 @@ local function wrap(fn, config)
 end
 
 local function setup()
-	local actions = require("telescope.actions")
-	local builtins = require("telescope.builtin")
+	local actions = require "telescope.actions"
+	local builtins = require "telescope.builtin"
 
-	require("telescope").setup({
+	require("telescope").setup {
 		defaults = {
 			mappings = {
 				i = {
@@ -21,21 +21,25 @@ local function setup()
 		},
 		extensions = {
 			["ui-select"] = {
-				require("telescope.themes").get_dropdown {}
-			}
-		}
-	})
+				require("telescope.themes").get_dropdown {},
+			},
+		},
+	}
 	pcall(require("telescope").load_extension, "fzf")
 	pcall(require("telescope").load_extension, "ui-select")
 
-	local ivy = require('telescope.themes').get_ivy {}
-	local drop_noprev = require('telescope.themes').get_dropdown {
+	local ivy = require("telescope.themes").get_ivy {}
+	local drop_noprev = require("telescope.themes").get_dropdown {
 		winblend = 10,
 		previewer = false,
 	}
 
-	vim.keymap.set("n", "<leader>/", wrap(builtins.current_buffer_fuzzy_find, drop_noprev),
-		{ desc = "[/] Fuzzily search in current buffer" })
+	vim.keymap.set(
+		"n",
+		"<leader>/",
+		wrap(builtins.current_buffer_fuzzy_find, drop_noprev),
+		{ desc = "[/] Fuzzily search in current buffer" }
+	)
 
 	vim.keymap.set("n", "<leader>sG", wrap(builtins.git_files, ivy), { desc = "[S]earch [G]it" })
 	vim.keymap.set("n", "<leader>sf", wrap(builtins.find_files, ivy), { desc = "[S]earch [F]iles" })
@@ -59,7 +63,7 @@ return {
 				"nvim-telescope/telescope-fzf-native.nvim",
 				build = "make", -- make is installed on system
 				cond = function()
-					return vim.fn.executable("make") == 1
+					return vim.fn.executable "make" == 1
 				end,
 			},
 		},

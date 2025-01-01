@@ -1,7 +1,7 @@
-local settings = require("settings")
+local settings = require "settings"
 
 local function lsp_attach(_, buf)
-	local telescope = require("telescope.builtin")
+	local telescope = require "telescope.builtin"
 	local map = function(mode, keys, func, desc)
 		vim.keymap.set(mode, keys, func, { buffer = buf, desc = desc })
 	end
@@ -52,16 +52,16 @@ return {
 		},
 	},
 	-- Progress thingy
-	{ "j-hui/fidget.nvim",    opts = {} },
+	{ "j-hui/fidget.nvim", opts = {} },
 	-- Fmt
 	{
 		"stevearc/conform.nvim",
 		config = function()
-			local conform = require("conform")
+			local conform = require "conform"
 
-			conform.setup({ formatters_by_ft = settings.formatters })
+			conform.setup { formatters_by_ft = settings.formatters }
 			local function fmt(_)
-				conform.format({ lsp_fallback = true, timeout_ms = 500 })
+				conform.format { lsp_fallback = true, timeout_ms = 500 }
 			end
 			vim.api.nvim_create_user_command("Format", fmt, { desc = "Format current buffer with LSP" })
 		end,

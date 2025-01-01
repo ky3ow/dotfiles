@@ -23,8 +23,8 @@ return {
 			end
 		end
 
-		vim.filetype.add({
+		vim.filetype.add {
 			extension = extension_table,
-		})
+		}
 	end,
 }

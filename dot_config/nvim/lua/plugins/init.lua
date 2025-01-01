@@ -43,20 +43,20 @@ return {
 					vim.keymap.set("t", "<C-w><esc>", [[<C-\><C-n>]], opts)
 					vim.keymap.set("t", "<C-w>]", [[<C-\><C-n>]], opts)
 					vim.keymap.set("t", "<C-w>.", "<C-w>", opts)
-					for _, value in ipairs({ "h", "j", "k", "l" }) do
+					for _, value in ipairs { "h", "j", "k", "l" } do
 						vim.keymap.set("t", "<C-w>" .. value, "<C-\\><C-n>:wincmd " .. value .. "<CR>", opts)
 					end
 				end,
 			})
 
-			require("toggleterm").setup({
+			require("toggleterm").setup {
 				direction = "horizontal",
 				open_mapping = [[<c-\>]],
 				persist_mode = false,
-			})
+			}
 
 			local Terminal = require("toggleterm.terminal").Terminal
-			local lazygit = Terminal:new({ cmd = "lazygit", hidden = true, direction = "float" })
+			local lazygit = Terminal:new { cmd = "lazygit", hidden = true, direction = "float" }
 
 			local function lazygit_toggle()
 				lazygit:toggle()
@@ -72,19 +72,19 @@ return {
 		"kylechui/nvim-surround",
 		version = "*", -- Use for stability; omit to use `main` branch for the latest features
 		config = function()
-			require("nvim-surround").setup({
+			require("nvim-surround").setup {
 				-- Configuration here, or leave empty to use defaults
-			})
+			}
 		end,
 	},
 
 	{
 		"jinh0/eyeliner.nvim",
 		config = function()
-			require("eyeliner").setup({
+			require("eyeliner").setup {
 				highlight_on_key = true,
 				dim = true,
-			})
+			}
 			vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "@keyword.return" })
 			vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "@attribute" })
 		end,
