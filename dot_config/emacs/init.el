@@ -1,3 +1,5 @@
+(add-to-list 'load-path emacs-config-home)
+
 (setq column-number-mode t) ;; in bar
 (setq line-number-mode t) ;; in bar
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ;; in column
