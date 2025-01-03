@@ -121,7 +121,7 @@ if command -v fzf &>/dev/null; then
   FZF_IS_COMPATIBLE="$(printf "%.2f > %.2f\n" "$FZF_CUR_VER" "$FZF_MIN_VER" | bc)"
 
   if [ "$FZF_IS_COMPATIBLE" -eq 1 ]; then
-    export FZF_ALT_C_COMMAND="fd -HL --type d"
+    export FZF_ALT_C_COMMAND="find -L -type d"
     export FZF_ALT_C_OPTS="--preview 'tree {}'"
     eval "$(fzf --bash)"
   fi
