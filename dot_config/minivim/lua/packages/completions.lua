@@ -20,9 +20,17 @@ later(function()
 		},
 
 		sources = {
-			default = { "lsp", "path", "luasnip", "buffer" },
+			default = { "lazydev", "lsp", "path", "luasnip", "buffer" },
 			cmdline = {},
+			providers = {
+				lazydev = {
+					name = "LazyDev",
+					module = "lazydev.integrations.blink",
+					score_offset = 100,
+				},
+			},
 		},
+
 
 		completion = {
 			documentation = {
@@ -30,7 +38,7 @@ later(function()
 				auto_show_delay_ms = 200,
 			},
 			list = {
-				selection = "auto_insert"
+				selection = "auto_insert" -- a bit wonky right now
 			},
 		},
 
