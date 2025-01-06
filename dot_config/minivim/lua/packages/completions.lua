@@ -1,73 +1,56 @@
-local function setup()
-	require("luasnip.loaders.from_vscode").lazy_load()
-	-- ls.filetype_extend("javascript", { "jsdoc" })
-	local cmp = require "cmp"
-	local ls = require "luasnip"
-	cmp.setup {
-		snippet = {
-			expand = function(args)
-				ls.lsp_expand(args.body)
+local add = require("mini.deps").add
+local later = require("mini.deps").later
+
+add {
+	source = "saghen/blink.cmp",
+	depends = { "rafamadriz/friendly-snippets", "L3MON4D3/LuaSnip" },
+	checkout = "v0.9.3",
+}
+
+later(function()
+	require("blink.cmp").setup {
+		keymap = {
+			preset = "default",
+			["<C-l>"] = { "snippet_forward", "fallback" },
+			["<C-h>"] = { "snippet_backward", "fallback" },
+		},
+		appearance = {
+			use_nvim_cmp_as_default = true,
+			nerd_font_variant = "mono",
+		},
+
+		sources = {
+			default = { "lsp", "path", "luasnip", "buffer" },
+			cmdline = {},
+		},
+
+		completion = {
+			documentation = {
+				auto_show = true,
+				auto_show_delay_ms = 200,
+			},
+			list = {
+				selection = "auto_insert"
+			},
+		},
+
+		snippets = {
+			expand = function (snippet)
+				require("luasnip").lsp_expand(snippet)
 			end,
-		},
-		completion = { completeopt = "menu,menuone,noinsert" },
-		mapping = cmp.mapping.preset.insert {
-			["<C-n>"] = cmp.mapping.select_next_item(),
-			["<C-p>"] = cmp.mapping.select_prev_item(),
-			["<C-y>"] = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = true },
-			["<C-Space>"] = cmp.mapping.complete(),
-			["<C-b>"] = cmp.mapping.scroll_docs(-4),
-			["<C-f>"] = cmp.mapping.scroll_docs(4),
-			["<C-l>"] = cmp.mapping(function()
-				if ls.expand_or_locally_jumpable() then
-					ls.expand_or_jump()
+			active = function (filter)
+				if filter and filter.direction then
+					return require("luasnip").jumpable(filter.direction)
 				end
-			end, { "i", "s" }),
-			["<C-h>"] = cmp.mapping(function()
-				if ls.locally_jumpable(-1) then
-					ls.jump(-1)
-				end
-			end, { "i", "s" }),
-			["<C-j>"] = cmp.mapping(function()
-				if ls.choice_active() then
-					ls.change_choice(1)
-				end
-			end, { "i", "s" }),
-		},
-		formatting = {
-			format = function(entry, vim_item)
-				vim_item.kind = "(" .. string.lower(vim_item.kind) .. ")"
-				vim_item.menu = ({
-					nvim_lsp = "[lsp]",
-					luasnip = "[snip]",
-					buffer = "[bufr]",
-					path = "[path]",
-				})[entry.source.name]
-				return vim_item
+				return require("luasnip").in_snippet()
 			end,
-		},
-		sources = cmp.config.sources {
-			{ name = "nvim_lsp" },
-			{ name = "luasnip" },
-			{ name = "buffer" },
-			{ name = "path" },
+			jump = function (direction)
+				require("luasnip").jump(direction)
+			end
 		},
 	}
-end
 
-return {
-	-- Completion
-	{
-		"hrsh7th/nvim-cmp",
-		config = setup,
-		dependencies = {
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/cmp-path",
-			"hrsh7th/cmp-cmdline",
-			"hrsh7th/cmp-buffer",
-		},
-	},
-	-- Snippets
-	{ "L3MON4D3/LuaSnip" },
-	{ "rafamadriz/friendly-snippets" },
-	{ "saadparwaiz1/cmp_luasnip" },
-}
+	require("luasnip.loaders.from_vscode").lazy_load()
+	-- local ls = require "luasnip"
+	-- ls.filetype_extend("javascript", { "jsdoc" })
+end)

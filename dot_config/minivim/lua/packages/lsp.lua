@@ -1,12 +1,16 @@
-local function lsp_attach(_, buf)
+local H = {}
+
+function H.lsp_attach(_, buf)
 	local telescope = require "telescope.builtin"
 	local map = function(mode, keys, func, desc)
 		vim.keymap.set(mode, keys, func, { buffer = buf, desc = desc })
 	end
 
+	local formatprg = vim.fn.exists(":Format") == 2 and vim.cmd.Format or vim.lsp.buf.format -- exists matches fully(==2)
+
 	map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
 	map("n", "<leader>la", vim.lsp.buf.code_action, "[L]sp Code [A]ction")
-	map("n", "<leader>lf", vim.cmd.Format, "[L]SP [F]ormat")
+	map("n", "<leader>lf", formatprg, "[L]SP [F]ormat")
 	map("n", "<leader>ls", telescope.lsp_document_symbols, "[L]SP document [S]ymbols")
 
 	map("n", "gd", telescope.lsp_definitions, "[G]oto [D]efinition")
@@ -26,70 +30,65 @@ local function lsp_attach(_, buf)
 	end, "[W]orkspace [L]ist Folders")
 end
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-local cmp_installed, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-if cmp_installed then
-	capabilities = vim.tbl_deep_extend("force", capabilities, cmp_lsp.default_capabilities())
-end
+local add = require("mini.deps").add
+local now, later = require("mini.deps").now, require("mini.deps").later
+
+add {
+	source = "neovim/nvim-lspconfig",
+	depends = {
+		"williamboman/mason.nvim",
+		"williamboman/mason-lspconfig.nvim",
+		"j-hui/fidget.nvim",
+		"stevearc/conform.nvim",
+		"mfussenegger/nvim-lint",
+	}
+}
+
+now(function()
+	local blink_installed, blink = pcall(require, "blink.cmp")
+
+	require("mason").setup {}
+	require("mason-lspconfig").setup {
+		handlers = {
+			function(server_name)
+				local config = vim.g.settings.language_servers[server_name] or {}
+				if blink_installed then
+					config.capabilities = blink.get_lsp_capabilities(config.capabilities, true)
+				else
+					config.capabilities = vim.tbl_deep_extend("force", {}, vim.lsp.protocol.make_client_capabilities(), config.capabilities or {})
+				end
+
+				config.on_attach = H.lsp_attach
+				require("lspconfig")[server_name].setup(config)
+			end
+		}
+	}
+end)
+
+later(function()
+	require("fidget").setup {}
+
+	local conform = require "conform"
+	conform.setup { formatters_by_ft = vim.g.settings.formatters }
+	local function fmt(_)
+		conform.format { lsp_fallback = true, timeout_ms = 500 }
+	end
+	vim.api.nvim_create_user_command("Format", fmt, { desc = "Format current buffer with LSP" })
+
+	require("lint").linters_by_ft = vim.g.settings.linters
+	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+		callback = function()
+			require("lint").try_lint(nil, { ignore_errors = true })
+		end,
+	})
+end)
+
+add {
+	source = "folke/lazydev.nvim",
+	depends = { "Bilal2453/luvit-meta" }
+}
 
 return {
-	-- Tools manager(lsp, linter, formatter)
-	{ "williamboman/mason.nvim", opts = {} },
-	{ "neovim/nvim-lspconfig" },
-	{
-		"williamboman/mason-lspconfig.nvim",
-		opts = {
-			handlers = {
-				function(server_name)
-					local server = vim.g.settings.language_servers[server_name] or {}
-					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-					server.on_attach = lsp_attach
-					require("lspconfig")[server_name].setup(server)
-				end,
-			},
-		},
-	},
-	-- Progress thingy
-	{ "j-hui/fidget.nvim", opts = {} },
-	-- Fmt
-	{
-		"stevearc/conform.nvim",
-		config = function()
-			local conform = require "conform"
-
-			conform.setup { formatters_by_ft = vim.g.settings.formatters }
-			local function fmt(_)
-				conform.format { lsp_fallback = true, timeout_ms = 500 }
-			end
-			vim.api.nvim_create_user_command("Format", fmt, { desc = "Format current buffer with LSP" })
-		end,
-	},
-	-- Lint
-	{
-		"mfussenegger/nvim-lint",
-		config = function()
-			require("lint").linters_by_ft = vim.g.settings.linters
-
-			vim.api.nvim_create_autocmd({ "BufWritePost" }, {
-				callback = function()
-					require("lint").try_lint(nil, { ignore_errors = true })
-				end,
-			})
-		end,
-	},
-	-- lazydev config
-	{
-		"folke/lazydev.nvim",
-		ft = "lua", -- only load on lua files
-		opts = {
-			library = {
-				-- See the configuration section for more details
-				-- Load luvit types when the `vim.uv` word is found
-				{ path = "luvit-meta/library", words = { "vim%.uv" } },
-			},
-		},
-	},
-	{ "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
 	{
 		"hrsh7th/nvim-cmp",
 		opts = function(_, opts)

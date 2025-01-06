@@ -3,7 +3,6 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
 vim.g.settings = {
-
 	colorscheme = "everforest",
 
 	language_servers = {

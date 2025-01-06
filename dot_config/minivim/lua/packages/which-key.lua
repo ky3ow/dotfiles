@@ -1,11 +1,9 @@
 local H = {}
 
 function H.setup_buffers()
-	local buffers_augroup = vim.api.nvim_create_augroup("ky3ow.Buffers", { clear = true })
-
 	vim.api.nvim_create_autocmd({ "BufDelete", "BufAdd", "VimEnter" }, {
 		pattern = "*",
-		group = buffers_augroup,
+		group = vim.api.nvim_create_augroup("ky3ow.Buffers", { clear = true }),
 		callback = function(e)
 			local buffers = {}
 			for _, buf in ipairs(vim.fn.getbufinfo { buflisted = 1 }) do
@@ -67,97 +65,93 @@ function H.setup_visual_at()
 	})
 end
 
-return {
+local later = require("mini.deps").later
 
-	-- {
-	-- 	"folke/which-key.nvim",
-	-- 	config = function()
-	-- 		local wk = require("which-key")
-	-- 		wk.setup({
-	-- 			preset = "helix",
-	-- 			delay = function(_) -- ctx.plugin
-	-- 				return 0
-	-- 			end,
-	-- 			spec = {
-	-- 				{ "<leader>l", group = "[L]SP" },
-	-- 				{ "<leader>s", group = "[S]earch" },
-	-- 				{ "<leader>w", group = "[W]orkspace" },
-	-- 			},
-	-- 		})
-	--
-	-- 		setup_buffers()
-	-- 		setup_visual_at()
-	-- 	end,
-	-- },
+later(function()
+	local miniclue = require "mini.clue"
 
-	{
-		"echasnovski/mini.nvim",
-		verison = false,
-		config = function()
-			local miniclue = require "mini.clue"
-			miniclue.setup {
-				triggers = {
-					-- Leader triggers
-					{ mode = "n", keys = "<Leader>" },
-					{ mode = "x", keys = "<Leader>" },
+	miniclue.setup {
+		triggers = {
+			-- Leader triggers
+			{ mode = "n", keys = "<Leader>" },
+			{ mode = "x", keys = "<Leader>" },
 
-					-- Macro
-					{ mode = "n", keys = "@" },
-					{ mode = "x", keys = "@" },
+			-- Macro
+			{ mode = "n", keys = "@" },
+			{ mode = "x", keys = "@" },
 
-					{ mode = "n", keys = "[" },
-					{ mode = "n", keys = "]" },
+			{ mode = "n", keys = "[" },
+			{ mode = "n", keys = "]" },
 
-					-- Built-in completion
-					{ mode = "i", keys = "<C-x>" },
+			-- Built-in completion
+			{ mode = "i", keys = "<C-x>" },
 
-					-- `g` key
-					{ mode = "n", keys = "g" },
-					{ mode = "x", keys = "g" },
+			-- `g` key
+			{ mode = "n", keys = "g" },
+			{ mode = "x", keys = "g" },
 
-					-- Marks
-					{ mode = "n", keys = "'" },
-					{ mode = "n", keys = "`" },
-					{ mode = "x", keys = "'" },
-					{ mode = "x", keys = "`" },
+			-- Marks
+			{ mode = "n", keys = "'" },
+			{ mode = "n", keys = "`" },
+			{ mode = "x", keys = "'" },
+			{ mode = "x", keys = "`" },
 
-					-- Registers
-					{ mode = "n", keys = '"' },
-					{ mode = "x", keys = '"' },
-					{ mode = "i", keys = "<C-r>" },
-					{ mode = "c", keys = "<C-r>" },
+			-- Registers
+			{ mode = "n", keys = '"' },
+			{ mode = "x", keys = '"' },
+			{ mode = "i", keys = "<C-r>" },
+			{ mode = "c", keys = "<C-r>" },
 
-					-- Window commands
-					{ mode = "n", keys = "<C-w>" },
+			-- Window commands
+			{ mode = "n", keys = "<C-w>" },
 
-					-- `z` key
-					{ mode = "n", keys = "z" },
-					{ mode = "x", keys = "z" },
-				},
+			-- `z` key
+			{ mode = "n", keys = "z" },
+			{ mode = "x", keys = "z" },
+		},
 
-				window = {
-					delay = 0,
-					config = {
-						width = 50,
-					},
-				},
+		window = {
+			delay = 0,
+			config = {
+				width = 50,
+			},
+		},
 
-				clues = {
-					miniclue.gen_clues.builtin_completion(),
-					miniclue.gen_clues.g(),
-					miniclue.gen_clues.marks(),
-					miniclue.gen_clues.registers { show_contents = true },
-					miniclue.gen_clues.windows(),
-					miniclue.gen_clues.z(),
-					{ mode = "n", keys = "<Leader>s", desc = "[S]earch" },
-					{ mode = "n", keys = "<Leader>r", desc = "[R]eplace" },
-					{ mode = "n", keys = "<Leader>l", desc = "[L]SP" },
-					{ mode = "n", keys = "<Leader>w", desc = "[W]orkspace" },
-				},
-			}
+		clues = {
+			miniclue.gen_clues.builtin_completion(),
+			miniclue.gen_clues.g(),
+			miniclue.gen_clues.marks(),
+			miniclue.gen_clues.registers { show_contents = true },
+			miniclue.gen_clues.windows(),
+			miniclue.gen_clues.z(),
+			{ mode = "n", keys = "<Leader>s", desc = "[S]earch" },
+			{ mode = "n", keys = "<Leader>r", desc = "[R]eplace" },
+			{ mode = "n", keys = "<Leader>l", desc = "[L]SP" },
+			{ mode = "n", keys = "<Leader>w", desc = "[W]orkspace" },
+		},
+	}
 
-			H.setup_buffers()
-			H.setup_visual_at()
-		end,
-	},
-}
+	H.setup_buffers()
+	H.setup_visual_at()
+end)
+
+-- {
+-- 	"folke/which-key.nvim",
+-- 	config = function()
+-- 		local wk = require("which-key")
+-- 		wk.setup({
+-- 			preset = "helix",
+-- 			delay = function(_) -- ctx.plugin
+-- 				return 0
+-- 			end,
+-- 			spec = {
+-- 				{ "<leader>l", group = "[L]SP" },
+-- 				{ "<leader>s", group = "[S]earch" },
+-- 				{ "<leader>w", group = "[W]orkspace" },
+-- 			},
+-- 		})
+--
+-- 		setup_buffers()
+-- 		setup_visual_at()
+-- 	end,
+-- },

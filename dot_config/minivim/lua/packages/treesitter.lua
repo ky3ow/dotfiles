@@ -1,13 +1,31 @@
-return {
-	{
-		"nvim-treesitter/nvim-treesitter",
-		main = "nvim-treesitter.configs",
-		init = function()
-			vim.o.foldmethod = "expr"
-			vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-		end,
-		opts = {
-			ensure_installed = { "lua", "python", "vimdoc", "vim", "bash" },
+local add = require("mini.deps").add
+local later = require("mini.deps").later
+
+add {
+	source = "nvim-treesitter/nvim-treesitter",
+	checkout = "master",
+	monitor = "main",
+	hooks = {
+		post_checkout = function()
+			vim.cmd("TSUpdate")
+		end
+	}
+}
+
+add {
+	source = "nvim-treesitter/nvim-treesitter-textobjects"
+}
+
+add {
+	source = "nvim-treesitter/nvim-treesitter-context"
+}
+
+later(function()
+	vim.opt.foldmethod = "expr"
+	vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+
+	require("nvim-treesitter.configs").setup {
+			ensure_installed = { "lua", "python", "vimdoc", "vim", "bash", "markdown" },
 			auto_install = false,
 			sync_install = false,
 			ignore_install = {},
@@ -67,11 +85,5 @@ return {
 					},
 				},
 			},
-		},
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter-textobjects",
-			"nvim-treesitter/nvim-treesitter-context",
-		},
-		build = ":TSUpdate",
-	},
-}
+	}
+end)
