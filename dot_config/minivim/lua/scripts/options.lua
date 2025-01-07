@@ -1,6 +1,5 @@
 -- [[ Options ]]
 local H = {}
-
 function H.update_lead()
 	local lcs = vim.opt_local.listchars:get()
 	local tab = vim.fn.str2list(lcs.tab)

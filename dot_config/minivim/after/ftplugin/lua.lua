@@ -1,3 +1,9 @@
+-- Do not setup lazydev multiple times
+if vim.g.lua_loaded then
+	return
+end
+vim.g.lua_loaded = true
+
 require("lazydev").setup {
 	library = {
 		-- See the configuration section for more details
