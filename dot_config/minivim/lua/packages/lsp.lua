@@ -63,6 +63,7 @@ now(function()
 
 		require("lspconfig")[server].setup(config)
 	end
+
 end)
 
 later(function()

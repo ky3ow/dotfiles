@@ -32,7 +32,6 @@ later(function()
 			},
 		},
 
-
 		completion = {
 			documentation = {
 				auto_show = true,
@@ -59,7 +58,16 @@ later(function()
 						},
 						source_name = {
 							width = { max = 30 },
-							text = function(ctx) return "[" .. ctx.source_name .. "]" end,
+							text = function(ctx)
+								local name = ctx.source_name
+								local map = {
+									Luasnip = "[snip]",
+									LSP = "[lsp]",
+									Path = "[path]",
+									Buffer = "[buf]"
+								}
+								return map[name]
+							end,
 							highlight = 'BlinkCmpSource',
 						}
 					},
