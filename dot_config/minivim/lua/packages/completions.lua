@@ -8,6 +8,7 @@ add {
 }
 
 later(function()
+	require("mini.icons").setup {}
 	require("blink.cmp").setup {
 		keymap = {
 			preset = "default",
@@ -37,22 +38,46 @@ later(function()
 				auto_show = true,
 				auto_show_delay_ms = 200,
 			},
+
 			list = {
 				selection = "auto_insert" -- a bit wonky right now
+			},
+
+			menu = {
+				draw = {
+					columns = {
+						{"label",       "label_description", gap = 1 },
+						{ "kind",      "source_name", gap = 1 },
+					},
+					gap = 2,
+					components = {
+						kind = {
+							ellipsis = false,
+							text = function(ctx)
+								return "(" .. ctx.kind .. ")"
+							end
+						},
+						source_name = {
+							width = { max = 30 },
+							text = function(ctx) return "[" .. ctx.source_name .. "]" end,
+							highlight = 'BlinkCmpSource',
+						}
+					},
+				},
 			},
 		},
 
 		snippets = {
-			expand = function (snippet)
+			expand = function(snippet)
 				require("luasnip").lsp_expand(snippet)
 			end,
-			active = function (filter)
+			active = function(filter)
 				if filter and filter.direction then
 					return require("luasnip").jumpable(filter.direction)
 				end
 				return require("luasnip").in_snippet()
 			end,
-			jump = function (direction)
+			jump = function(direction)
 				require("luasnip").jump(direction)
 			end
 		},

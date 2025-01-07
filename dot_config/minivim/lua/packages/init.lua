@@ -4,7 +4,7 @@ local now, later = require("mini.deps").now, require("mini.deps").later
 add {
 	source = "lewis6991/gitsigns.nvim"
 }
-now(function() 
+later(function()
 	require("gitsigns").setup {
 		-- See `:help gitsigns.txt`
 		signs = {

@@ -5,7 +5,6 @@ add {
 	source = "neovim/nvim-lspconfig",
 	depends = {
 		"williamboman/mason.nvim",
-		"williamboman/mason-lspconfig.nvim",
 		"j-hui/fidget.nvim",
 		"stevearc/conform.nvim",
 		"mfussenegger/nvim-lint",
