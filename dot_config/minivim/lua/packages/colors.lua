@@ -14,7 +14,6 @@ g_settings.colorschemes = {
 			background = "hard",
 			disable_italic_comments = true,
 			on_highlights = function (hl, pallette)
-				require("everforest")
 				hl.NormalFloat = { bg = pallette.bg0 }
 				hl.MiniPickMatchCurrent = { bg = pallette.bg_green }
 			end,
