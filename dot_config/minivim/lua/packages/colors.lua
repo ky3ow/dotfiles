@@ -1,35 +1,62 @@
-local H = {}
+local g_settings = vim.g.settings
+---@class Colorscheme
+---@field source string
+---@field config? table
+---@field pre_init? function
+---@field aliases? table<string>
+---@field configured? boolean
 
-H.colorschemes = {
-	{
+---@type table<string, Colorscheme>
+g_settings.colorschemes = {
+	everforest = {
 		source = "neanias/everforest-nvim",
-		name = "everforest",
-		configured = false,
+		config = {
+			background = "hard",
+			disable_italic_comments = true,
+			on_highlights = function (hl, pallette)
+				require("everforest")
+				hl.NormalFloat = { bg = pallette.bg0 }
+				hl.MiniPickMatchCurrent = { bg = pallette.bg_green }
+			end,
+		},
 	},
 
-	{
-		source = "rose-pine/neovim",
-		name = "rose-pine",
-		aliases = { "rose-pine-dawn", "rose-pine-main", "rose-pine-moon", },
-	},
-
-	{
+	gruvbox = {
 		source = "ellisonleao/gruvbox.nvim",
-		name = "gruvbox",
-		configured = false,
+		config = {
+			undercurl = false,
+			underline = false,
+			bold = true,
+			italic = {
+				strings = false,
+				emphasis = true,
+				comments = false,
+				operators = false,
+				folds = false,
+			},
+		},
 	},
 
-	{
+	["rose-pine"] = {
+		source = "rose-pine/neovim",
+		aliases = { "rose-pine-dawn", "rose-pine-main", "rose-pine-moon", },
+		config = {
+			styles = {
+				italic = false,
+			},
+		},
+	},
+
+	nightfox = {
 		source = "EdenEast/nightfox.nvim",
-		name = "nightfox",
 		aliases = { "duskfox", "carbonfox", "nordfox", "dawnfox", "terafox", },
-		configured = false,
 	},
 }
+vim.g.settings = g_settings
 
 ---@param target string
 ---@param source table
-function H.contains(target, source)
+local function contains(source, target)
 	for _, value in ipairs(source) do
 		if value == target then
 			return true
@@ -38,36 +65,6 @@ function H.contains(target, source)
 
 	return false
 end
-
-local settings = vim.g.settings
-settings.colorschemes = {
-	everforest = {
-		background = "hard",
-		disable_italic_comments = true,
-	},
-
-	gruvbox = {
-		undercurl = false,
-		underline = false,
-		bold = true,
-		italic = {
-			strings = false,
-			emphasis = true,
-			comments = false,
-			operators = false,
-			folds = false,
-		},
-	},
-
-	["rose-pine"] = {
-		styles = {
-			italic = false,
-		},
-	},
-
-	nightfox = {},
-}
-vim.g.settings = settings
 
 -- [[ Highlight on yank ]]
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -80,38 +77,50 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 vim.api.nvim_create_autocmd("ColorSchemePre", {
 	group = vim.api.nvim_create_augroup("ky3ow.ColorschemeSetup", { clear = true }),
-	callback = function(e)
+	callback = function(event)
 		---@type string
-		local name = e.match
-		local target_colorscheme
+		local target = event.match
 
-		for _, colorscheme in ipairs(H.colorschemes) do
-			if (name == colorscheme.name) or (colorscheme.aliases and H.contains(name, colorscheme.aliases)) then
-				target_colorscheme = colorscheme
+		local saved_settings = vim.g.settings
+		local colorschemes = saved_settings.colorschemes
+
+		local colorscheme = nil
+
+		for name, settings in pairs(colorschemes) do
+			if (name == target) or (settings.aliases and contains(settings.aliases, target)) then
+				colorscheme = { name = name, settings = settings }
 			end
 		end
 
-		if (not target_colorscheme) or target_colorscheme.configured then
+		if (not colorscheme) or colorscheme.settings.configured then
 			-- colorscheme is not custom or already configured
 			return
 		end
 
-		local module = require(target_colorscheme.name)
+		vim.validate {
+			source = { colorscheme.settings.source, "string", false },
+			config = { colorscheme.settings.config, "table", true },
+			pre_init = { colorscheme.settings.pre_init, "function", true },
+			aliases = { colorscheme.settings.aliases, "table", true },
+		}
 
-		if not module.setup then
-			-- colorscheme is not configured via typical `setup`
-			return
+		if colorscheme.settings.pre_init then
+			colorscheme.settings.pre_init()
 		end
 
-		module.setup(vim.g.settings.colorschemes[target_colorscheme.name] or {})
-		target_colorscheme.configured = true
+		if colorscheme.settings.config then
+			require(colorscheme.name).setup(colorscheme.settings.config)
+		end
+
+		colorscheme.settings.configured = true
+		vim.g.settings = saved_settings
 	end,
 })
 
 local add = require("mini.deps").add
 local now = require("mini.deps").now
 
-for _, colorscheme in ipairs(H.colorschemes) do
+for _, colorscheme in pairs(vim.g.settings.colorschemes) do
 	add {
 		source = colorscheme.source
 	}
