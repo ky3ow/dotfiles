@@ -3,12 +3,22 @@ local later = require("mini.deps").later
 
 add {
 	source = "saghen/blink.cmp",
-	depends = { "rafamadriz/friendly-snippets", "L3MON4D3/LuaSnip" },
+	depends = { "rafamadriz/friendly-snippets" },
 	checkout = "v0.10.0",
 }
 
 later(function()
 	require("mini.icons").setup {}
+	-- @TODO look into MiniSnippets.default_insert() to add dynamic node logic
+	-- use when it could accept lsp completions
+	-- local gen_loader = require("mini.snippets").gen_loader
+	-- require("mini.snippets").setup {
+	-- 	snippets = {
+	-- 		gen_loader.from_lang(),
+	-- 		gen_loader.from_runtime("globals.json"),
+	-- 		gen_loader.from_runtime("globals.lua"),
+	-- 	},
+	-- }
 	require("blink.cmp").setup {
 		keymap = {
 			preset = "default",
@@ -40,7 +50,7 @@ later(function()
 
 			list = {
 				selection = {
-					preselect =	true,
+					preselect = true,
 					auto_insert = true,
 				},
 			},
@@ -48,8 +58,8 @@ later(function()
 			menu = {
 				draw = {
 					columns = {
-						{"label",       "label_description", gap = 1 },
-						{ "kind",      "source_name", gap = 1 },
+						{ "label", "label_description", gap = 1 },
+						{ "kind",  "source_name",       gap = 1 },
 					},
 					gap = 2,
 					components = {
@@ -78,10 +88,6 @@ later(function()
 			},
 		},
 
-		snippets = { preset = "luasnip" },
+		snippets = { preset = "default" },
 	}
-
-	require("luasnip.loaders.from_vscode").lazy_load()
-	-- local ls = require "luasnip"
-	-- ls.filetype_extend("javascript", { "jsdoc" })
 end)

@@ -23,4 +23,7 @@ end
 
 vim.filetype.add {
 	extension = extension_table,
+	pattern = {
+		[".*/pack/.*/doc/.*.txt"] = "help",
+	}
 }
