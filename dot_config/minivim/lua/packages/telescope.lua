@@ -66,6 +66,8 @@ later(function ()
 
 	vim.keymap.set("n", "<leader>sG", wrap(builtins.git_files, ivy), { desc = "[S]earch [G]it" })
 	vim.keymap.set("n", "<leader>sf", wrap(builtins.find_files, ivy), { desc = "[S]earch [F]iles" })
+	vim.keymap.set("n", "<leader>fp", wrap(builtins.find_files, vim.tbl_extend('force', ivy, {cwd = vim.g.mini_deps})), { desc = "[F]ind [P]ackages" })
+	vim.keymap.set("n", "<leader>gp", wrap(builtins.live_grep, vim.tbl_extend('force', ivy, {cwd = vim.g.mini_deps})), { desc = "[G]rep [P]ackages" })
 	vim.keymap.set("n", "<leader>sw", wrap(builtins.grep_string, ivy), { desc = "[S]earch current [W]ord" })
 	vim.keymap.set("n", "<leader>sg", wrap(builtins.live_grep, ivy), { desc = "[S]earch by [G]rep" })
 

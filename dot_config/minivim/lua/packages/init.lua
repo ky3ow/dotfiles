@@ -63,44 +63,42 @@ later(function()
 	require("nvim-surround").setup {}
 end)
 
-return {
-	{
-		"akinsho/toggleterm.nvim",
-		version = "*",
-		config = function()
-			vim.api.nvim_create_autocmd("TermOpen", {
-				pattern = "term://*",
-				callback = function(_)
-					local opts = { buffer = 0 }
+add {
+	source = "akinsho/toggleterm.nvim"
+}
+later(function()
+	vim.api.nvim_create_autocmd("TermOpen", {
+		pattern = "term://*",
+		callback = function(_)
+			local opts = { buffer = 0 }
 
-					vim.keymap.set("t", "<C-w><esc>", [[<C-\><C-n>]], opts)
-					vim.keymap.set("t", "<C-w>]", [[<C-\><C-n>]], opts)
-					vim.keymap.set("t", "<C-w>.", "<C-w>", opts)
-					for _, value in ipairs { "h", "j", "k", "l" } do
-						vim.keymap.set("t", "<C-w>" .. value, "<C-\\><C-n>:wincmd " .. value .. "<CR>", opts)
-					end
-				end,
-			})
-
-			require("toggleterm").setup {
-				direction = "horizontal",
-				open_mapping = [[<c-\>]],
-				persist_mode = false,
-			}
-
-			local Terminal = require("toggleterm.terminal").Terminal
-			local lazygit = Terminal:new { cmd = "lazygit", hidden = true, direction = "float" }
-
-			local function lazygit_toggle()
-				lazygit:toggle()
+			vim.keymap.set("t", "<C-w><esc>", [[<C-\><C-n>]], opts)
+			vim.keymap.set("t", "<C-w>]", [[<C-\><C-n>]], opts)
+			vim.keymap.set("t", "<C-w>.", "<C-w>", opts)
+			for _, value in ipairs { "h", "j", "k", "l" } do
+				vim.keymap.set("t", "<C-w>" .. value, "<C-\\><C-n>:wincmd " .. value .. "<CR>", opts)
 			end
-
-			vim.api.nvim_create_user_command("Lazygit", lazygit_toggle, { desc = "Lazygit ui" })
-
-			vim.keymap.set("n", "<leader>g", lazygit_toggle, { desc = "[G]it" })
 		end,
-	},
+	})
 
-	{ "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
-	"tpope/vim-sleuth",
+	require("toggleterm").setup {
+		direction = "horizontal",
+		open_mapping = [[<c-\>]],
+		persist_mode = false,
+	}
+
+	local Terminal = require("toggleterm.terminal").Terminal
+	local lazygit = Terminal:new { cmd = "lazygit", hidden = true, direction = "float" }
+
+	local function lazygit_toggle()
+		lazygit:toggle()
+	end
+
+	vim.api.nvim_create_user_command("Lazygit", lazygit_toggle, { desc = "Lazygit ui" })
+
+	vim.keymap.set("n", "<leader>g", lazygit_toggle, { desc = "[G]it" })
+end)
+
+add {
+	source = "tpope/vim-sleuth"
 }
