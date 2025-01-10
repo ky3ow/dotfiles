@@ -1,25 +1,5 @@
 local add = require("mini.deps").add
-local later = require("mini.deps").later
-
-add {
-	source = "nvim-telescope/telescope.nvim",
-	checkout = "0.1.x",
-	depends = {
-		"nvim-telescope/telescope-ui-select.nvim",
-		"nvim-lua/plenary.nvim",
-		{ 
-			source = "nvim-telescope/telescope-fzf-native.nvim",
-			post_checkout = function(opts)
-				if vim.fn.executable "make" ~= 1 then
-					vim.notify("Fzf native: make not found", vim.log.levels.ERROR)
-					return
-				end
-				vim.system({"make"}, { cwd = opts.path }):wait()
-				print(vim.inspect(output))
-			end
-		},
-	}
-}
+local now = require("mini.deps").now
 
 local function wrap(fn, config)
 	return function()
@@ -27,7 +7,26 @@ local function wrap(fn, config)
 	end
 end
 
-later(function ()
+now(function ()
+	add {
+		source = "nvim-telescope/telescope.nvim",
+		checkout = "0.1.x",
+		depends = {
+			"nvim-telescope/telescope-ui-select.nvim",
+			"nvim-lua/plenary.nvim",
+			{
+				source = "nvim-telescope/telescope-fzf-native.nvim",
+				post_checkout = function(opts)
+					if vim.fn.executable "make" ~= 1 then
+						vim.notify("Fzf native: make not found", vim.log.levels.ERROR)
+						return
+					end
+					vim.system({"make"}, { cwd = opts.path }):wait()
+				end
+			},
+		}
+	}
+
 	local actions = require "telescope.actions"
 	local builtins = require "telescope.builtin"
 

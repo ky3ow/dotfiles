@@ -120,9 +120,7 @@ local add = require("mini.deps").add
 local now = require("mini.deps").now
 
 for _, colorscheme in pairs(vim.g.settings.colorschemes) do
-	add {
-		source = colorscheme.source
-	}
+	add(colorscheme.source)
 end
 
 now(function()

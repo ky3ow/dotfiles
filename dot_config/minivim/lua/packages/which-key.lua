@@ -104,6 +104,7 @@ later(function()
 
 			-- Window commands
 			{ mode = "n", keys = "<C-w>" },
+			{ mode = "t", keys = "<C-w>" },
 
 			-- `z` key
 			{ mode = "n", keys = "z" },

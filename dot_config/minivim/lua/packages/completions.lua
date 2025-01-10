@@ -1,13 +1,12 @@
 local add = require("mini.deps").add
 local later = require("mini.deps").later
 
-add {
-	source = "saghen/blink.cmp",
-	depends = { "rafamadriz/friendly-snippets" },
-	checkout = "v0.10.0",
-}
-
 later(function()
+	add {
+		source = "saghen/blink.cmp",
+		depends = { "rafamadriz/friendly-snippets" },
+		checkout = "v0.10.0",
+	}
 	require("mini.icons").setup {}
 	-- @TODO look into MiniSnippets.default_insert() to add dynamic node logic
 	-- use when it could accept lsp completions

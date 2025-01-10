@@ -16,6 +16,7 @@ vim.g.settings = {
 			single_file_support = true,
 		},
 		pyright = {},
+		terraformls = {},
 		-- html = { filetypes = { 'html', 'twig', 'hbs'} },
 		lua_ls = {
 			settings = {
