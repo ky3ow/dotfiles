@@ -1,6 +1,9 @@
 -- [[ Options ]]
 local H = {}
 function H.update_lead()
+	if #vim.bo.filetype == 0 then
+		return
+	end
 	local lcs = vim.opt_local.listchars:get()
 	local tab = vim.fn.str2list(lcs.tab)
 	local lead = vim.fn.str2list(lcs.lead)
@@ -19,6 +22,10 @@ vim.api.nvim_create_autocmd("OptionSet", {
 	pattern = {
 		"listchars", "tabstop", "filetype"
 	},
+	callback = H.update_lead,
+	group = H.group
+})
+vim.api.nvim_create_autocmd("FileType", {
 	callback = H.update_lead,
 	group = H.group
 })

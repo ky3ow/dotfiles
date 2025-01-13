@@ -21,6 +21,8 @@ for extensions, ft_func in pairs(filetypes) do
 	end
 end
 
+extension_table.tf = "terraform"
+
 vim.filetype.add {
 	extension = extension_table,
 	pattern = {

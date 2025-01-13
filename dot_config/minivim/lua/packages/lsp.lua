@@ -24,28 +24,11 @@ now(function()
 
 		require("lspconfig")[server].setup(config)
 	end
-end)
 
-later(function()
-	add "j-hui/fidget.nvim"
-	add "stevearc/conform.nvim"
-	add "mfussenegger/nvim-lint"
-
-	require("fidget").setup {}
-
-	local conform = require "conform"
-	conform.setup { formatters_by_ft = vim.g.settings.formatters }
-	local function fmt(_)
-		conform.format { lsp_fallback = true, timeout_ms = 500 }
-	end
-	vim.api.nvim_create_user_command("Format", fmt, { desc = "Format current buffer with LSP" })
-
-	require("lint").linters_by_ft = vim.g.settings.linters
-	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
-		callback = function()
-			require("lint").try_lint(nil, { ignore_errors = true })
-		end,
-	})
+	vim.api.nvim_create_user_command("Format", function(_)
+		vim.notify("Formatting with lsp")
+		vim.lsp.buf.format()
+	end, { desc = "Format current buffer with LSP" })
 
 	vim.api.nvim_create_autocmd("LspAttach", {
 		group = vim.api.nvim_create_augroup("ky3ow.LspAttach", { clear = true }),
@@ -55,12 +38,9 @@ later(function()
 				vim.keymap.set(mode, keys, func, { buffer = e.buf, desc = desc })
 			end
 
-			local formatprg = vim.fn.exists(":Format") == 2 and vim.cmd.Format or
-			vim.lsp.buf.format                                                              -- exists matches fully(==2)
-
 			map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
 			map("n", "<leader>la", vim.lsp.buf.code_action, "[L]sp Code [A]ction")
-			map("n", "<leader>lf", formatprg, "[L]SP [F]ormat")
+			map("n", "<leader>lf", vim.cmd.Format, "[L]SP [F]ormat")
 			map("n", "<leader>ls", telescope.lsp_document_symbols, "[L]SP document [S]ymbols")
 
 			map("n", "gd", telescope.lsp_definitions, "[G]oto [D]efinition")
@@ -79,5 +59,28 @@ later(function()
 				print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
 			end, "[W]orkspace [L]ist Folders")
 		end
+	})
+end)
+
+later(function()
+	add "j-hui/fidget.nvim"
+	add "stevearc/conform.nvim"
+	add "mfussenegger/nvim-lint"
+
+	require("fidget").setup {}
+
+	local conform = require "conform"
+	conform.setup { formatters_by_ft = vim.g.settings.formatters }
+
+	vim.api.nvim_create_user_command("Format", function(_)
+		vim.notify("Formatting with conform")
+		conform.format { lsp_fallback = true, timeout_ms = 500 }
+	end, { desc = "Format current buffer with LSP" })
+
+	require("lint").linters_by_ft = vim.g.settings.linters
+	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+		callback = function()
+			require("lint").try_lint(nil, { ignore_errors = true })
+		end,
 	})
 end)
