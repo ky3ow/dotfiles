@@ -43,7 +43,57 @@ now(function()
 			map("n", "<leader>lf", vim.cmd.Format, "[L]SP [F]ormat")
 			map("n", "<leader>ls", telescope.lsp_document_symbols, "[L]SP document [S]ymbols")
 
-			map("n", "gd", telescope.lsp_definitions, "[G]oto [D]efinition")
+			map("n", "gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
+
+			local function on_list(opts)
+				local function jump_to(item)
+					if not item then
+						return
+					end
+					vim.lsp.util.jump_to_location(item.user_data, "utf-8")
+				end
+
+				local locations = {}
+				local items = {}
+				for idx, item in ipairs(opts.items) do
+					locations[idx] = item.user_data
+					items[idx] = {
+						col = item.col,
+						lnum = item.lnum,
+						user_data = item.user_data,
+						filename = item.filename,
+						path = item.filename,
+						text = item.text,
+					}
+				end
+
+				if #opts.items > 1 then
+					vim.fn.setqflist(vim.lsp.util.locations_to_items(locations, "utf-8"))
+					vim.ui.select(items, {
+						prompt = "Lsp Locations",
+						format_item = function(item)
+							local filename = vim.fn.pathshorten(vim.fn.fnamemodify(item.filename, ":p:."), 3)
+							return string.format("%s:%d:%d:%s", filename, item.lnum, item.col, item.text)
+						end,
+						-- preview_item = function(item)
+						-- 	-- check Minipick.default_preview
+						-- 	return {
+						-- 		path = item.filename,
+						-- 		col = item.col,
+						-- 		lnum = item.lnum,
+						-- 		text = item.text
+						-- 	}
+						-- end,
+						-- preview = MiniPick.default_preview
+					}, jump_to)
+				else
+					jump_to(items[1])
+				end
+			end
+			require("mini.pick").setup {}
+			vim.ui.select = MiniPick.ui_select
+
+			map("n", "gd", function() vim.lsp.buf.definition({ on_list = on_list }) end, "[G]oto [D]efinition")
 			map("n", "gr", telescope.lsp_references, "[G]oto [R]eferences")
 			map("n", "gI", telescope.lsp_implementations, "[G]oto [I]mplementation")
 			map("n", "<leader>D", telescope.lsp_type_definitions, "Type [D]efinition")

@@ -1,4 +1,6 @@
 -- Do not setup lazydev multiple times
+vim.opt.tabstop = 4
+
 if vim.g.lua_loaded then
 	return
 end

@@ -48,7 +48,7 @@ now(function ()
 		},
 	}
 	pcall(require("telescope").load_extension, "fzf")
-	pcall(require("telescope").load_extension, "ui-select")
+	-- pcall(require("telescope").load_extension, "ui-select")
 
 	local ivy = require("telescope.themes").get_ivy {}
 	local drop_noprev = require("telescope.themes").get_dropdown {
