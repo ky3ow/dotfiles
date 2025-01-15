@@ -7,7 +7,6 @@ later(function()
 		depends = { "rafamadriz/friendly-snippets" },
 		checkout = "v0.10.0",
 	}
-	-- require("mini.icons").setup {}
 	-- @TODO look into MiniSnippets.default_insert() to add dynamic node logic
 	-- use when it could accept lsp completions
 	-- local gen_loader = require("mini.snippets").gen_loader

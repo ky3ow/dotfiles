@@ -16,6 +16,10 @@ vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnos
 vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
+-- Quickfix
+vim.keymap.set("n", "]c", vim.cmd.cnext, { desc = "Go to next quickfix entry message" })
+vim.keymap.set("n", "[c", vim.cmd.cprev, { desc = "Go to previous quickfix entry message" })
+
 -- Center jumping
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down" })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up" })
