@@ -7,7 +7,7 @@ local function wrap(fn, config)
 	end
 end
 
-now(function ()
+now(function()
 	add {
 		source = "nvim-telescope/telescope.nvim",
 		checkout = "0.1.x",
@@ -21,56 +21,81 @@ now(function ()
 						vim.notify("Fzf native: make not found", vim.log.levels.ERROR)
 						return
 					end
-					vim.system({"make"}, { cwd = opts.path }):wait()
+					vim.system({ "make" }, { cwd = opts.path }):wait()
 				end
 			},
 		}
 	}
 
 	local actions = require "telescope.actions"
-	local builtins = require "telescope.builtin"
-
-	require("telescope").setup {
-		defaults = {
-			mappings = {
-				i = {
-					["<esc>"] = actions.close,
-					["<C-u>"] = false,
-					["<C-f>"] = actions.preview_scrolling_down,
-					["<C-b>"] = actions.preview_scrolling_up,
-				},
-			},
-		},
-		extensions = {
-			["ui-select"] = {
-				require("telescope.themes").get_dropdown {},
-			},
-		},
-	}
+	require("telescope").setup {}
 	pcall(require("telescope").load_extension, "fzf")
-	-- pcall(require("telescope").load_extension, "ui-select")
+end)
 
-	local ivy = require("telescope.themes").get_ivy {}
-	local drop_noprev = require("telescope.themes").get_dropdown {
-		winblend = 10,
-		previewer = false,
+now(function()
+	require("mini.pick").setup {
+		mappings = {
+			choose_marked = "<M-q>",
+			refine_marked = "<M-r>",
+
+			mark_down = {
+				char = "<M-j>",
+				func = function()
+					local keys = vim.api.nvim_replace_termcodes("<C-x><C-n>", true, true, true)
+					vim.api.nvim_feedkeys(keys, "n", false)
+				end
+			},
+		},
 	}
+	require("mini.extra").setup {}
 
-	vim.keymap.set(
-		"n",
-		"<leader>/",
-		wrap(builtins.current_buffer_fuzzy_find, drop_noprev),
-		{ desc = "[/] Fuzzily search in current buffer" }
-	)
+	local function with_package(fn)
+		return function()
+			fn(nil, { source = { cwd = vim.g.mini_deps } })
+		end
+	end
 
-	vim.keymap.set("n", "<leader>sG", wrap(builtins.git_files, ivy), { desc = "[S]earch [G]it" })
-	vim.keymap.set("n", "<leader>sf", wrap(builtins.find_files, ivy), { desc = "[S]earch [F]iles" })
-	vim.keymap.set("n", "<leader>fp", wrap(builtins.find_files, vim.tbl_extend('force', ivy, {cwd = vim.g.mini_deps})), { desc = "[F]ind [P]ackages" })
-	vim.keymap.set("n", "<leader>gp", wrap(builtins.live_grep, vim.tbl_extend('force', ivy, {cwd = vim.g.mini_deps})), { desc = "[G]rep [P]ackages" })
-	vim.keymap.set("n", "<leader>sw", wrap(builtins.grep_string, ivy), { desc = "[S]earch current [W]ord" })
-	vim.keymap.set("n", "<leader>sg", wrap(builtins.live_grep, ivy), { desc = "[S]earch by [G]rep" })
+	vim.keymap.set("n", "<leader>ff", MiniPick.builtin.files, { desc = "[f]ind [f]iles" })
+	vim.keymap.set("n", "<leader>gf", MiniPick.builtin.grep_live, { desc = "[g]rep [f]iles" })
+	vim.keymap.set("n", "<leader>gg", MiniPick.builtin.grep, { desc = "[g]rep" })
+	vim.keymap.set("n", "<leader>fh", MiniPick.builtin.help, { desc = "[f]ind [h]elp" })
 
-	vim.keymap.set("n", "<leader>sh", wrap(builtins.help_tags, ivy), { desc = "[S]earch [H]elp" })
-	vim.keymap.set("n", "<leader>sd", wrap(builtins.diagnostics, ivy), { desc = "[S]earch [D]iagnostics" })
-	vim.keymap.set("n", "<leader><leader>", wrap(builtins.buffers, ivy), { desc = "[ ] Find existing buffers" })
+	vim.keymap.set("n", "<leader>gc", function()
+		MiniExtra.pickers.list { scope = "quickfix" }
+	end, { desc = "[g]rep qui[c]fix" })
+
+	vim.keymap.set("n", "<leader>fg", function()
+		MiniExtra.pickers.git_files {
+			scope = "modified"
+		}
+	end, { desc = "[f]ind [g]it" })
+
+	vim.keymap.set("n", "<leader>fd", function()
+			MiniExtra.pickers.diagnostic({}, { scope = "current" })
+		end,
+		{ desc = "[g]rep [p]ackages" })
+
+
+	vim.keymap.set("n", "<leader>fp", with_package(MiniPick.builtin.files), { desc = "[f]ind [p]ackages" })
+	vim.keymap.set("n", "<leader>gp", with_package(MiniPick.builtin.grep_live), { desc = "[g]rep [p]ackages" })
+
+	vim.keymap.set("n", "<leader>gw", function()
+			local word = vim.fn.expand("<cword>")
+			MiniPick.builtin.grep({
+				pattern = word
+			}, {
+				source = {
+					name = string.format('Word: "%s"', word)
+				},
+			})
+		end,
+		{ desc = "[g]rep [w]ord" })
+
+	vim.keymap.set("n", "<leader>/", function()
+			MiniExtra.pickers.buf_lines({ scope = "current" })
+		end,
+		{ desc = "[/] fuzzy current buffer" })
+
+
+	vim.ui.select = MiniPick.ui_select
 end)
