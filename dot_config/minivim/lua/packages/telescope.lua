@@ -1,38 +1,6 @@
-local add = require("mini.deps").add
-local now = require("mini.deps").now
+local later = require("mini.deps").later
 
-local function wrap(fn, config)
-	return function()
-		fn(config)
-	end
-end
-
-now(function()
-	add {
-		source = "nvim-telescope/telescope.nvim",
-		checkout = "0.1.x",
-		depends = {
-			"nvim-telescope/telescope-ui-select.nvim",
-			"nvim-lua/plenary.nvim",
-			{
-				source = "nvim-telescope/telescope-fzf-native.nvim",
-				post_checkout = function(opts)
-					if vim.fn.executable "make" ~= 1 then
-						vim.notify("Fzf native: make not found", vim.log.levels.ERROR)
-						return
-					end
-					vim.system({ "make" }, { cwd = opts.path }):wait()
-				end
-			},
-		}
-	}
-
-	local actions = require "telescope.actions"
-	require("telescope").setup {}
-	pcall(require("telescope").load_extension, "fzf")
-end)
-
-now(function()
+later(function()
 	require("mini.pick").setup {
 		mappings = {
 			choose_marked = "<M-q>",
@@ -48,54 +16,66 @@ now(function()
 		},
 	}
 	require("mini.extra").setup {}
+	require("mini.icons").setup {
+		style = "glyph"
+	}
 
-	local function with_package(fn)
-		return function()
-			fn(nil, { source = { cwd = vim.g.mini_deps } })
-		end
+	local H = {}
+
+	function H.show_with_icons(buf_id, items, query)
+		MiniPick.default_show(buf_id, items, query, { show_icons = true })
 	end
 
-	vim.keymap.set("n", "<leader>ff", MiniPick.builtin.files, { desc = "[f]ind [f]iles" })
-	vim.keymap.set("n", "<leader>gf", MiniPick.builtin.grep_live, { desc = "[g]rep [f]iles" })
-	vim.keymap.set("n", "<leader>gg", MiniPick.builtin.grep, { desc = "[g]rep" })
-	vim.keymap.set("n", "<leader>fh", MiniPick.builtin.help, { desc = "[f]ind [h]elp" })
+	MiniPick.registry.rg = function(local_opts)
+		local picker_opts = { source = { cwd = local_opts.cwd, show = H.show_with_icons } }
 
-	vim.keymap.set("n", "<leader>gc", function()
-		MiniExtra.pickers.list { scope = "quickfix" }
-	end, { desc = "[g]rep qui[c]fix" })
+		local_opts.cwd = nil
+		local_opts.command = { "rg", "--files", "--no-follow", "--color=never" }
 
-	vim.keymap.set("n", "<leader>fg", function()
-		MiniExtra.pickers.git_files {
-			scope = "modified"
-		}
-	end, { desc = "[f]ind [g]it" })
+		if local_opts.all then
+			table.insert(local_opts.command, "--hidden")
+		end
 
-	vim.keymap.set("n", "<leader>fd", function()
-			MiniExtra.pickers.diagnostic({}, { scope = "current" })
-		end,
-		{ desc = "[g]rep [p]ackages" })
+		return MiniPick.builtin.cli(local_opts, picker_opts)
+	end
 
+	MiniPick.registry.grep_word = function()
+		local word = vim.fn.expand("<cword>")
+		return MiniPick.builtin.grep({
+			pattern = word
+		}, {
+			source = {
+				name = string.format('Grep: <%s>', word)
+			},
+		})
+	end
 
-	vim.keymap.set("n", "<leader>fp", with_package(MiniPick.builtin.files), { desc = "[f]ind [p]ackages" })
-	vim.keymap.set("n", "<leader>gp", with_package(MiniPick.builtin.grep_live), { desc = "[g]rep [p]ackages" })
+	MiniPick.registry.files = function(local_opts)
+		local opts = { source = { cwd = local_opts.cwd } }
+		local_opts.cwd = nil
+		return MiniPick.builtin.files(local_opts, opts)
+	end
 
-	vim.keymap.set("n", "<leader>gw", function()
-			local word = vim.fn.expand("<cword>")
-			MiniPick.builtin.grep({
-				pattern = word
-			}, {
-				source = {
-					name = string.format('Word: "%s"', word)
-				},
-			})
-		end,
-		{ desc = "[g]rep [w]ord" })
+	MiniPick.registry.grep_live = function(local_opts)
+		local opts = { source = { cwd = local_opts.cwd } }
+		local_opts.cwd = nil
+		return MiniPick.builtin.grep_live(local_opts, opts)
+	end
 
-	vim.keymap.set("n", "<leader>/", function()
-			MiniExtra.pickers.buf_lines({ scope = "current" })
-		end,
-		{ desc = "[/] fuzzy current buffer" })
+	vim.keymap.set("n", "<leader>ff", "<cmd>Pick files<cr>", { desc = "[f]ind [f]iles" })
+	vim.keymap.set("n", "<leader>gf", "<cmd>Pick grep_live<cr>", { desc = "[g]rep [f]iles" })
+	vim.keymap.set("n", "<leader>gg", "<cmd>Pick grep<cr>", { desc = "[g]rep" })
+	vim.keymap.set("n", "<leader>fh", "<cmd>Pick help<cr>", { desc = "[f]ind [h]elp" })
 
+	vim.keymap.set("n", "<leader>gc", "<cmd>Pick list scope='quickfix'<cr>", { desc = "[g]rep qui[c]fix" })
+	vim.keymap.set("n", "<leader>fg", "<cmd>Pick git_files scope='modified'<cr>", { desc = "[f]ind [g]it" })
+	vim.keymap.set("n", "<leader>fd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "[g]rep [p]ackages" })
+
+	vim.keymap.set("n", "<leader>fp", [[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]], { desc = "[f]ind [p]ackages" })
+	vim.keymap.set("n", "<leader>gp", [[<cmd>execute 'Pick grep_live cwd="' . g:mini_deps . '"'<cr>]], { desc = "[g]rep [p]ackages" })
+
+	vim.keymap.set("n", "<leader>gw", "<cmd>Pick grep_word<cr>", { desc = "[g]rep [w]ord" })
+	vim.keymap.set("n", "<leader>/", "<cmd>Pick buf_lines scope='current'<cr>", { desc = "[/] fuzzy current buffer" })
 
 	vim.ui.select = MiniPick.ui_select
 end)

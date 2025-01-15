@@ -33,28 +33,25 @@ now(function()
 	vim.api.nvim_create_autocmd("LspAttach", {
 		group = vim.api.nvim_create_augroup("ky3ow.LspAttach", { clear = true }),
 		callback = function(e)
-			local telescope = require "telescope.builtin"
 			local map = function(mode, keys, func, desc)
 				vim.keymap.set(mode, keys, func, { buffer = e.buf, desc = desc })
 			end
 
 			map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
 			map("n", "<leader>la", vim.lsp.buf.code_action, "[L]sp Code [A]ction")
-			map("n", "<leader>lf", vim.cmd.Format, "[L]SP [F]ormat")
-			map("n", "<leader>ls", function()
-				MiniExtra.pickers.lsp({ scope = "document_symbol" })
-			end, "[L]SP document [S]ymbols")
+			map("n", "<leader>lf", "<cmd>Format<cr>", "[L]SP [F]ormat")
+			map("n", "<leader>ls", "<cmd>Pick lsp scope='document_symbol'<cr>", "[L]SP document [S]ymbols")
 
-			map("n", "gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
-			map("n", "gr", telescope.lsp_references, "[G]oto [R]eferences")
-			map("n", "gI", telescope.lsp_implementations, "[G]oto [I]mplementation")
-			map("n", "<leader>D", telescope.lsp_type_definitions, "Type [D]efinition")
+			map("n", "gd", "<cmd>Pick lsp scope='definition'<cr>", "[G]oto [D]efinition")
+			map("n", "gr", "<cmd>Pick lsp scope='references'<cr>", "[G]oto [R]eferences")
+			map("n", "gI", "<cmd>Pick lsp scope='implementation'<cr>", "[G]oto [I]mplementation")
+			map("n", "<leader>D", "<cmd>Pick lsp scope='type_definitions'<cr>", "Type [D]efinition")
 
 			map("n", "K", vim.lsp.buf.hover, "Hover Documentation")
 			map({ "n", "i" }, "<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
 
-			map("n", "gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-			map("n", "<leader>ws", telescope.lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+			map("n", "gD", "<cmd>Pick lsp scope='declaration'<cr>", "[G]oto [D]eclaration")
+			map("n", "<leader>ws", "<cmd>Pick lsp scope='workspace_symbol'<cr>", "[W]orkspace [S]ymbols")
 			map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
 			map("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
 			map("n", "<leader>wl", function()
@@ -85,4 +82,6 @@ later(function()
 			require("lint").try_lint(nil, { ignore_errors = true })
 		end,
 	})
+
+	vim.keymap.set("n", "<leader>lf", "<cmd>Format<cr>", { desc = "[L]anguage [F]ormat" })
 end)
