@@ -73,3 +73,4 @@ vim.keymap.set(
 )
 
 vim.keymap.set({"x", "n"}, "<leader>x", ":lua<cr>", { desc = "Source lua" })
+vim.keymap.set("n", "<leader>b", "<cmd>silent! w | bd!<cr>", { desc = "Delete buffer(save before)" })

@@ -1,32 +1,5 @@
 local H = {}
 
-function H.setup_buffers()
-	vim.api.nvim_create_autocmd({ "BufDelete", "BufAdd", "VimEnter" }, {
-		pattern = "*",
-		group = vim.api.nvim_create_augroup("ky3ow.Buffers", { clear = true }),
-		callback = function(e)
-			local buffers = {}
-			for _, buf in ipairs(vim.fn.getbufinfo { buflisted = 1 }) do
-				if not (e.event == "BufDelete" and buf.bufnr == e.buf) then
-					table.insert(buffers, buf)
-				end
-			end
-
-			for i = 1, 9 do
-				local buffer = buffers[i] or { name = "", bufnr = -1 }
-				local name = vim.fn.fnamemodify(buffer.name, ":p:.")
-
-				vim.api.nvim_set_keymap(
-					"n",
-					"<leader>" .. i,
-					":silent! buffer " .. buffer.bufnr .. "<cr>",
-					{ noremap = true, silent = true, desc = "Go to: " .. (name:len() > 0 and name or "-") }
-				)
-			end
-		end,
-	})
-end
-
 function H.setup_visual_at()
 	---@param reg string
 	---@param content string
@@ -101,6 +74,5 @@ later(function()
 		},
 	}
 
-	H.setup_buffers()
 	H.setup_visual_at()
 end)

@@ -7,7 +7,7 @@ later(function()
 		depends = { "rafamadriz/friendly-snippets" },
 		checkout = "v0.10.0",
 	}
-	-- @TODO look into MiniSnippets.default_insert() to add dynamic node logic
+	-- @TODO look into MiniSnippets.default_insert() to add dynamic node logic?(if i ever need that?)
 	-- use when it could accept lsp completions
 	-- local gen_loader = require("mini.snippets").gen_loader
 	-- require("mini.snippets").setup {

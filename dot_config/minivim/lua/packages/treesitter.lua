@@ -15,6 +15,7 @@ now(function()
 			a = ts { a = "@parameter.outer", i = "@parameter.inner", },
 			o = ts { a = "@block.outer", i = "@block.inner", },
 			c = ts { a = "@class.outer", i = "@class.inner", },
+			m = ts { i = { "@block.inner", "@block.outer" }, a = { "@block.inner", "@block.outer" } },
 		}
 	}
 

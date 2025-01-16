@@ -51,7 +51,29 @@ later(function()
 	end
 
 	MiniPick.registry.files = function(local_opts)
-		local opts = { source = { cwd = local_opts.cwd } }
+		local open_selected = function()
+			local matches = MiniPick.get_picker_matches()
+			if not matches then
+				return
+			end
+
+			local selected = #matches.marked > 0 and matches.marked or { matches.current }
+
+			for _, path in ipairs(selected) do
+				vim.cmd.edit(path)
+			end
+
+			MiniPick.stop()
+		end
+
+		local opts = {
+			source = {
+				cwd = local_opts.cwd,
+			},
+			mappings = {
+				wipeout = { char = '<C-o>', func = open_selected }
+			}
+		}
 		local_opts.cwd = nil
 		return MiniPick.builtin.files(local_opts, opts)
 	end
@@ -82,6 +104,28 @@ later(function()
 				end
 			},
 		})
+	end
+
+	MiniPick.registry.buffers = function(local_opts)
+		local wipeout_cur = function()
+			local matches = MiniPick.get_picker_matches()
+			if not matches then
+				return
+			end
+
+			local deleted = vim.tbl_map(function(v) return v.bufnr end,
+				#matches.marked > 0 and matches.marked or { matches.current })
+			local remaining = vim.tbl_filter(function(m)
+				return not vim.tbl_contains(deleted, m.bufnr, {})
+			end, matches.all)
+
+			for _, buffer in ipairs(deleted) do
+				vim.api.nvim_buf_delete(buffer, {})
+			end
+			MiniPick.set_picker_items(remaining)
+		end
+		local buffer_mappings = { wipeout = { char = '<C-d>', func = wipeout_cur } }
+		MiniPick.builtin.buffers(local_opts, { mappings = buffer_mappings })
 	end
 
 	vim.keymap.set("n", "<leader>sf", "<cmd>Pick files<cr>", { desc = "[s]earch [f]iles" })
