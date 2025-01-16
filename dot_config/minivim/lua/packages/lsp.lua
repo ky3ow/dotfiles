@@ -26,7 +26,7 @@ now(function()
 	end
 
 	vim.api.nvim_create_user_command("Format", function(_)
-		vim.notify("Formatting with lsp")
+		vim.notify("Formatting with lsp...")
 		vim.lsp.buf.format()
 	end, { desc = "Format current buffer with LSP" })
 
@@ -72,11 +72,32 @@ later(function()
 	}
 	vim.notify = MiniNotify.make_notify()
 
+	local notify_commands = { "clear", "history", "refresh" }
+	vim.api.nvim_create_user_command("Notify", function(opts)
+		local action = opts.args
+		if action == "clear" then
+			MiniNotify.clear()
+		elseif action == "history" then
+			MiniNotify.show_history()
+		elseif action == "refresh" then
+			MiniNotify.refresh()
+		end
+	end, {
+		nargs = 1,
+		complete = function(arg_lead, cmd_line, cursor_pos)
+			local matches = require("mini.fuzzy").filtersort(arg_lead, notify_commands)
+			if #matches == 0 then
+				return notify_commands
+			end
+			return matches
+		end
+	})
+
 	local conform = require "conform"
 	conform.setup { formatters_by_ft = vim.g.settings.formatters }
 
 	vim.api.nvim_create_user_command("Format", function(_)
-		vim.notify("Formatting with conform")
+		vim.notify("Formatting with conform...")
 		conform.format { lsp_fallback = true, timeout_ms = 500 }
 	end, { desc = "Format current buffer with LSP" })
 
@@ -86,6 +107,10 @@ later(function()
 			require("lint").try_lint(nil, { ignore_errors = true })
 		end,
 	})
+	vim.api.nvim_create_user_command("Lint", function(_)
+		vim.notify("Linting...")
+		require("lint").try_lint(nil)
+	end, { desc = "Run linter" })
 
 	vim.keymap.set("n", "<leader>lf", "<cmd>Format<cr>", { desc = "[L]anguage [F]ormat" })
 end)
