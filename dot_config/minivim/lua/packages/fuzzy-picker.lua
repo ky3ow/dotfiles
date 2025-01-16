@@ -62,6 +62,28 @@ later(function()
 		return MiniPick.builtin.grep_live(local_opts, opts)
 	end
 
+	MiniPick.registry.highlights = function()
+		local highlights = vim.api.nvim_get_hl(0, {})
+		local hls = {}
+		for name, value in pairs(highlights) do
+			table.insert(hls, { name = name, value = value })
+		end
+		return MiniPick.start({
+			source = {
+				items = hls,
+				show = function(buf_id, items_arr, _ --[[ query ]])
+					local lines = vim.tbl_map(function(hl)
+						return string.format("%s: %s", hl.name, vim.inspect(hl.value, { newline = " ", indent = "" }))
+					end, items_arr)
+					vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
+					for index, hlgroup in ipairs(items_arr) do
+						vim.api.nvim_buf_add_highlight(buf_id, -1, hlgroup.name, index - 1, 0, #hlgroup.name)
+					end
+				end
+			},
+		})
+	end
+
 	vim.keymap.set("n", "<leader>sf", "<cmd>Pick files<cr>", { desc = "[s]earch [f]iles" })
 	vim.keymap.set("n", "<leader>gl", "<cmd>Pick grep_live<cr>", { desc = "[g]rep [l]ive" })
 	vim.keymap.set("n", "<leader>gg", "<cmd>Pick grep<cr>", { desc = "[g]rep" })
@@ -71,8 +93,10 @@ later(function()
 	vim.keymap.set("n", "<leader>sg", "<cmd>Pick git_files scope='modified'<cr>", { desc = "[s]earch [g]it" })
 	vim.keymap.set("n", "<leader>sd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "[s]earch [d]ignostic" })
 
-	vim.keymap.set("n", "<leader>sp", [[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]], { desc = "[s]earch [p]ackages" })
-	vim.keymap.set("n", "<leader>gp", [[<cmd>execute 'Pick grep_live cwd="' . g:mini_deps . '"'<cr>]], { desc = "[g]rep [p]ackages" })
+	vim.keymap.set("n", "<leader>sp", [[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]],
+		{ desc = "[s]earch [p]ackages" })
+	vim.keymap.set("n", "<leader>gp", [[<cmd>execute 'Pick grep_live cwd="' . g:mini_deps . '"'<cr>]],
+		{ desc = "[g]rep [p]ackages" })
 
 	vim.keymap.set("n", "<leader>gw", "<cmd>Pick grep_word<cr>", { desc = "[g]rep [w]ord" })
 	vim.keymap.set("n", "<leader>/", "<cmd>Pick buf_lines scope='current'<cr>", { desc = "[/] fuzzy current buffer" })

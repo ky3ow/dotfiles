@@ -71,3 +71,5 @@ vim.keymap.set(
 	[[mode() == 'V' ? ':normal! @'.getcharstr().'<CR>' : '@']],
 	{ desc = "Visual at", expr = true }
 )
+
+vim.keymap.set({"x", "n"}, "<leader>x", ":lua<cr>", { desc = "Source lua" })

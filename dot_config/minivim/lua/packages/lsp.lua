@@ -66,7 +66,16 @@ later(function()
 	add "stevearc/conform.nvim"
 	add "mfussenegger/nvim-lint"
 
-	require("fidget").setup {}
+	require("mini.notify").setup {
+		window = {
+			config = function()
+				return { anchor = 'SE', col = vim.o.columns, row = vim.o.lines - vim.o.cmdheight - 1, border = "none" }
+			end
+		}
+	}
+	vim.notify = MiniNotify.make_notify()
+	-- require("fidget").setup {}
+	-- vim.notify = require("fidget.notification").notify
 
 	local conform = require "conform"
 	conform.setup { formatters_by_ft = vim.g.settings.formatters }
