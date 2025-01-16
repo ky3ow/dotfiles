@@ -13,6 +13,7 @@ later(function()
 			changedelete = { text = "~" },
 		},
 	}
+
 end)
 
 now(function()
@@ -29,7 +30,7 @@ now(function()
 			lualine_c = { { "filename", path = 1 } },
 		},
 		tabline = {
-			lualine_a = { { "buffers", use_mode_colors = true } },
+			lualine_a = { { "buffers", use_mode_colors = true, show_filename_only = false } },
 		},
 	}
 end)

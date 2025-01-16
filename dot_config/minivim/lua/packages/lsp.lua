@@ -36,9 +36,7 @@ now(function()
 			local map = function(mode, keys, func, desc)
 				vim.keymap.set(mode, keys, func, { buffer = e.buf, desc = desc })
 			end
-
 			map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
-			map("n", "<leader>la", vim.lsp.buf.code_action, "[L]sp Code [A]ction")
 			map("n", "<leader>lf", "<cmd>Format<cr>", "[L]SP [F]ormat")
 			map("n", "<leader>ls", "<cmd>Pick lsp scope='document_symbol'<cr>", "[L]SP document [S]ymbols")
 
@@ -62,7 +60,6 @@ now(function()
 end)
 
 later(function()
-	add "j-hui/fidget.nvim"
 	add "stevearc/conform.nvim"
 	add "mfussenegger/nvim-lint"
 
@@ -74,8 +71,6 @@ later(function()
 		}
 	}
 	vim.notify = MiniNotify.make_notify()
-	-- require("fidget").setup {}
-	-- vim.notify = require("fidget.notification").notify
 
 	local conform = require "conform"
 	conform.setup { formatters_by_ft = vim.g.settings.formatters }

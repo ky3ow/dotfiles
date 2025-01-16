@@ -2,6 +2,22 @@ local add = require("mini.deps").add
 local now = require("mini.deps").now
 
 now(function()
+	local ai = require("mini.ai")
+	local ts = ai.gen_spec.treesitter
+
+	ai.setup {
+		mappings = {
+			goto_left = "[m",
+			goto_right = "]m",
+		},
+		custom_textobjects = {
+			f = ts { a = "@function.outer", i = "@function.inner", },
+			a = ts { a = "@parameter.outer", i = "@parameter.inner", },
+			o = ts { a = "@block.outer", i = "@block.inner", },
+			c = ts { a = "@class.outer", i = "@class.inner", },
+		}
+	}
+
 	add {
 		source = "nvim-treesitter/nvim-treesitter",
 		checkout = "master",
@@ -24,62 +40,18 @@ now(function()
 		auto_install = false,
 		sync_install = false,
 		ignore_install = {},
-		modules = {},
-		highlight = { enable = true },
-		indent = { enable = true },
-		incremental_selection = {
+		highlight = {
 			enable = true,
-			keymaps = {
-				init_selection = "<M-k>",
-				node_incremental = "<M-k>",
-				scope_incremental = "<M-l>",
-				node_decremental = "<M-j>",
-			},
+			disable = function(lang, buf)
+				local max_filesize = 1024 * 1024 * 2 -- 2MB
+				local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
+				if ok and stats and stats.size > max_filesize then
+					return true
+				end
+			end,
 		},
-		textobjects = {
-			select = {
-				enable = true,
-				lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-				keymaps = {
-					-- You can use the capture groups defined in textobjects.scm
-					["aa"] = "@parameter.outer",
-					["ia"] = "@parameter.inner",
-					["af"] = "@function.outer",
-					["if"] = "@function.inner",
-					["ac"] = "@class.outer",
-					["ic"] = "@class.inner",
-					["as"] = { query = "@local.scope", query_group = "locals", desc = "Select language scope" },
-				},
-			},
-			move = {
-				enable = true,
-				set_jumps = true, -- whether to set jumps in the jumplist
-				goto_next_start = {
-					["]m"] = "@function.outer",
-					["]]"] = "@class.outer",
-				},
-				goto_next_end = {
-					["]M"] = "@function.outer",
-					["]["] = "@class.outer",
-				},
-				goto_previous_start = {
-					["[m"] = "@function.outer",
-					["[["] = "@class.outer",
-				},
-				goto_previous_end = {
-					["[M"] = "@function.outer",
-					["[]"] = "@class.outer",
-				},
-			},
-			swap = {
-				enable = true,
-				swap_next = {
-					["<leader>a"] = "@parameter.inner",
-				},
-				swap_previous = {
-					["<leader>A"] = "@parameter.inner",
-				},
-			},
+		indent = {
+			enable = true
 		},
 	}
 end)
