@@ -59,11 +59,13 @@ later(function()
 
 			local selected = #matches.marked > 0 and matches.marked or { matches.current }
 
-			for _, path in ipairs(selected) do
-				vim.cmd.edit(path)
-			end
+			vim.schedule(function()
+				for _, path in ipairs(selected) do
+					MiniPick.default_choose(path)
+				end
+			end)
 
-			MiniPick.stop()
+			return MiniPick.stop()
 		end
 
 		local opts = {
@@ -71,7 +73,7 @@ later(function()
 				cwd = local_opts.cwd,
 			},
 			mappings = {
-				wipeout = { char = '<C-o>', func = open_selected }
+				open = { char = '<C-o>', func = open_selected },
 			}
 		}
 		local_opts.cwd = nil
@@ -128,22 +130,23 @@ later(function()
 		MiniPick.builtin.buffers(local_opts, { mappings = buffer_mappings })
 	end
 
-	vim.keymap.set("n", "<leader>sf", "<cmd>Pick files<cr>", { desc = "[s]earch [f]iles" })
-	vim.keymap.set("n", "<leader>gl", "<cmd>Pick grep_live<cr>", { desc = "[g]rep [l]ive" })
-	vim.keymap.set("n", "<leader>gg", "<cmd>Pick grep<cr>", { desc = "[g]rep" })
-	vim.keymap.set("n", "<leader>sh", "<cmd>Pick help<cr>", { desc = "[s]earch [h]elp" })
+	vim.keymap.set("n", "<leader>sf", "<cmd>Pick files<cr>", { desc = "[S]earch [f]iles" })
+	vim.keymap.set("n", "<leader>sg", "<cmd>Pick grep_live<cr>", { desc = "[S]earch [g]rep" })
+	vim.keymap.set("n", "<leader>sG", "<cmd>Pick grep<cr>", { desc = "[S]earch [g]rep(non interactive)" })
+	vim.keymap.set("n", "<leader>sh", "<cmd>Pick help<cr>", { desc = "[S]earch [h]elp" })
+	vim.keymap.set("n", "<leader>sb", "<cmd>Pick buffers<cr>", { desc = "[S]earch [b]uffers" })
 
-	vim.keymap.set("n", "<leader>gc", "<cmd>Pick list scope='quickfix'<cr>", { desc = "[g]rep qui[c]fix" })
-	vim.keymap.set("n", "<leader>sg", "<cmd>Pick git_files scope='modified'<cr>", { desc = "[s]earch [g]it" })
-	vim.keymap.set("n", "<leader>sd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "[s]earch [d]ignostic" })
+	vim.keymap.set("n", "<leader>sc", "<cmd>Pick list scope='quickfix'<cr>", { desc = "[S]earch qui[c]fix" })
+	vim.keymap.set("n", "<leader>sm", "<cmd>Pick git_files scope='modified'<cr>", { desc = "[S]earch [g]it" })
+	vim.keymap.set("n", "<leader>sd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "[S]earch [d]ignostic" })
 
-	vim.keymap.set("n", "<leader>sp", [[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]],
-		{ desc = "[s]earch [p]ackages" })
-	vim.keymap.set("n", "<leader>gp", [[<cmd>execute 'Pick grep_live cwd="' . g:mini_deps . '"'<cr>]],
-		{ desc = "[g]rep [p]ackages" })
+	vim.keymap.set("n", "<leader>spf", [[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]],
+		{ desc = "[S]earch [P]ackage [f]iles" })
+	vim.keymap.set("n", "<leader>spg", [[<cmd>execute 'Pick grep_live cwd="' . g:mini_deps . '"'<cr>]],
+		{ desc = "[S]earch [P]ackage [g]rep" })
 
-	vim.keymap.set("n", "<leader>gw", "<cmd>Pick grep_word<cr>", { desc = "[g]rep [w]ord" })
-	vim.keymap.set("n", "<leader>/", "<cmd>Pick buf_lines scope='current'<cr>", { desc = "[/] fuzzy current buffer" })
+	vim.keymap.set("n", "<leader>sw", "<cmd>Pick grep_word<cr>", { desc = "[S]earch [w]ord" })
+	vim.keymap.set("n", "<leader>s/", "<cmd>Pick buf_lines scope='current'<cr>", { desc = "[S]earch [/]lines" })
 
 	vim.ui.select = MiniPick.ui_select
 end)

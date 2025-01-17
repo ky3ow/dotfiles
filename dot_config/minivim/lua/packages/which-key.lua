@@ -71,6 +71,7 @@ later(function()
 			clues.registers { show_contents = true }, clues.windows(), clues.z(),
 			{ mode = "n", keys = "<Leader>s", desc = "[S]earch" }, { mode = "n", keys = "<Leader>r", desc = "[R]eplace" },
 			{ mode = "n", keys = "<Leader>l", desc = "[L]SP" }, { mode = "n", keys = "<Leader>w", desc = "[W]orkspace" },
+			{ mode = "n", keys = "<Leader>sp", desc = "[S]earch [P]ackages" }
 		},
 	}
 

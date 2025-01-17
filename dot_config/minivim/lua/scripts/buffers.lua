@@ -36,25 +36,13 @@ end
 
 function Buffers.set_keymaps()
 	for i = 1, 10 do
-		local function jump()
+		vim.keymap.set("n", ("<M-%d>"):format(i % 10), function()
 			if i > #Buffers.buf2nr then
 				Buffers.go_to(#Buffers.buf2nr)
 			else
 				Buffers.go_to(i)
 			end
-		end
-
-		local function bufname(idx)
-			local bufnr = Buffers.buf2nr[idx]
-			if bufnr == nil then
-				return "-"
-			end
-			local name = vim.api.nvim_buf_get_name(bufnr)
-			name = vim.fn.fnamemodify(name, ":p:.")
-			return name
-		end
-
-		vim.keymap.set("n", ("<M-%d>"):format(i % 10), jump, { desc = bufname(i) })
+		end, { desc = ("Go to buffer %d"):format(i) })
 	end
 end
 
@@ -85,6 +73,23 @@ vim.api.nvim_create_autocmd("BufDelete", {
 	callback = function(e)
 		Buffers.remove(e.buf)
 	end,
+})
+
+local numbers = {}
+for i=1,10 do
+	table.insert(numbers, "" .. i)
+end
+vim.api.nvim_create_user_command("Goto", function(opts)
+	if opts.args > #Buffers.buf2nr then
+		Buffers.go_to(#Buffers.buf2nr)
+	else
+		Buffers.go_to(opts.args)
+	end
+end, {
+	nargs = 1,
+	complete = function(_, _, _)
+		return numbers
+	end
 })
 
 Buffers.set_keymaps()

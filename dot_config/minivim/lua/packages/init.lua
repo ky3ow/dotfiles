@@ -2,6 +2,7 @@ local add = require("mini.deps").add
 local now, later = require("mini.deps").now, require("mini.deps").later
 
 later(function()
+	-- mini.diff?
 	add "lewis6991/gitsigns.nvim"
 	require("gitsigns").setup {
 		-- See `:help gitsigns.txt`
@@ -18,6 +19,7 @@ end)
 
 now(function()
 	add "tpope/vim-sleuth"
+	-- mini.tabline+statusline?
 	add "nvim-lualine/lualine.nvim"
 	require("lualine").setup {
 		options = {
@@ -46,11 +48,13 @@ later(function()
 end)
 
 later(function()
+	-- mini.comment?
 	add "numToStr/Comment.nvim"
 	require("Comment").setup {}
 end)
 
 later(function()
+	-- mini.surround?
 	add "kylechui/nvim-surround"
 	require("nvim-surround").setup {}
 end)
