@@ -43,7 +43,6 @@ now(function()
 			map("n", "gd", "<cmd>Pick lsp scope='definition'<cr>", "[G]oto [D]efinition")
 			map("n", "gr", "<cmd>Pick lsp scope='references'<cr>", "[G]oto [R]eferences")
 			map("n", "gI", "<cmd>Pick lsp scope='implementation'<cr>", "[G]oto [I]mplementation")
-			map("n", "<leader>D", "<cmd>Pick lsp scope='type_definitions'<cr>", "Type [D]efinition")
 
 			map("n", "K", vim.lsp.buf.hover, "Hover Documentation")
 			map({ "n", "i" }, "<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")

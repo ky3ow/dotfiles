@@ -2,7 +2,9 @@
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 
 vim.keymap.set("n", "<esc>", "<cmd>nohlsearch<cr>", { desc = "Clear highlight" })
-vim.keymap.set("n", "<leader>e", "<cmd>Ex<cr>", { desc = "[E]xplorer" })
+vim.keymap.set("n", "-", "<cmd>Ex<cr>", { desc = "[E]xplorer" })
+vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
+vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
 -- Remap for dealing with word wrap
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -11,8 +13,6 @@ vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
-vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
 -- Quickfix
 vim.keymap.set("n", "]c", "<cmd>cnext<cr>", { desc = "Go to next quickfix entry message" })
@@ -63,6 +63,6 @@ vim.keymap.set(
 	{ desc = "Visual at", expr = true }
 )
 
-vim.keymap.set("x", "<leader>x", ":lua<cr>", { desc = "Source lua" })
-vim.keymap.set("n", "<leader>x", "<cmd>source %<cr>", { desc = "Source lua" })
-vim.keymap.set("n", "<leader>b", "<cmd>silent! w | bd!<cr>", { desc = "Delete buffer(save before)" })
+vim.keymap.set("x", "gl", ":lua<cr>", { desc = "Go lua" })
+vim.keymap.set("n", "gl", "<cmd>source %<cr>", { desc = "Go lua" })
+vim.keymap.set({ "n", "i" }, "<M-d>", "<cmd>silent! write | bdelete!<cr>", { desc = "Delete buffer(save before)" })

@@ -3,11 +3,11 @@ local later = require("mini.deps").later
 later(function()
 	require("mini.pick").setup {
 		mappings = {
-			choose_marked = "<M-q>",
-			refine_marked = "<M-r>",
+			choose_marked = "<C-j>",
+			refine_marked = "<C-q>",
 
 			mark_down = {
-				char = "<M-j>",
+				char = "<C-e>",
 				func = function()
 					local keys = vim.api.nvim_replace_termcodes("<C-x><C-n>", true, true, true)
 					vim.api.nvim_feedkeys(keys, "n", false)
