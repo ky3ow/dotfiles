@@ -66,3 +66,8 @@ vim.keymap.set(
 vim.keymap.set("x", "gl", ":lua<cr>", { desc = "Go lua" })
 vim.keymap.set("n", "gl", "<cmd>source %<cr>", { desc = "Go lua" })
 vim.keymap.set({ "n", "i" }, "<M-d>", "<cmd>silent! write | bdelete!<cr>", { desc = "Delete buffer(save before)" })
+
+for i = 1, 10 do
+	vim.keymap.set("n", ("<M-%d>"):format(i % 10), ("<cmd>Goto %d<cr>"):format(i), { desc = ("Go to buffer %d"):format(i) })
+end
+vim.keymap.set("n", "<M-->", "<cmd>e #<cr>", { desc = "Go to alernate file" })

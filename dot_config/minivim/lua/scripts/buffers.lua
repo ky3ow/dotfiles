@@ -34,18 +34,6 @@ function Buffers.go_to(idx)
 	end
 end
 
-function Buffers.set_keymaps()
-	for i = 1, 10 do
-		vim.keymap.set("n", ("<M-%d>"):format(i % 10), function()
-			if i > #Buffers.buf2nr then
-				Buffers.go_to(#Buffers.buf2nr)
-			else
-				Buffers.go_to(i)
-			end
-		end, { desc = ("Go to buffer %d"):format(i) })
-	end
-end
-
 local augroup = vim.api.nvim_create_augroup("ky3ow.Buffers", { clear = true })
 vim.api.nvim_create_autocmd("VimEnter", {
 	group = augroup,
@@ -75,11 +63,8 @@ vim.api.nvim_create_autocmd("BufDelete", {
 	end,
 })
 
-local numbers = {}
-for i=1,10 do
-	table.insert(numbers, "" .. i)
-end
 vim.api.nvim_create_user_command("Goto", function(opts)
+	opts.args = tonumber(opts.args)
 	if opts.args > #Buffers.buf2nr then
 		Buffers.go_to(#Buffers.buf2nr)
 	else
@@ -87,10 +72,4 @@ vim.api.nvim_create_user_command("Goto", function(opts)
 	end
 end, {
 	nargs = 1,
-	complete = function(_, _, _)
-		return numbers
-	end
 })
-
-Buffers.set_keymaps()
-vim.keymap.set("n", "<M-->", "<cmd>e #<cr>", { desc = "Go to alernate file" })
