@@ -1,4 +1,5 @@
 MiniDeps.later(function()
+	MiniDeps.add "tpope/vim-sleuth"
 	-- mini.diff?
 	MiniDeps.add "lewis6991/gitsigns.nvim"
 	require("gitsigns").setup {
@@ -12,10 +13,13 @@ MiniDeps.later(function()
 		},
 	}
 
+	MiniDeps.add "numToStr/Comment.nvim"
+	require("Comment").setup {}
+	require("mini.surround").setup {}
+
 end)
 
 MiniDeps.now(function()
-	MiniDeps.add "tpope/vim-sleuth"
 	-- mini.tabline+statusline?
 	MiniDeps.add "nvim-lualine/lualine.nvim"
 	require("lualine").setup {
@@ -42,18 +46,6 @@ MiniDeps.later(function()
 	}
 	vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "@keyword.return" })
 	vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "@attribute" })
-end)
-
-MiniDeps.later(function()
-	-- mini.comment?
-	MiniDeps.add "numToStr/Comment.nvim"
-	require("Comment").setup {}
-end)
-
-MiniDeps.later(function()
-	-- mini.surround?
-	MiniDeps.add "kylechui/nvim-surround"
-	require("nvim-surround").setup {}
 end)
 
 MiniDeps.later(function()
