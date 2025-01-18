@@ -47,9 +47,21 @@ vim.g.settings = {
 	},
 }
 
--- Bootstrap package manager
-vim.cmd.runtime { "lua/bootstrap.lua" }
--- Source all non-package stuff 
-vim.cmd.runtime { "lua/scripts/*.lua", bang = true }
--- Source all package-stuff
+local path_package = vim.fn.stdpath('data') .. '/site/'
+local mini_path = path_package .. 'pack/deps/start/mini.nvim'
+if not (vim.uv or vim.loop).fs_stat(mini_path) then
+	vim.cmd('echo "Installing `mini.nvim`" | redraw')
+	local clone_cmd = {
+		'git', 'clone', '--filter=blob:none',
+		'https://github.com/echasnovski/mini.nvim', mini_path
+	}
+	vim.fn.system(clone_cmd)
+	vim.cmd('packadd mini.nvim | helptags ALL')
+	vim.cmd('echo "Installed `mini.nvim`" | redraw')
+end
+
+vim.g.mini_deps = path_package .. "pack/deps/"
+require('mini.deps').setup({ path = { package = path_package } })
+
+-- Source all packages
 vim.cmd.runtime { "lua/packages/*.lua", bang = true }

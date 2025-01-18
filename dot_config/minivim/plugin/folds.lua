@@ -7,7 +7,9 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
 	end,
 })
 
-vim.g.fold_text = function()
+local H = {}
+
+function H.CustomFold()
 	local lines = vim.v.foldend - vim.v.foldstart + 1
 
 	local start_content = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
@@ -25,5 +27,6 @@ vim.g.fold_text = function()
 	return marker
 end
 
+vim.g.fold_text = H.CustomFold
 vim.opt.foldtext = 'g:fold_text()'
 vim.opt.foldopen:remove "block"

@@ -13,7 +13,7 @@ g_settings.colorschemes = {
 		config = {
 			background = "hard",
 			disable_italic_comments = true,
-			on_highlights = function (hl, pallette)
+			on_highlights = function(hl, pallette)
 				hl.NormalFloat = { bg = pallette.bg0 }
 				hl.MiniPickMatchCurrent = { bg = pallette.bg_green }
 			end,
