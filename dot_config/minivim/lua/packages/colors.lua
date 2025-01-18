@@ -116,13 +116,10 @@ vim.api.nvim_create_autocmd("ColorSchemePre", {
 	end,
 })
 
-local add = require("mini.deps").add
-local now = require("mini.deps").now
-
 for _, colorscheme in pairs(vim.g.settings.colorschemes) do
-	add(colorscheme.source)
+	MiniDeps.add(colorscheme.source)
 end
 
-now(function()
+MiniDeps.now(function()
 	vim.cmd.colorscheme(vim.g.settings.colorscheme)
 end)

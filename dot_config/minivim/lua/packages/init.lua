@@ -1,9 +1,6 @@
-local add = require("mini.deps").add
-local now, later = require("mini.deps").now, require("mini.deps").later
-
-later(function()
+MiniDeps.later(function()
 	-- mini.diff?
-	add "lewis6991/gitsigns.nvim"
+	MiniDeps.add "lewis6991/gitsigns.nvim"
 	require("gitsigns").setup {
 		-- See `:help gitsigns.txt`
 		signs = {
@@ -17,10 +14,10 @@ later(function()
 
 end)
 
-now(function()
-	add "tpope/vim-sleuth"
+MiniDeps.now(function()
+	MiniDeps.add "tpope/vim-sleuth"
 	-- mini.tabline+statusline?
-	add "nvim-lualine/lualine.nvim"
+	MiniDeps.add "nvim-lualine/lualine.nvim"
 	require("lualine").setup {
 		options = {
 			icons_enabled = false,
@@ -37,8 +34,8 @@ now(function()
 	}
 end)
 
-later(function()
-	add "jinh0/eyeliner.nvim"
+MiniDeps.later(function()
+	MiniDeps.add "jinh0/eyeliner.nvim"
 	require("eyeliner").setup {
 		highlight_on_key = true,
 		dim = true,
@@ -47,20 +44,20 @@ later(function()
 	vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "@attribute" })
 end)
 
-later(function()
+MiniDeps.later(function()
 	-- mini.comment?
-	add "numToStr/Comment.nvim"
+	MiniDeps.add "numToStr/Comment.nvim"
 	require("Comment").setup {}
 end)
 
-later(function()
+MiniDeps.later(function()
 	-- mini.surround?
-	add "kylechui/nvim-surround"
+	MiniDeps.add "kylechui/nvim-surround"
 	require("nvim-surround").setup {}
 end)
 
-later(function()
-	add "akinsho/toggleterm.nvim"
+MiniDeps.later(function()
+	MiniDeps.add "akinsho/toggleterm.nvim"
 	vim.api.nvim_create_autocmd("TermOpen", {
 		pattern = "term://*",
 		callback = function(_)

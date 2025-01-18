@@ -1,6 +1,4 @@
-local later = require("mini.deps").later
-
-later(function()
+MiniDeps.later(function()
 	require("mini.pick").setup {
 		mappings = {
 			choose_marked = "<C-j>",

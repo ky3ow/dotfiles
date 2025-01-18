@@ -1,11 +1,8 @@
-local add = require("mini.deps").add
-local now, later = require("mini.deps").now, require("mini.deps").later
-
-now(function()
-	add "neovim/nvim-lspconfig"
-	add "williamboman/mason.nvim"
-	add "folke/lazydev.nvim"
-	add "Bilal2453/luvit-meta"
+MiniDeps.now(function()
+	MiniDeps.add "neovim/nvim-lspconfig"
+	MiniDeps.add "williamboman/mason.nvim"
+	MiniDeps.add "folke/lazydev.nvim"
+	MiniDeps.add "Bilal2453/luvit-meta"
 
 	local blink_installed, blink = pcall(require, "blink.cmp")
 
@@ -58,9 +55,9 @@ now(function()
 	})
 end)
 
-later(function()
-	add "stevearc/conform.nvim"
-	add "mfussenegger/nvim-lint"
+MiniDeps.later(function()
+	MiniDeps.add "stevearc/conform.nvim"
+	MiniDeps.add "mfussenegger/nvim-lint"
 
 	require("mini.notify").setup {
 		window = {

@@ -1,7 +1,4 @@
-local add = require("mini.deps").add
-local now = require("mini.deps").now
-
-now(function()
+MiniDeps.now(function()
 	local ai = require("mini.ai")
 	local ts = ai.gen_spec.treesitter
 
@@ -19,7 +16,7 @@ now(function()
 		}
 	}
 
-	add {
+	MiniDeps.add {
 		source = "nvim-treesitter/nvim-treesitter",
 		checkout = "master",
 		monitor = "main",
@@ -30,8 +27,8 @@ now(function()
 		}
 	}
 
-	add "nvim-treesitter/nvim-treesitter-textobjects"
-	add "nvim-treesitter/nvim-treesitter-context"
+	MiniDeps.add "nvim-treesitter/nvim-treesitter-textobjects"
+	MiniDeps.add "nvim-treesitter/nvim-treesitter-context"
 
 	vim.opt.foldmethod = "expr"
 	vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"

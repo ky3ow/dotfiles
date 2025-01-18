@@ -17,6 +17,8 @@ vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnos
 -- Quickfix
 vim.keymap.set("n", "]c", "<cmd>cnext<cr>", { desc = "Go to next quickfix entry message" })
 vim.keymap.set("n", "[c", "<cmd>cprevious<cr>", { desc = "Go to previous quickfix entry message" })
+vim.keymap.set("n", "]f", "<cmd>cnfile<cr>", { desc = "Go to next quickfix file" })
+vim.keymap.set("n", "[f", "<cmd>cpfile<cr>", { desc = "Go to previous quickfix file" })
 
 -- Center jumping
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down" })

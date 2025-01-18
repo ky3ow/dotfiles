@@ -1,8 +1,5 @@
-local add = require("mini.deps").add
-local later = require("mini.deps").later
-
-later(function()
-	add {
+MiniDeps.later(function()
+	MiniDeps.add {
 		source = "saghen/blink.cmp",
 		depends = { "rafamadriz/friendly-snippets" },
 		checkout = "v0.10.0",
