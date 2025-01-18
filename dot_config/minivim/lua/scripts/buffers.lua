@@ -66,6 +66,9 @@ vim.api.nvim_create_autocmd("BufDelete", {
 vim.api.nvim_create_user_command("Goto", function(opts)
 	opts.args = tonumber(opts.args)
 	if opts.args > #Buffers.buf2nr then
+		if vim.g.goto_notify then
+			vim.notify(("Switched to edge[%d]"):format(opts.args))
+		end
 		Buffers.go_to(#Buffers.buf2nr)
 	else
 		Buffers.go_to(opts.args)
