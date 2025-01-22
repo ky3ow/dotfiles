@@ -132,7 +132,7 @@ MiniDeps.later(function()
 	vim.keymap.set("n", "<leader>sg", "<cmd>Pick grep_live<cr>", { desc = "[S]earch [g]rep" })
 	vim.keymap.set("n", "<leader>sG", "<cmd>Pick grep<cr>", { desc = "[S]earch [g]rep(non interactive)" })
 	vim.keymap.set("n", "<leader>sh", "<cmd>Pick help<cr>", { desc = "[S]earch [h]elp" })
-	vim.keymap.set("n", "<leader>sb", "<cmd>Pick buffers<cr>", { desc = "[S]earch [b]uffers" })
+	vim.keymap.set("n", "<leader><leader>", "<cmd>Pick buffers<cr>", { desc = "[S]earch [b]uffers" })
 
 	vim.keymap.set("n", "<leader>sc", "<cmd>Pick list scope='quickfix'<cr>", { desc = "[S]earch qui[c]fix" })
 	vim.keymap.set("n", "<leader>sm", "<cmd>Pick git_files scope='modified'<cr>", { desc = "[S]earch [g]it" })
