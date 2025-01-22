@@ -10,9 +10,15 @@ function Buffers.init()
 end
 
 function Buffers.find(el)
-	for idx, value in ipairs(Buffers.buf2nr) do
-		if el == value then
-			return idx
+	local low, high = 1, #Buffers.buf2nr
+	while low <= high do
+		local mid = math.floor((low + high) / 2)
+		if Buffers.buf2nr[mid] == el then
+			return mid
+		elseif Buffers.buf2nr[mid] < el then
+			low = mid + 1
+		else
+			high = mid - 1
 		end
 	end
 
@@ -24,7 +30,16 @@ function Buffers.remove(el)
 end
 
 function Buffers.add(el)
-	table.insert(Buffers.buf2nr, el)
+	local low, high = 1, #Buffers.buf2nr
+	while low <= high do
+		local mid = math.floor((low + high) / 2)
+		if Buffers.buf2nr[mid] < el then
+			low = mid + 1
+		else
+			high = mid - 1
+		end
+	end
+	table.insert(Buffers.buf2nr, low, el)
 end
 
 function Buffers.go_to(idx)
@@ -49,7 +64,8 @@ vim.api.nvim_create_autocmd("BufAdd", {
 	callback = function(e)
 		local listed = vim.bo[e.buf].buflisted
 		local bufname = vim.api.nvim_buf_get_name(e.buf)
-		if listed and #bufname ~= 0 then
+		if listed then
+			-- if listed and #bufname ~= 0 then
 			Buffers.add(e.buf)
 		end
 	end,
