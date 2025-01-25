@@ -1,13 +1,21 @@
 MiniDeps.later(function()
 	require("mini.pick").setup {
 		mappings = {
-			choose_marked = "<C-j>",
-			refine_marked = "<C-q>",
+			choose_marked = "<M-q>",
+			refine = "<C-e>",
+			refine_marked = "<M-e>",
 
 			mark_down = {
-				char = "<C-e>",
+				char = "<M-n>",
 				func = function()
 					local keys = vim.api.nvim_replace_termcodes("<C-x><C-n>", true, true, true)
+					vim.api.nvim_feedkeys(keys, "n", false)
+				end
+			},
+			mark_up = {
+				char = "<M-p>",
+				func = function()
+					local keys = vim.api.nvim_replace_termcodes("<C-x><C-p>", true, true, true)
 					vim.api.nvim_feedkeys(keys, "n", false)
 				end
 			},
@@ -17,6 +25,7 @@ MiniDeps.later(function()
 	require("mini.icons").setup {
 		style = "glyph"
 	}
+	require "mini.diff".setup {}
 
 	local H = {}
 
@@ -35,6 +44,45 @@ MiniDeps.later(function()
 		end
 
 		return MiniPick.builtin.cli(local_opts, picker_opts)
+	end
+
+	-- just proof of concept
+	MiniPick.registry.modified = function(local_opts)
+		local_opts.scope = "modified"
+
+		local opts = {
+			mappings = {
+				open = {
+					char = '<C-d>',
+					func = function()
+						local state = MiniPick.get_picker_state()
+						local preview_bufnr = state and state.buffers.preview
+						if not preview_bufnr then
+							return
+						end
+
+						return MiniDiff.toggle_overlay(preview_bufnr)
+					end
+				},
+			},
+			source = {
+				preview = function(buf_id, path, opts)
+					local win_id = vim.fn.bufwinid(buf_id)
+					if win_id == -1 then return end
+					vim.wo[win_id].number = true
+
+					local ok, _ = pcall(vim.api.nvim_buf_set_name, buf_id, path)
+					if ok then
+						MiniDiff.enable(buf_id)
+						pcall(MiniDiff.toggle_overlay, buf_id)
+					end
+
+					return MiniPick.default_preview(buf_id, path, opts)
+				end
+			},
+		}
+
+		return MiniExtra.pickers.git_files(local_opts, opts)
 	end
 
 	MiniPick.registry.grep_word = function()

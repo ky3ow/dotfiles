@@ -1,22 +1,9 @@
 MiniDeps.later(function()
 	MiniDeps.add "tpope/vim-sleuth"
-	-- mini.diff?
-	MiniDeps.add "lewis6991/gitsigns.nvim"
-	require("gitsigns").setup {
-		-- See `:help gitsigns.txt`
-		signs = {
-			add = { text = "+" },
-			change = { text = "~" },
-			delete = { text = "_" },
-			topdelete = { text = "‾" },
-			changedelete = { text = "~" },
-		},
-	}
-
+	-- TODO mini.comment
 	MiniDeps.add "numToStr/Comment.nvim"
 	require("Comment").setup {}
 	require("mini.surround").setup {}
-
 end)
 
 MiniDeps.now(function()

@@ -63,9 +63,7 @@ vim.api.nvim_create_autocmd("BufAdd", {
 	pattern = "*",
 	callback = function(e)
 		local listed = vim.bo[e.buf].buflisted
-		local bufname = vim.api.nvim_buf_get_name(e.buf)
 		if listed then
-			-- if listed and #bufname ~= 0 then
 			Buffers.add(e.buf)
 		end
 	end,
