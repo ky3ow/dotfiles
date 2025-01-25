@@ -1,28 +1,18 @@
 MiniDeps.later(function()
-	MiniDeps.add "tpope/vim-sleuth"
-	-- TODO mini.comment
-	MiniDeps.add "numToStr/Comment.nvim"
-	require("Comment").setup {}
+	require("mini.comment").setup {
+		options = {
+			ignore_blank_line = true,
+		},
+	}
 	require("mini.surround").setup {}
 end)
 
 MiniDeps.now(function()
-	-- mini.tabline+statusline?
-	MiniDeps.add "nvim-lualine/lualine.nvim"
-	require("lualine").setup {
-		options = {
-			icons_enabled = false,
-			theme = "auto",
-			component_separators = "|",
-			section_separators = "",
-		},
-		sections = {
-			lualine_c = { { "filename", path = 1 } },
-		},
-		tabline = {
-			lualine_a = { { "buffers", use_mode_colors = true, show_filename_only = false } },
-		},
-	}
+	MiniDeps.add "tpope/vim-fugitive"
+	-- Use mini.git after getting hang of vim-fugitive
+	-- require("mini.git").setup {}
+	require("mini.statusline").setup {}
+	require("mini.tabline").setup {}
 end)
 
 MiniDeps.later(function()
