@@ -33,6 +33,8 @@ MiniDeps.later(function()
 		MiniPick.default_show(buf_id, items, query, { show_icons = true })
 	end
 
+	function H.full_path(path) return (vim.fn.fnamemodify(path, ':p'):gsub('(.)/$', '%1')) end
+
 	MiniPick.registry.rg = function(local_opts)
 		local picker_opts = { source = { cwd = local_opts.cwd, show = H.show_with_icons } }
 
@@ -44,6 +46,106 @@ MiniDeps.later(function()
 		end
 
 		return MiniPick.builtin.cli(local_opts, picker_opts)
+	end
+
+	MiniPick.registry.rg_live = function(local_opts)
+		local cwd = H.full_path(local_opts.cwd or vim.fn.getcwd())
+		local exact = local_opts.exact
+
+		local set_items_opts, spawn_opts = { do_match = false, querytick = MiniPick.get_querytick() }, { cwd = cwd }
+		local process
+		local match = function(_, _, query)
+			pcall(vim.uv.process_kill, process)
+
+			local tick = MiniPick.get_querytick()
+			if tick == set_items_opts.querytick then return end
+			if #query == 0 then return MiniPick.set_picker_items({}, set_items_opts) end
+
+			local command = {
+				"rg", "--column", "--line-number", "--no-heading", "--field-match-separator", "\\x00", "--no-follow",
+				"--color=never"
+			}
+
+			local querystr = table.concat(query)
+
+			if not exact then
+				table.insert(command, "--ignore-case")
+			end
+
+			table.insert(command, "--")
+			table.insert(command, querystr)
+
+			set_items_opts.querytick = tick
+			process = MiniPick.set_picker_items_from_cli(command,
+				{ set_items_opts = set_items_opts, spawn_opts = spawn_opts })
+		end
+
+		return MiniPick.start {
+			source = {
+				name = string.format("Grep Live(case: %s)", exact and "I" or "i"),
+				match = match,
+				show = H.show_with_icons,
+				items = {},
+			},
+			mappings = {
+				toggle_case = {
+					char = "<C-d>",
+					func = function()
+						exact = not exact
+						MiniPick.set_picker_opts({ source = { name = string.format("Grep Live(case: %s)", exact and "I" or "i") } })
+						MiniPick.set_picker_query(MiniPick.get_picker_query() or { "" })
+					end
+				}
+			},
+		}
+	end
+
+	MiniPick.registry.rg_fuzzy = function(local_opts)
+		local cwd = H.full_path(local_opts.cwd or vim.fn.getcwd())
+
+		local set_items_opts, spawn_opts = { do_match = false, querytick = MiniPick.get_querytick() }, { cwd = cwd }
+		local process
+		local match = function(_, _, query)
+			pcall(vim.uv.process_kill, process)
+
+			local tick = MiniPick.get_querytick()
+			if tick == set_items_opts.querytick then return end
+			if #query == 0 then return MiniPick.set_picker_items({}, set_items_opts) end
+
+			local rg = [[rg --column --line-number --no-heading --ignore-case --field-match-separator="$0" --no-follow --color=never]]
+
+			local command = { "sh", "-c" }
+			local commands = {}
+
+			local patterns = vim.split(table.concat(query), " ", { trimempty = true })
+
+			for idx, pattern in ipairs(patterns) do
+				if idx ~= #patterns then
+					table.insert(commands, string.format("%s --files-with-matches -- '%s'", rg, pattern))
+				else
+					table.insert(commands, string.format("%s -- '%s'", rg, pattern))
+				end
+			end
+
+			local pipe = table.concat(commands, " | xargs ")
+			table.insert(command, pipe)
+			table.insert(command, "\\x00")
+
+			vim.notify(vim.inspect(command))
+
+			set_items_opts.querytick = tick
+			process = MiniPick.set_picker_items_from_cli(command,
+				{ set_items_opts = set_items_opts, spawn_opts = spawn_opts })
+		end
+
+		return MiniPick.start {
+			source = {
+				name = string.format("Grep Text"),
+				match = match,
+				show = H.show_with_icons,
+				items = {},
+			},
+		}
 	end
 
 	-- just proof of concept
@@ -183,7 +285,7 @@ MiniDeps.later(function()
 	vim.keymap.set("n", "<leader><leader>", "<cmd>Pick buffers<cr>", { desc = "[S]earch [b]uffers" })
 
 	vim.keymap.set("n", "<leader>sc", "<cmd>Pick list scope='quickfix'<cr>", { desc = "[S]earch qui[c]fix" })
-	vim.keymap.set("n", "<leader>sm", "<cmd>Pick git_files scope='modified'<cr>", { desc = "[S]earch [g]it" })
+	vim.keymap.set("n", "<leader>sm", "<cmd>Pick modified<cr>", { desc = "[S]earch [g]it" })
 	vim.keymap.set("n", "<leader>sd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "[S]earch [d]ignostic" })
 
 	vim.keymap.set("n", "<leader>spf", [[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]],
