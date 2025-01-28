@@ -2,6 +2,10 @@ local Buffers = {
 	buf2nr = {}
 }
 
+function D()
+	vim.notify(vim.inspect(Buffers))
+end
+
 function Buffers.init()
 	Buffers.buf2nr = vim.tbl_map(function(buffer)
 			return buffer.bufnr
@@ -62,10 +66,25 @@ vim.api.nvim_create_autocmd("BufAdd", {
 	group = augroup,
 	pattern = "*",
 	callback = function(e)
-		local listed = vim.bo[e.buf].buflisted
-		if listed then
+		if vim.bo[e.buf].buflisted then
 			Buffers.add(e.buf)
 		end
+	end,
+})
+
+-- 'ephemeral' buffers that exist only when you look at them
+vim.api.nvim_create_autocmd("FileType", {
+	group = augroup,
+	pattern = "qf,mininotify-history",
+	callback = function(e)
+		vim.api.nvim_create_autocmd("BufHidden", {
+			group = augroup,
+			buffer = e.buf,
+			callback = function()
+				vim.bo[e.buf].buflisted = false
+				Buffers.remove(e.buf)
+			end
+		})
 	end,
 })
 

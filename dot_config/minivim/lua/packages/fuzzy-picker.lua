@@ -313,7 +313,7 @@ MiniDeps.later(function()
 		return MiniPick.start({
 			source = {
 				items = hls,
-				show = function(buf_id, items_arr, _ --[[ query ]])
+				show = function(buf_id, items_arr, query) ---@diagnostic disable-line: unused-local
 					local lines = vim.tbl_map(function(hl)
 						return string.format("%s: %s", hl.name, vim.inspect(hl.value, { newline = " ", indent = "" }))
 					end, items_arr)
@@ -327,7 +327,7 @@ MiniDeps.later(function()
 	end
 
 	MiniPick.registry.buffers = function(local_opts)
-		local wipeout_cur = function()
+		local wipeout = function()
 			local matches = MiniPick.get_picker_matches()
 			if not matches then
 				return
@@ -344,7 +344,7 @@ MiniDeps.later(function()
 			end
 			MiniPick.set_picker_items(remaining)
 		end
-		local buffer_mappings = { wipeout = { char = '<C-d>', func = wipeout_cur } }
+		local buffer_mappings = { wipeout = { char = '<C-d>', func = wipeout } }
 		MiniPick.builtin.buffers(local_opts, { mappings = buffer_mappings })
 	end
 
