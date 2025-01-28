@@ -1,111 +1,14 @@
-local Buffers = {
-	buf2nr = {}
-}
-
-function D()
-	vim.notify(vim.inspect(Buffers))
-end
-
-function Buffers.init()
-	Buffers.buf2nr = vim.tbl_map(function(buffer)
-			return buffer.bufnr
-		end,
-		vim.fn.getbufinfo { buflisted = 1 })
-end
-
-function Buffers.find(el)
-	local low, high = 1, #Buffers.buf2nr
-	while low <= high do
-		local mid = math.floor((low + high) / 2)
-		if Buffers.buf2nr[mid] == el then
-			return mid
-		elseif Buffers.buf2nr[mid] < el then
-			low = mid + 1
-		else
-			high = mid - 1
-		end
-	end
-
-	return -1
-end
-
-function Buffers.remove(el)
-	table.remove(Buffers.buf2nr, Buffers.find(el))
-end
-
-function Buffers.add(el)
-	local low, high = 1, #Buffers.buf2nr
-	while low <= high do
-		local mid = math.floor((low + high) / 2)
-		if Buffers.buf2nr[mid] < el then
-			low = mid + 1
-		else
-			high = mid - 1
-		end
-	end
-	table.insert(Buffers.buf2nr, low, el)
-end
-
-function Buffers.go_to(idx)
-	local buffer = Buffers.buf2nr[idx]
-	if buffer then
-		vim.cmd.buffer(buffer)
-	end
-end
-
-local augroup = vim.api.nvim_create_augroup("ky3ow.Buffers", { clear = true })
-vim.api.nvim_create_autocmd("VimEnter", {
-	group = augroup,
-	pattern = "*",
-	callback = function()
-		Buffers.init()
-	end,
-})
-
-vim.api.nvim_create_autocmd("BufAdd", {
-	group = augroup,
-	pattern = "*",
-	callback = function(e)
-		if vim.bo[e.buf].buflisted then
-			Buffers.add(e.buf)
-		end
-	end,
-})
-
--- 'ephemeral' buffers that exist only when you look at them
-vim.api.nvim_create_autocmd("FileType", {
-	group = augroup,
-	pattern = "qf,mininotify-history",
-	callback = function(e)
-		vim.api.nvim_create_autocmd("BufHidden", {
-			group = augroup,
-			buffer = e.buf,
-			callback = function()
-				vim.bo[e.buf].buflisted = false
-				Buffers.remove(e.buf)
-			end
-		})
-	end,
-})
-
-vim.api.nvim_create_autocmd("BufDelete", {
-	group = augroup,
-	pattern = "*",
-	callback = function(e)
-		Buffers.remove(e.buf)
-	end,
-})
-
 vim.api.nvim_create_user_command("Goto", function(opts)
-	opts.args = tonumber(opts.args)
-	if opts.args > #Buffers.buf2nr then
-		if vim.g.goto_notify then
-			vim.notify(("Switched to edge[%d]"):format(opts.args))
-		end
-		Buffers.go_to(#Buffers.buf2nr)
-	else
-		Buffers.go_to(opts.args)
-	end
+	local buffers = vim.fn.getbufinfo { buflisted = 1 }
+	local target = buffers[tonumber(opts.args)] or buffers[#buffers]
+
+	vim.cmd.buffer(target.bufnr)
 end, {
 	nargs = 1,
 })
+
+for i = 1, 10 do
+	vim.keymap.set("n", ("<M-%d>"):format(i % 10), ("<cmd>Goto %d<cr>"):format(i),
+		{ desc = ("Go to buffer %d"):format(i) })
+end
+vim.keymap.set("n", "<M-->", "<cmd>e #<cr>", { desc = "Go to alernate file" })
