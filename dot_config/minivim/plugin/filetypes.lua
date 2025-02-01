@@ -1,31 +1,24 @@
--- extensions->filetype mapping
--- filetype can be function(path, bufnr) -> ft
-local filetypes = {
-	[{ "jinja", "j2" }] = function(path, _)
-		local ft = "jinja"
+local H = {}
 
-		if string.find(path, "%.html") then
-			ft = "html"
-		end
-		if string.find(path, "%.yml") or string.find(path, "%.yaml") then
-			ft = "yaml"
-		end
-		return ft
-	end,
-}
+function H.jinja(path, bufnr) ---@diagnostic disable-line: unused-local
+	local ft = "jinja"
 
-local extension_table = {}
-for extensions, ft_func in pairs(filetypes) do
-	for _, ext in ipairs(extensions) do
-		extension_table[ext] = ft_func
+	if string.find(path, "%.html") then
+		ft = "html"
 	end
+	if string.find(path, "%.yml") or string.find(path, "%.yaml") then
+		ft = "yaml"
+	end
+	return ft
 end
 
-extension_table.tf = "terraform"
-
 vim.filetype.add {
-	extension = extension_table,
+	extension = {
+		jinja = H.jinja,
+		j2 = H.jinja,
+		tf = "terraform",
+	},
 	pattern = {
-		[".*/pack/.*/doc/.*.txt"] = "help",
+		[".*/pack/.*/doc/.*%.txt"] = "help",
 	}
 }
