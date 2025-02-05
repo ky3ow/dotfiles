@@ -2,8 +2,8 @@ MiniDeps.later(function()
 	require("mini.pick").setup {
 		mappings = {
 			choose_marked = "<M-q>",
-			refine = "<C-e>",
-			refine_marked = "<M-e>",
+			refine = "<C-j>",
+			refine_marked = "<M-j>",
 
 			scroll_right = "<M-l>",
 			scroll_left = "<M-h>",
@@ -349,7 +349,8 @@ MiniDeps.later(function()
 	end
 
 	vim.keymap.set("n", "<leader>sf", "<cmd>Pick files<cr>", { desc = "[S]earch [f]iles" })
-	vim.keymap.set("n", "<leader>sg", "<cmd>Pick grep_live<cr>", { desc = "[S]earch [g]rep" })
+	-- vim.keymap.set("n", "<leader>sg", "<cmd>Pick grep_live<cr>", { desc = "[S]earch [g]rep" })
+	vim.keymap.set("n", "<leader>sg", "<cmd>Pick rg_live<cr>", { desc = "[S]earch [g]rep" })
 	vim.keymap.set("n", "<leader>sG", "<cmd>Pick grep<cr>", { desc = "[S]earch [g]rep(non interactive)" })
 	vim.keymap.set("n", "<leader>sh", "<cmd>Pick help<cr>", { desc = "[S]earch [h]elp" })
 	vim.keymap.set("n", "<leader><leader>", "<cmd>Pick buffers<cr>", { desc = "[S]earch [b]uffers" })
@@ -361,8 +362,10 @@ MiniDeps.later(function()
 
 	vim.keymap.set("n", "<leader>spf", [[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]],
 		{ desc = "[S]earch [P]ackage [f]iles" })
-	vim.keymap.set("n", "<leader>spg", [[<cmd>execute 'Pick grep_live cwd="' . g:mini_deps . '"'<cr>]],
+	vim.keymap.set("n", "<leader>spg", [[<cmd>execute 'Pick rg_live cwd="' . g:mini_deps . '"'<cr>]],
 		{ desc = "[S]earch [P]ackage [g]rep" })
+	-- vim.keymap.set("n", "<leader>spg", [[<cmd>execute 'Pick grep_live cwd="' . g:mini_deps . '"'<cr>]],
+	-- 	{ desc = "[S]earch [P]ackage [g]rep" })
 
 	vim.keymap.set("n", "<leader>sw", "<cmd>Pick grep_word<cr>", { desc = "[S]earch [w]ord" })
 	vim.keymap.set("n", "<leader>s/", "<cmd>Pick buf_lines scope='current'<cr>", { desc = "[S]earch [/]lines" })
