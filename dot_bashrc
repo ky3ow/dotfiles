@@ -133,3 +133,16 @@ take() {
   mkdir "$1"
   cd "$1"
 }
+
+tf_mod() {
+  ! [ -r "./versions.tf" ] && echo "Should invoke command in root terraform dir" && return 2
+  [ -z "$1" ] && read -p "Module name: " name || name="$1"
+
+  mkdir -p "./modules/${name}"
+
+  for file in {main,outputs,variables}; do
+	  touch "./modules/${name}/${file}.tf"
+  done
+}
+
+alias mini="NVIM_APPNAME=minivim nvim"
