@@ -69,12 +69,14 @@ g_settings.colorschemes = {
 				dark = "ef-elea-dark",
 				on_colors = function(colors, name)
 					if name == "ef-elea-dark" then
-						-- colors.fg_main = "#cde0d9"
-						-- colors.fg_mode_line = "#cde0d9"
-						colors.fg_main = "#bed7cd"
+						colors.fg_main = "#ebf3f0"
 						colors.fg_mode_line = "#bed7cd"
+						colors.bg_alt = "#383a3a"
 					end
-				end
+				end,
+				styles = {
+					comments = { italic = false },
+				},
 			}
 		end
 	}
@@ -136,5 +138,5 @@ MiniDeps.now(function()
 	for source, _ in pairs(vim.g.settings.colorschemes) do
 		MiniDeps.add(source)
 	end
-	vim.cmd.colorscheme(vim.g.settings.colorscheme)
+	vim.cmd.colorscheme(vim.g.colors_name)
 end)

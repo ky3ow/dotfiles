@@ -2,9 +2,22 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
-vim.g.settings = {
-	colorscheme = "everforest",
+vim.g.colors_name = "ef-elea-dark"
 
+vim.g.formatters = {
+	lua = { "stylua" },
+	python = { "black" },
+	-- Sequential
+	-- python = { "isort", "black" },
+	-- First found
+	-- javascript = { { "prettierd", "prettier" } },
+}
+
+vim.g.linters = {
+	python = { "flake8" }
+}
+
+vim.g.settings = {
 	language_servers = {
 		matlab_ls = {
 			filetypes = { "matlab" },
