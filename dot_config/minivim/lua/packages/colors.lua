@@ -8,7 +8,7 @@ vim.g.colorschemes = {
 	["neanias/everforest-nvim"] = {
 		names = { "everforest" },
 		setup = function()
-			require "everforest".setup {
+			require("everforest").setup {
 				background = "hard",
 				disable_italic_comments = true,
 				on_highlights = function(hl, pallette)
@@ -22,7 +22,7 @@ vim.g.colorschemes = {
 	["ellisonleao/gruvbox.nvim"] = {
 		names = { "gruvbox" },
 		setup = function()
-			require "gruvbox".setup {
+			require("gruvbox").setup {
 				undercurl = false,
 				underline = false,
 				bold = true,
@@ -38,9 +38,9 @@ vim.g.colorschemes = {
 	},
 
 	["rose-pine/neovim"] = {
-		names = { "rose-pine", "rose-pine-dawn", "rose-pine-main", "rose-pine-moon", },
+		names = { "rose-pine", "rose-pine-dawn", "rose-pine-main", "rose-pine-moon" },
 		setup = function()
-			require "rose-pine".setup {
+			require("rose-pine").setup {
 				styles = {
 					italic = false,
 				},
@@ -49,22 +49,34 @@ vim.g.colorschemes = {
 	},
 
 	["EdenEast/nightfox.nvim"] = {
-		names = { "nightfox", "duskfox", "carbonfox", "nordfox", "dawnfox", "terafox", },
+		names = { "nightfox", "duskfox", "carbonfox", "nordfox", "dawnfox", "terafox" },
 		setup = function()
-			require "nightfox".setup {}
-		end
+			require("nightfox").setup {}
+		end,
 	},
 
 	["oonamo/ef-themes.nvim"] = {
 		names = {
-			"ef-autumn", "ef-bio", "ef-cherie", "ef-dark",
-			"ef-deuteranopia-dark", "ef-dream", "ef-duo-dark",
-			"ef-elea-dark", "ef-maris-dark", "ef-melissa-dark",
-			"ef-night", "ef-owl", "ef-rosa", "ef-symbiosis",
-			"ef-trio-dark", "ef-tritanopia-dark", "ef-winter",
+			"ef-autumn",
+			"ef-bio",
+			"ef-cherie",
+			"ef-dark",
+			"ef-deuteranopia-dark",
+			"ef-dream",
+			"ef-duo-dark",
+			"ef-elea-dark",
+			"ef-maris-dark",
+			"ef-melissa-dark",
+			"ef-night",
+			"ef-owl",
+			"ef-rosa",
+			"ef-symbiosis",
+			"ef-trio-dark",
+			"ef-tritanopia-dark",
+			"ef-winter",
 		},
 		setup = function()
-			require "ef-themes".setup {
+			require("ef-themes").setup {
 				dark = "ef-elea-dark",
 				on_colors = function(colors, name)
 					if name == "ef-elea-dark" then
@@ -73,12 +85,18 @@ vim.g.colorschemes = {
 						colors.bg_alt = "#383a3a"
 					end
 				end,
+				on_highlights = function(highlights, colors, name)
+					return {
+						EyelinerPrimary = { fg = colors.red_cooler },
+						EyelinerSecondary = { fg = colors.green_cooler },
+					}
+				end,
 				styles = {
 					comments = { italic = false },
 				},
 			}
-		end
-	}
+		end,
+	},
 }
 
 -- [[ Highlight on yank ]]
