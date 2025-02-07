@@ -204,6 +204,7 @@ MiniDeps.later(function()
 				match = match,
 				show = H.show_with_icons,
 				items = {},
+				cwd = cwd
 			},
 			mappings = {
 				toggle_case = {

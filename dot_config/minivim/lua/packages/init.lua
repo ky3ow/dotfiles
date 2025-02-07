@@ -5,10 +5,18 @@ MiniDeps.later(function()
 		},
 	}
 	require("mini.surround").setup {}
+	require("mini.files").setup {
+		options = {
+			use_as_default_explorer = false
+		}
+	}
+	vim.keymap.set("n", "<leader>f", MiniFiles.open, { desc = "Mini [F]iles" })
 end)
 
 MiniDeps.now(function()
 	MiniDeps.add "tpope/vim-fugitive"
+	MiniDeps.add "prichrd/netrw.nvim"
+	require("netrw").setup{}
 	-- Use mini.git after getting hang of vim-fugitive
 	-- require("mini.git").setup {}
 	require("mini.statusline").setup {}
