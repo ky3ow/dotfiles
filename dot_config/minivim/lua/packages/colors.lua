@@ -1,11 +1,10 @@
-local g_settings = vim.g.settings
 ---@class Colorscheme
 ---@field names table<string>
 ---@field setup? function
 ---@field configured? boolean
 
 ---@type table<string, Colorscheme>
-g_settings.colorschemes = {
+vim.g.colorschemes = {
 	["neanias/everforest-nvim"] = {
 		names = { "everforest" },
 		setup = function()
@@ -81,7 +80,6 @@ g_settings.colorschemes = {
 		end
 	}
 }
-vim.g.settings = g_settings
 
 -- [[ Highlight on yank ]]
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -109,11 +107,7 @@ vim.api.nvim_create_autocmd("ColorSchemePre", {
 	callback = function(event)
 		---@type string
 		local target = event.match
-
-		local saved_settings = vim.g.settings
-		local colorschemes = saved_settings.colorschemes
-
-		local colorscheme = get_colorscheme_settings(colorschemes, target)
+		local colorscheme = get_colorscheme_settings(vim.g.colorschemes, target)
 
 		if (not colorscheme) or colorscheme.configured then
 			-- colorscheme is not custom or already configured
@@ -130,12 +124,11 @@ vim.api.nvim_create_autocmd("ColorSchemePre", {
 		end
 
 		colorscheme.configured = true
-		vim.g.settings = saved_settings
 	end,
 })
 
 MiniDeps.now(function()
-	for source, _ in pairs(vim.g.settings.colorschemes) do
+	for source, _ in pairs(vim.g.colorschemes) do
 		MiniDeps.add(source)
 	end
 	vim.cmd.colorscheme(vim.g.colors_name)

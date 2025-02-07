@@ -7,7 +7,7 @@ MiniDeps.now(function()
 	local blink_installed, blink = pcall(require, "blink.cmp")
 
 	require("mason").setup {}
-	for server, config in pairs(vim.g.settings.language_servers) do
+	for server, config in pairs(vim.g.language_servers) do
 		if blink_installed then
 			config.capabilities = blink.get_lsp_capabilities(config.capabilities, true)
 		else
@@ -91,14 +91,14 @@ MiniDeps.later(function()
 	})
 
 	local conform = require "conform"
-	conform.setup { formatters_by_ft = vim.g.settings.formatters }
+	conform.setup { formatters_by_ft = vim.g.formatters }
 
 	vim.api.nvim_create_user_command("Format", function(_)
 		vim.notify("Formatting with conform...")
 		conform.format { lsp_fallback = true, timeout_ms = 500 }
 	end, { desc = "Format current buffer with LSP" })
 
-	require("lint").linters_by_ft = vim.g.settings.linters
+	require("lint").linters_by_ft = vim.g.linters
 	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 		callback = function()
 			require("lint").try_lint(nil, { ignore_errors = true })
