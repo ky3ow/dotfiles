@@ -12,13 +12,18 @@ function H.jinja(path, bufnr) ---@diagnostic disable-line: unused-local
 	return ft
 end
 
+local config_location = vim.fn.stdpath "config"
+
 vim.filetype.add {
 	extension = {
 		jinja = H.jinja,
 		j2 = H.jinja,
 		tf = "terraform",
 	},
+	filename = {
+		[config_location .. "/mini-deps-snap"] = "lua"
+	},
 	pattern = {
 		[".*/pack/.*/doc/.*%.txt"] = "help",
-	}
+	},
 }
