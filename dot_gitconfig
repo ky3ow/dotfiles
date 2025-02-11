@@ -17,3 +17,6 @@
 	pretty = %C(auto)%h %d %s
 [init]
 	defaultBranch = main
+[alias]
+	dshow = -c diff.external=difft show --ext-diff
+	ddiff = -c diff.external=difft diff
