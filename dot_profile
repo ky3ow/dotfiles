@@ -18,6 +18,12 @@ if [ -d "$HOME/go/bin" ] ; then
     PATH="$HOME/go/bin:$PATH"
 fi
 
-if [ -d "$HOME/venv/bin" ] ; then
-    PATH="$HOME/venv/bin:$PATH"
+if [ -d "$HOME/.venv/bin" ] ; then
+    PATH="$HOME/.venv/bin:$PATH"
 fi
+
+for file in "$HOME/.profile.d"/*.sh; do
+  if [ -f "$file" ] && [ -r "$file" ]; then
+    source "$file"
+  fi
+done
