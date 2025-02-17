@@ -2,7 +2,7 @@ MiniDeps.later(function()
 	MiniDeps.add {
 		source = "saghen/blink.cmp",
 		depends = { "rafamadriz/friendly-snippets" },
-		checkout = "v0.10.0",
+		checkout = "v0.12.4",
 	}
 	-- @TODO look into MiniSnippets.default_insert() to add dynamic node logic?(if i ever need that?)
 	-- use when it could accept lsp completions
@@ -27,7 +27,6 @@ MiniDeps.later(function()
 
 		sources = {
 			default = { "lazydev", "lsp", "path", "snippets", "buffer" },
-			cmdline = {},
 			providers = {
 				lazydev = {
 					name = "LazyDev",
@@ -35,6 +34,10 @@ MiniDeps.later(function()
 					score_offset = 100,
 				},
 			},
+		},
+
+		cmdline = {
+			enabled = false
 		},
 
 		completion = {
