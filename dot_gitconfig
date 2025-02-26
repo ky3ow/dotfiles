@@ -20,3 +20,5 @@
 [alias]
 	dshow = -c diff.external=difft show --ext-diff
 	ddiff = -c diff.external=difft diff
+[credential]
+	helper = cache --timeout=3600
