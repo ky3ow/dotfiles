@@ -1,6 +1,3 @@
-;;; (setq use-short-answers t) ;;
-;;; (setq inhibit-x-resources t) ;; was set for some reason
-
 (require 'xdg)
 (defcustom emacs-state-home (expand-file-name "emacs" (xdg-state-home))
   "Specifies where to store state files(undo, backups)")
@@ -17,5 +14,5 @@
 (make-directory emacs-config-home t)
 
 (setopt package-user-dir (expand-file-name "packages" emacs-data-home))
+(setopt package-gnupghome-dir (expand-file-name "packages/gnupg" emacs-data-home))
 (startup-redirect-eln-cache emacs-cache-home)
-(add-to-list 'load-path emacs-config-home) ;; packages dir
