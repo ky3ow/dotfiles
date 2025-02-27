@@ -1,20 +1,29 @@
-(add-to-list 'load-path emacs-config-home)
+(use-package unclutter
+  :custom (unclutter-use-customize nil))
 
-(setq column-number-mode t) ;; in bar
-(setq line-number-mode t) ;; in bar
-(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;; in column
-
-(global-hl-line-mode 1)
-(hl-line-mode 1)
-
-(use-package unclutter)
+(use-package emacs
+  :custom
+  (tool-bar-mode nil)
+  (menu-bar-mode nil)
+  (scroll-bar-mode nil)
+  
+  (inhibit-startup-screen t)
+  (ring-bell-function 'ignore)
+  (frame-title-format '("%b"))
+  (use-file-dialog nil)
+  (inhibit-startup-echo-area-message (user-login-name))
+  
+  (column-number-mode t)
+  (line-number-mode t)
+  (tab-bar-show 1)
+  (isearch-lazy-count t)
+  (global-hl-line-mode t)
+  
+  :config
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode))
 
 (use-package ef-themes
   :ensure t
   :config
   (load-theme 'ef-elea-dark :no-confirm))
 ;;(load-theme 'ef-elea-light :no-confirm)
-
-(use-package emacs
-  :config
-  (setq isearch-lazy-count t))
