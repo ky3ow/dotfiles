@@ -1,0 +1,4 @@
+dot_emacs.d/*
+!dot_emacs.d/init.el
+!dot_emacs.d/elisp
+!dot_emacs.d/elisp/**/*
