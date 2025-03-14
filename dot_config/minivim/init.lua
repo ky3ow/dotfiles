@@ -15,6 +15,7 @@ vim.g.formatters = {
 
 vim.g.linters = {
 	python = { "flake8" },
+	yaml = { "yamllint" },
 }
 
 vim.g.language_servers = {

@@ -109,5 +109,14 @@ MiniDeps.later(function()
 		require("lint").try_lint(nil)
 	end, { desc = "Run linter" })
 
+	local yamllint = require"lint".linters.yamllint
+	yamllint.args = {
+		"--format",
+		"parsable",
+		"-d",
+		"relaxed",
+		"-"
+	}
+
 	vim.keymap.set("n", "<leader>lf", "<cmd>Format<cr>", { desc = "[L]anguage [F]ormat" })
 end)
