@@ -18,6 +18,18 @@ vim.g.linters = {
 	yaml = { "yamllint" },
 }
 
+vim.g.linter_configs = {
+	yamllint = {
+		args = {
+			"--format",
+			"parsable",
+			"-d",
+			"relaxed",
+			"-"
+		}
+	},
+}
+
 vim.g.language_servers = {
 	matlab_ls = {
 		filetypes = { "matlab" },

@@ -99,6 +99,11 @@ MiniDeps.later(function()
 	end, { desc = "Format current buffer with LSP" })
 
 	require("lint").linters_by_ft = vim.g.linters
+	for linter, config in pairs(vim.g.linter_configs) do
+		local linters = require"lint".linters
+		linters[linter] = vim.tbl_deep_extend("force", linters[linter], config)
+	end
+	local linter = require"lint".linters.yamllint
 	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 		callback = function()
 			require("lint").try_lint(nil, { ignore_errors = true })
@@ -108,15 +113,6 @@ MiniDeps.later(function()
 		vim.notify("Linting...")
 		require("lint").try_lint(nil)
 	end, { desc = "Run linter" })
-
-	local yamllint = require"lint".linters.yamllint
-	yamllint.args = {
-		"--format",
-		"parsable",
-		"-d",
-		"relaxed",
-		"-"
-	}
 
 	vim.keymap.set("n", "<leader>lf", "<cmd>Format<cr>", { desc = "[L]anguage [F]ormat" })
 end)
