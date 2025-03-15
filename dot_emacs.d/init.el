@@ -53,6 +53,10 @@
   (let ((hl-line-hooks '(text-mode-hook prog-mode-hook)))
     (mapc (lambda (hook) (add-hook hook 'hl-line-mode)) hl-line-hooks))
 
+  (set-face-attribute 'default nil :family "Iosevka")
+  (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
+  (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+  
   (when (display-graphic-p)
     (context-menu-mode)))
 
@@ -72,16 +76,31 @@
   (which-key-mode))
 
 (use-package org
-  :hook (org-mode . visual-line-mode))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages '(which-key ef-themes)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+  :custom
+  (org-auto-align-tags nil)
+  (org-tags-column 0)
+  (org-catch-invisible-edits 'show-and-error)
+  (org-special-ctrl-a/e t)
+
+  (org-pretty-entities t)
+  (org-agenda-tags-column 0)
+  (org-ellipsis "…")
+
+  :hook
+  (org-mode . org-indent-mode))
+
+(use-package org-modern
+  :ensure t
+  :custom
+  (org-modern-hide-stars " ")
+  (org-modern-star 'replace)
+  :hook
+  (org-mode . org-modern-mode))
+
+(use-package olivetti
+  :ensure t
+  :custom
+  (olivetti-body-width 0.7))
+
+(use-package eat
+  :ensure t)
