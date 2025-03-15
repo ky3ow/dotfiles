@@ -102,6 +102,7 @@
   :custom
   (org-modern-hide-stars " ")
   (org-modern-star 'replace)
+  (org-modern-block-fringe nil)
   :config
   (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
   :hook
