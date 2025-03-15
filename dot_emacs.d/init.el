@@ -1,4 +1,5 @@
 (add-to-list 'load-path (expand-file-name "elisp" user-emacs-directory)) ;; packages dir
+(add-to-list 'package-archives '("mepla" . "https://melpa.org/packages/") t) ;; add melpa
 
 (use-package unclutter
   :custom (unclutter-use-customize nil))
@@ -45,18 +46,25 @@
   (pixel-scroll-precision-mode t)
 
   :config
+  ;; fonts  
+  (set-face-attribute 'default nil :family "Iosevka")
+  (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
+
+  ;; general hooks
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
   (add-hook 'text-mode-hook 'visual-line-mode)
-  
-  (add-to-list 'package-archives '("mepla" . "https://melpa.org/packages/") t)
 
   (let ((hl-line-hooks '(text-mode-hook prog-mode-hook)))
     (mapc (lambda (hook) (add-hook hook 'hl-line-mode)) hl-line-hooks))
 
-  (set-face-attribute 'default nil :family "Iosevka")
-  (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
-  (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
-  
+  ;; tab-bar-select-tab
+  (dotimes (i 9)
+    (let ((keybind (format "C-c C-%d" (1+ i))))
+      (global-set-key (kbd keybind)
+		      `(lambda ()
+			(interactive)
+			(tab-bar-select-tab ,(1+ i))))))
+
   (when (display-graphic-p)
     (context-menu-mode)))
 
@@ -94,13 +102,17 @@
   :custom
   (org-modern-hide-stars " ")
   (org-modern-star 'replace)
+  :config
+  (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
   :hook
   (org-mode . org-modern-mode))
 
 (use-package olivetti
   :ensure t
   :custom
-  (olivetti-body-width 0.7))
+  (olivetti-body-width 0.7)
+  :hook
+  (org-mode . olivetti-mode))
 
 (use-package eat
   :ensure t)
