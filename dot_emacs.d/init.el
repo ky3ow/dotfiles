@@ -65,6 +65,26 @@
 			(interactive)
 			(tab-bar-select-tab ,(1+ i))))))
 
+  ;; tab-bar-things
+  (defun my-tab-bar-tab-name-format-function (tab i)
+    (let ((current-p (eq (car tab) 'current-tab))
+	  (bufname (alist-get 'name tab)))
+      (propertize
+       (concat (if tab-bar-tab-hints (format "%d " i) "")
+               bufname
+	       (if (and (buffer-modified-p (get-buffer bufname))
+			(not (string-match "\\*.*\\*" bufname)))
+		   "*"
+		 "")
+               (or (and tab-bar-close-button-show
+			(not (eq tab-bar-close-button-show
+				 (if current-p 'non-selected 'selected)))
+			tab-bar-close-button)
+                   ""))
+       'face (funcall tab-bar-tab-face-function tab))))
+
+  (setopt tab-bar-tab-name-format-function 'my-tab-bar-tab-name-format-function)
+  
   (when (display-graphic-p)
     (context-menu-mode)))
 
@@ -103,6 +123,7 @@
   (org-modern-hide-stars " ")
   (org-modern-star 'replace)
   (org-modern-block-fringe nil)
+  (org-modern-replace-stars "◉○✸✿")
   :config
   (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
   :hook
