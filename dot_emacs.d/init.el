@@ -104,6 +104,7 @@
   (which-key-mode))
 
 (use-package org
+  :ensure t
   :custom
   (org-auto-align-tags nil)
   (org-tags-column 0)
@@ -113,7 +114,6 @@
   (org-pretty-entities t)
   (org-agenda-tags-column 0)
   (org-ellipsis "…")
-
   :hook
   (org-mode . org-indent-mode))
 
