@@ -104,7 +104,6 @@
   (which-key-mode))
 
 (use-package org
-  :ensure t
   :custom
   (org-auto-align-tags nil)
   (org-tags-column 0)
@@ -114,6 +113,7 @@
   (org-pretty-entities t)
   (org-agenda-tags-column 0)
   (org-ellipsis "…")
+
   :hook
   (org-mode . org-indent-mode))
 
@@ -123,9 +123,39 @@
   (org-modern-hide-stars " ")
   (org-modern-star 'replace)
   (org-modern-block-fringe nil)
-  (org-modern-replace-stars "◉○✸✿")
+  (org-modern-replace-stars "◉○◈◇✿")
   :config
   (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+
+  (defcustom org-modern-replace-stars-cycle t
+    "Cycle replace stars instead of repeating past max defined level"
+    :type 'boolean)
+  
+  (defun org-modern--star ()
+    "Prettify headline stars."
+    (let* ((beg (match-beginning 1))
+           (end (match-end 1))
+           (level (- end beg)))
+      (when (and org-modern--hide-stars-cache (not (eq beg end)))
+	(cl-loop for i from beg below end do
+		 (put-text-property i (1+ i) 'display
+                                    (nth (logand i 1)
+					 org-modern--hide-stars-cache))))
+      (when org-modern-star
+	(when (and (eq org-modern-hide-stars 'leading) org-hide-leading-stars)
+          (put-text-property beg (1+ end) 'face (get-text-property end 'face)))
+	(put-text-property
+	 (if (eq org-modern-hide-stars 'leading) beg end)
+	 (1+ end) 'display
+	 (let* ((cache (if (and org-modern--folded-star-cache
+				(org-invisible-p (pos-eol)))
+                           org-modern--folded-star-cache
+			 org-modern--expanded-star-cache))
+		(cache-index (if org-modern-replace-stars-cycle
+				 (mod level (length cache))
+			       (min (1- (length cache)) level))))
+           (aref cache cache-index))))))
+
   :hook
   (org-mode . org-modern-mode))
 
