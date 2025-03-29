@@ -1,5 +1,7 @@
 (add-to-list 'load-path (expand-file-name "elisp" user-emacs-directory)) ;; packages dir
-(add-to-list 'package-archives '("mepla" . "https://melpa.org/packages/") t) ;; add melpa
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+ ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+ ("mepla" . "https://melpa.org/packages/")))
 
 (use-package unclutter
   :custom (unclutter-use-customize nil))
@@ -86,7 +88,19 @@
   (setopt tab-bar-tab-name-format-function 'my-tab-bar-tab-name-format-function)
   
   (when (display-graphic-p)
-    (context-menu-mode)))
+    (context-menu-mode))
+
+  (defun wslp()
+    (and
+     (eq system-type 'gnu/linux)
+     (file-exists-p "/run/WSL")))
+
+  (when (wslp)
+    (setq select-active-regions nil
+        select-enable-clipboard 't
+        select-enable-primary nil
+        interprogram-cut-function #'gui-select-text))
+  )
 
 (use-package ef-themes
   :ensure t
