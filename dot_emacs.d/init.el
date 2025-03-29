@@ -1,7 +1,7 @@
 (add-to-list 'load-path (expand-file-name "elisp" user-emacs-directory)) ;; packages dir
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
- ("nongnu" . "https://elpa.nongnu.org/nongnu/")
- ("mepla" . "https://melpa.org/packages/")))
+			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+			 ("mepla" . "https://melpa.org/packages/")))
 
 (use-package unclutter
   :custom (unclutter-use-customize nil))
@@ -46,19 +46,22 @@
   (mouse-wheel-tilt-scroll t)
   (mouse-wheel-flip-direction t)
   (pixel-scroll-precision-mode t)
+  (scroll-conservatively 100)
+  (scroll-margin 8)
 
   (select-enable-clipboard nil)
   (truncate-lines t)
+  (help-window-select 'always)
 
   :custom-face
   (default ((t (:family "Iosevka" :height 150))))
   (variable-pitch ((t (:family "Iosevka Aile" :height 140))))
   
   :bind (:prefix-map clipboard-map
-	 :prefix "C-c a"
-	 ("c" . clipboard-kill-ring-save)
-	 ("v" . clipboard-yank)
-	 ("x" . clipboard-kill-region))
+		     :prefix "C-c a"
+		     ("c" . clipboard-kill-ring-save)
+		     ("v" . clipboard-yank)
+		     ("x" . clipboard-kill-region))
 
   :bind (:prefix-map option-toggles
 		     :prefix "C-c t"
@@ -73,7 +76,7 @@
     (if truncate-lines
 	(message "Truncate lines: On")
       (message "Truncate lines: Off")))
- 
+  
   (defun wslp()
     (and
      (eq system-type 'gnu/linux)
@@ -93,12 +96,12 @@
   (when (wslp)
     (setq select-active-regions nil)
     (let ((cmd-exe "/mnt/c/Windows/System32/cmd.exe")
-	(cmd-args '("/c" "start")))
-    (when (file-exists-p cmd-exe)
-      (setq browse-url-generic-program  cmd-exe
-	    browse-url-generic-args     cmd-args
-	    browse-url-browser-function 'browse-url-generic
-	    search-web-default-browser 'browse-url-generic))))
+	  (cmd-args '("/c" "start")))
+      (when (file-exists-p cmd-exe)
+	(setq browse-url-generic-program  cmd-exe
+	      browse-url-generic-args     cmd-args
+	      browse-url-browser-function 'browse-url-generic
+	      search-web-default-browser 'browse-url-generic))))
   )
 
 (use-package tab-bar
