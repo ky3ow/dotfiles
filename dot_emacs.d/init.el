@@ -47,11 +47,39 @@
   (mouse-wheel-flip-direction t)
   (pixel-scroll-precision-mode t)
 
-  :config
-  ;; fonts  
-  (set-face-attribute 'default nil :family "Iosevka")
-  (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
+  (select-enable-clipboard nil)
+  (truncate-lines t)
 
+  :custom-face
+  (default ((t (:family "Iosevka" :height 150))))
+  (variable-pitch ((t (:family "Iosevka Aile" :height 140))))
+  
+  :bind (:prefix-map clipboard-map
+	 :prefix "C-c a"
+	 ("c" . clipboard-kill-ring-save)
+	 ("v" . clipboard-yank)
+	 ("x" . clipboard-kill-region))
+
+  :bind (:prefix-map option-toggles
+		     :prefix "C-c t"
+		     ("w" . my-toggle-truncate-lines)
+		     ("s" . visual-line-mode))
+
+  :preface
+  (defun my-toggle-truncate-lines ()
+    "Toggle the `truncate-lines` setting."
+    (interactive)
+    (setq truncate-lines (not truncate-lines))
+    (if truncate-lines
+	(message "Truncate lines: On")
+      (message "Truncate lines: Off")))
+ 
+  (defun wslp()
+    (and
+     (eq system-type 'gnu/linux)
+     (file-exists-p "/run/WSL")))
+
+  :config
   ;; general hooks
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
   (add-hook 'text-mode-hook 'visual-line-mode)
@@ -59,15 +87,25 @@
   (let ((hl-line-hooks '(text-mode-hook prog-mode-hook)))
     (mapc (lambda (hook) (add-hook hook 'hl-line-mode)) hl-line-hooks))
 
-  ;; tab-bar-select-tab
-  (dotimes (i 9)
-    (let ((keybind (format "C-c C-%d" (1+ i))))
-      (global-set-key (kbd keybind)
-		      `(lambda ()
-			(interactive)
-			(tab-bar-select-tab ,(1+ i))))))
+  (when (display-graphic-p)
+    (context-menu-mode))
 
-  ;; tab-bar-things
+  (when (wslp)
+    (setq select-active-regions nil)
+    (let ((cmd-exe "/mnt/c/Windows/System32/cmd.exe")
+	(cmd-args '("/c" "start")))
+    (when (file-exists-p cmd-exe)
+      (setq browse-url-generic-program  cmd-exe
+	    browse-url-generic-args     cmd-args
+	    browse-url-browser-function 'browse-url-generic
+	    search-web-default-browser 'browse-url-generic))))
+  )
+
+(use-package tab-bar
+  :custom
+  (tab-bar-tab-name-format-function 'my-tab-bar-tab-name-format-function)
+  (tab-bar-tab-hints t)
+  :preface
   (defun my-tab-bar-tab-name-format-function (tab i)
     (let ((current-p (eq (car tab) 'current-tab))
 	  (bufname (alist-get 'name tab)))
@@ -84,23 +122,13 @@
 			tab-bar-close-button)
                    ""))
        'face (funcall tab-bar-tab-face-function tab))))
-
-  (setopt tab-bar-tab-name-format-function 'my-tab-bar-tab-name-format-function)
-  
-  (when (display-graphic-p)
-    (context-menu-mode))
-
-  (defun wslp()
-    (and
-     (eq system-type 'gnu/linux)
-     (file-exists-p "/run/WSL")))
-
-  (when (wslp)
-    (setq select-active-regions nil
-        select-enable-clipboard 't
-        select-enable-primary nil
-        interprogram-cut-function #'gui-select-text))
-  )
+  :config
+  (dotimes (i 9)
+    (let ((keybind (format "C-c C-%d" (1+ i))))
+      (global-set-key (kbd keybind)
+		      `(lambda ()
+			 (interactive)
+			 (tab-bar-select-tab ,(1+ i)))))))
 
 (use-package ef-themes
   :ensure t
