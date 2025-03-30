@@ -208,7 +208,7 @@ Specific to the current window's mode line.")
 
 (defvar-local simple-modeline-lines-module
     '(:eval
-       (propertize (concat " [%l/" (number-to-string (line-number-at-pos (point-max))) "] ")
+       (propertize (concat " [%c][%l/" (number-to-string (line-number-at-pos (point-max))) "] ")
                     'face 'simple-modeline-indicator-blue-bg
                     'mouse-face 'mode-line-highlight))
   "Display lines")
@@ -253,29 +253,71 @@ Specific to the current window's mode line.")
 
 ;;; Align
 
+(defvar-local simple-modeline-left-elements
+  '("%e"
+    simple-modeline-input-module
+    simple-modeline-kmacro-module
+    simple-modeline-narrow-module
+    simple-modeline-remote-module
+    " "
+    simple-modeline-buffer-module
+    simple-modeline-minor-module
+    )
+  "List of mode line constructs for the left side.")
+
+(defvar-local simple-modeline-right-elements
+  '(""
+    simple-modeline-lsp-module
+    simple-modeline-major-module
+    " "
+    simple-modeline-process-module
+    simple-modeline-misc-module
+    simple-modeline-lines-module
+    simple-modeline-encoding-module)
+  "List of mode line constructs for the right side.")
+
+(put 'simple-modeline-left-elements 'risky-local-variable t)
+(put 'simple-modeline-right-elements 'risky-local-variable t)
+
+(defun simple-format-mode-line-aligned ()
+  (let* (;; Get the available width for the mode line text
+         (available-width (window-body-width))
+         ;; Format the left and right parts using the standard formatter
+         (left-str (format-mode-line simple-modeline-left-elements))
+         (right-str (format-mode-line simple-modeline-right-elements))
+         ;; Calculate the displayed width of each part
+         (left-width (string-width left-str))
+         (right-width (string-width right-str))
+         ;; Calculate the padding needed. Ensure it's not negative.
+         (padding-width (max 0 (1+ (- available-width left-width right-width))))
+         ;; Create the padding string
+         (padding-str (make-string padding-width ?\s)))
+    ;; Concatenate left, padding, and right parts
+    (concat left-str padding-str right-str)))
+
+(setq-default mode-line-format '((:eval (simple-format-mode-line-aligned))))
 
 ;;; Setting the modeline
 
-(setq-default mode-line-format
-	      '("%e"
-		simple-modeline-input-module
-		simple-modeline-kmacro-module
-		simple-modeline-narrow-module
-		simple-modeline-remote-module
-		" "
-		simple-modeline-buffer-module
-		" "
-		simple-modeline-minor-module
-		" "
-                simple-modeline-lsp-module
-		;; mode-line-format-right-align ; Emacs 30
-                " "
-		simple-modeline-major-module
-		" "
-		simple-modeline-process-module
-		simple-modeline-misc-module
-		simple-modeline-lines-module
-		simple-modeline-encoding-module
-		))
+;; (setq-default mode-line-format
+;; 	      '("%e"
+;; 		simple-modeline-input-module
+;; 		simple-modeline-kmacro-module
+;; 		simple-modeline-narrow-module
+;; 		simple-modeline-remote-module
+;; 		" "
+;; 		simple-modeline-buffer-module
+;; 		" "
+;; 		simple-modeline-minor-module
+;; 		;; mode-line-format-right-align ; Emacs 30
+;;                 simple-modeline-lsp-module
+;;                 " "
+;; 		simple-modeline-major-module
+;; 		" "
+;; 		simple-modeline-process-module
+;; 		simple-modeline-misc-module
+;; 		simple-modeline-lines-module
+;; 		simple-modeline-encoding-module
+;; 		))
 
 (provide 'simple-modeline)
