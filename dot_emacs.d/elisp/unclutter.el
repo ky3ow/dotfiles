@@ -1,4 +1,4 @@
-;;; unclutter.el --- My twist on no-littering.el with xdg directories  -*- lexical-binding: t -*-
+;;; unclutter.el --- Keep stuff in config directory  -*- lexical-binding: t -*-
 
 (defcustom unclutter-use-customize nil
   "Specifies behavior of custom file.

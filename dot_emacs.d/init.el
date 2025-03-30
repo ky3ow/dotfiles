@@ -51,7 +51,7 @@
 
   (select-enable-clipboard nil)
   (truncate-lines t)
-  (help-window-select 'always)
+  (help-window-select t)
 
   :custom-face
   (default ((t (:family "Iosevka" :height 150))))
@@ -83,6 +83,8 @@
      (file-exists-p "/run/WSL")))
 
   :config
+  (put 'narrow-to-region 'disabled nil)
+  
   ;; general hooks
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
   (add-hook 'text-mode-hook 'visual-line-mode)
@@ -108,12 +110,14 @@
   :custom
   (tab-bar-tab-name-format-function 'my-tab-bar-tab-name-format-function)
   (tab-bar-tab-hints t)
+  (tab-bar-separator "")
+  (tab-bar-close-button-show nil)
   :preface
   (defun my-tab-bar-tab-name-format-function (tab i)
     (let ((current-p (eq (car tab) 'current-tab))
 	  (bufname (alist-get 'name tab)))
       (propertize
-       (concat (if tab-bar-tab-hints (format "%d " i) "")
+       (concat (if tab-bar-tab-hints (format " %d " i) "")
                bufname
 	       (if (and (buffer-modified-p (get-buffer bufname))
 			(not (string-match "\\*.*\\*" bufname)))
@@ -131,7 +135,8 @@
       (global-set-key (kbd keybind)
 		      `(lambda ()
 			 (interactive)
-			 (tab-bar-select-tab ,(1+ i)))))))
+			 (tab-bar-select-tab ,(1+ i))))))
+  )
 
 (use-package ef-themes
   :ensure t
