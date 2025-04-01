@@ -101,9 +101,8 @@ MiniDeps.later(function()
 	require("lint").linters_by_ft = vim.g.linters
 	for linter, config in pairs(vim.g.linter_configs) do
 		local linters = require"lint".linters
-		linters[linter] = vim.tbl_deep_extend("force", linters[linter], config)
+		linters[linter] = vim.tbl_deep_extend("force", linters[linter] --[[@as lint.Linter]] or {}, config)
 	end
-	local linter = require"lint".linters.yamllint
 	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 		callback = function()
 			require("lint").try_lint(nil, { ignore_errors = true })

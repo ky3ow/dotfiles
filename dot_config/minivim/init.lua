@@ -24,7 +24,7 @@ vim.g.linter_configs = {
 			"--format",
 			"parsable",
 			"-d",
-			"relaxed",
+			"{extends: relaxed, rules: {indentation: {indent-sequences: whatever}}}",
 			"-"
 		}
 	},
