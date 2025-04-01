@@ -31,9 +31,6 @@ MiniDeps.now(function()
 	MiniDeps.add "nvim-treesitter/nvim-treesitter-textobjects"
 	MiniDeps.add "nvim-treesitter/nvim-treesitter-context"
 
-	vim.opt.foldmethod = "expr"
-	vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-
 	require("nvim-treesitter.configs").setup {
 		ensure_installed = { "lua", "python", "vimdoc", "vim", "bash", "markdown" },
 		auto_install = false,
