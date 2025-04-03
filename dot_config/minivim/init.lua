@@ -30,6 +30,7 @@ vim.g.linter_configs = {
 	},
 }
 
+-- vim.lsp.set_log_level("DEBUG")
 vim.g.language_servers = {
 	matlab_ls = {
 		filetypes = { "matlab" },
@@ -54,6 +55,40 @@ vim.g.language_servers = {
 				},
 			},
 		},
+	},
+	yamlls = {
+		settings = {
+			yaml = {
+				completion = true,
+				validate = true,
+				hover = true,
+				schemas = {},
+				schemaStore = {
+					enable = true,
+					url = "https://www.schemastore.org/api/json/catalog.json",
+				},
+				schemaDownload = {
+					enable = true,
+				},
+				trace = {
+					server = "debug",
+				},
+			}
+		},
+		handlers = {
+			["yaml/schema/store/initialized"] = function(_, _, params, _)
+				local client_id = params.client_id
+
+				local client = vim.lsp.get_client_by_id(client_id)
+				local buffers = vim.lsp.get_buffers_by_client_id(client_id)
+				vim.notify(string.format("client %d initialized store", client_id))
+			end
+		},
+		---@param client vim.lsp.Client
+		on_init = function(client)
+			client.capabilities.workspace.didChangeConfiguration.dynamicRegistration = true
+			client:notify("yaml/supportSchemaSelection", { {} })
+		end
 	},
 }
 
