@@ -1,97 +1,105 @@
-function _G.CHOOSE()
-	local M = {}
+local Schemer = {}
 
-	---@param bufnr integer
-	---@param method string
-	M.request_sync = function(bufnr, method)
-		local client = vim.lsp.get_clients({ name = "yamlls", bufnr = bufnr })[1]
-
-		if client then
-			local response, error = client:request_sync(
-				method,
-				{ vim.uri_from_bufnr(bufnr) },
-				1000,
-				bufnr)
-
-			return response
+Schemer.discovery_schemas = {
+	["kubernetes"] = function(bufnr)
+		local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+		for _, line in ipairs(lines) do
+			for _, resource in ipairs({ "ConfigMap" }) do
+				if vim.regex("^kind: " .. resource .. "$"):match_str(line) then
+					return true
+				end
+			end
 		end
 	end
+}
 
-	M.get_all_jsonschemas = function(bufnr)
-		return M.request_sync(bufnr, "yaml/get/all/jsonSchemas")
+Schemer.discover = function(bufnr)
+	for schema_uri, matcher in pairs(Schemer.discovery_schemas) do
+		if matcher(bufnr) then
+			Schemer.set_schema({ uri = schema_uri }, bufnr)
+		end
+	end
+end
+
+Schemer.set_schema = function(schema, bufnr)
+	if not schema then
+		return
 	end
 
-	-- get schema used for {bufnr} from the yamlls attached to it
-	---@param bufnr number
-	M.get_jsonschema = function(bufnr)
-		return M.request_sync(bufnr, "yaml/get/jsonSchema")
-	end
+	local bufuri = vim.uri_from_bufnr(bufnr)
+	local client = vim.lsp.get_clients({ name = "yamlls", bufnr = bufnr })[1]
 
-	_G.yamlschemas = M.get_all_jsonschemas(0).result
-
-	local schema = _G.yamlschemas[5]
-
-	local client = vim.lsp.get_clients({ name = "yamlls", bufnr = 0 })[1]
-	local bufuri = vim.uri_from_bufnr(0)
-
-	-- local overrides = {
-	-- 	yaml = {
-	-- 		schemas = {
-	-- 			["https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.22.4-standalone-strict/all.json"] =
-	-- 			bufuri
-	-- 		}
-	-- 	}
-	-- }
+	local overrides = {
+		yaml = {
+			schemas = {
+				[schema.uri] = bufuri
+			}
+		}
+	}
 
 	local filtered_schemas = vim.tbl_filter(function(fileuri)
 		return bufuri ~= fileuri
 	end, client.settings.yaml.schemas)
 
 	client.settings.yaml.schemas = filtered_schemas
-
-	local overrides = {
-	 yaml = {
-	   schemas = {
-	     [schema.uri] = bufuri
-	   }
-	 }
-	}
-
 	client.settings = vim.tbl_deep_extend("force", client.settings, overrides)
-	vim.notify(vim.inspect(client.settings))
 	client:notify("workspace/didChangeConfiguration", { settings = client.settings })
-	vim.notify(vim.inspect(M.get_jsonschema(0)))
 
-	--[[
-	----- Callback to be passed to vim.ui.select to display a single schema item
-	--- @param schema table: Schema
-	local display_schema_item = function(schema)
-		return schema.name or schema.uri
-	end
-
-	--- Callback to be passed to vim.ui.select that changes the active yaml schema
-	--- @param schema table: Chosen schema
-	local select_schema = function(schema)
-		if not schema then
-			return
-		end
-		local selected_schema = { name = schema.name, uri = schema.uri }
-		require("yaml-companion.context").schema(0, selected_schema)
-	end
-
-	M.open_ui_select = function()
-		local schemas = require("yaml-companion.schema").all()
-
-		-- Don't open selection if there are no available schemas
-		if #schemas == 0 then
-			return
-		end
-
-		vim.ui.select(
-			schemas,
-			{ format_item = display_schema_item, prompt = "Select YAML Schema" },
-			select_schema
-		)
-	end
-	--]]
+	vim.notify(string.format("Changed workspace configuration %s to use %s", bufuri, schema.uri))
+	vim.b[bufnr].yaml_schema = schema
 end
+
+local H = {}
+
+H.get_all = function()
+	local bufnr = 0
+
+	local client = vim.lsp.get_clients({ name = "yamlls", bufnr = bufnr })[1]
+	if not client then
+		vim.notify("Schemer: No `yamlls` client attached")
+		return
+	end
+
+	local res, err = client:request_sync("yaml/get/all/jsonSchemas", {}, 1000, bufnr)
+
+	if res and res.result then return res.result, nil end
+	if res and res.err then return nil, res.err end
+	return nil, err
+end
+
+vim.api.nvim_create_user_command("Schemer", function(opts)
+	local bufnr = 0
+
+	local client = vim.lsp.get_clients({ name = "yamlls", bufnr = bufnr })[1]
+	if not client then
+		vim.notify("Schemer: No `yamlls` client attached")
+		return
+	end
+
+	-- local bufuri = vim.uri_from_bufnr(bufnr)
+	-- local res, err = client:request_sync("yaml/get/all/jsonSchemas", { bufuri }, 1000, bufnr)
+	local res, err = client:request_sync("yaml/get/all/jsonSchemas", {}, 1000, bufnr)
+
+	if not res then
+		vim.notify(vim.inspect(err))
+		return
+	elseif res and res.err then
+		vim.notify(vim.inspect(err))
+		return
+	end
+
+	local schemas = res.result
+
+	if #schemas == 0 then
+		vim.notify("No schemas available")
+		return
+	end
+
+	vim.ui.select(
+		schemas,
+		{ format_item = function(schema) return schema.name or schema.uri end, prompt = "Select YAML Schema" },
+		function(schema)
+			Schemer.set_schema(schema, bufnr)
+		end
+	)
+end, {})

@@ -62,7 +62,9 @@ vim.g.language_servers = {
 				completion = true,
 				validate = true,
 				hover = true,
-				schemas = {},
+				schemas = {
+					["kubernetes"] = ""
+				},
 				schemaStore = {
 					enable = true,
 					url = "https://www.schemastore.org/api/json/catalog.json",

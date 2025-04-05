@@ -32,16 +32,9 @@ MiniDeps.now(function()
 				local location      = MiniStatusline.section_location({ trunc_width = 75 })
 				local search        = MiniStatusline.section_searchcount({ trunc_width = 75 })
 				local yaml_schema   = (function(args)
-					if true then
-						return ""
-					end
 					if MiniStatusline.is_truncated(args.trunc_width) then return '' end
-					if vim.bo.filetype ~= "yaml" then return '' end
-
-					local schema = require("yaml-companion").get_buf_schema(0)
-					if schema.result[1].name == "none" then return "-" end
-
-					return schema.result[1].name
+					local schema = vim.b[0].yaml_schema
+					return schema and (schema.name or schema.uri) or ''
 				end)({ trunc_width = 120 })
 
 				return MiniStatusline.combine_groups({
