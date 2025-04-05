@@ -1,0 +1,4 @@
+kind: ConfigMap
+
+	local client = vim.lsp.get_clients({ name = "yamlls", bufnr = bufnr })[1]
+        vim.print(client.settings)

@@ -62,9 +62,7 @@ vim.g.language_servers = {
 				completion = true,
 				validate = true,
 				hover = true,
-				schemas = {
-					["kubernetes"] = ""
-				},
+				schemas = {},
 				schemaStore = {
 					enable = true,
 					url = "https://www.schemastore.org/api/json/catalog.json",
@@ -79,17 +77,21 @@ vim.g.language_servers = {
 		},
 		handlers = {
 			["yaml/schema/store/initialized"] = function(_, _, params, _)
-				local client_id = params.client_id
-
-				local client = vim.lsp.get_client_by_id(client_id)
-				local buffers = vim.lsp.get_buffers_by_client_id(client_id)
-				vim.notify(string.format("client %d initialized store", client_id))
+				vim.notify(string.format("client %d initialized store", params.client_id))
+				Schemer.populate_store_schemas()
 			end
 		},
 		---@param client vim.lsp.Client
 		on_init = function(client)
 			client.capabilities.workspace.didChangeConfiguration.dynamicRegistration = true
 			client:notify("yaml/supportSchemaSelection", { {} })
+		end,
+		on_attach = function()
+			local bufnr = vim.api.nvim_get_current_buf()
+			if not vim.b[bufnr].yaml_schema or vim.b[bufnr].yaml_schema == "core" then
+				vim.notify(string.format("Discovering %d on attach", bufnr))
+				Schemer.discover(bufnr)
+			end
 		end
 	},
 }
