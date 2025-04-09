@@ -1,11 +1,18 @@
 local Schemer = {}
 _G.Schemer = Schemer
 
+---@class SchemerUserSchema
+---@field name string?
+---@field uri string
+---@field matcher string | table | (fun(bufnr: number): boolean) | nil
+
+---@type SchemerUserSchema[]
 Schemer.user_schemas = {
 	{
 		name = "Kubernetes",
-		uri =
-		"https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/v1.32.1-standalone-strict/all.json",
+		-- uri = "kubernetes",
+		uri = "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.32.1-standalone-strict/all.json",
+
 		matcher = function(bufnr)
 			local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 			for _, line in ipairs(lines) do
@@ -15,37 +22,79 @@ Schemer.user_schemas = {
 					end
 				end
 			end
-		end,
-		fromStore = false,
-		description = "Kubernetes schema v.1.32.1"
-	},
-	{
-		name = "BBB",
-		uri = "https://osmethin.json",
-		matcher = function(bufnr)
 			return false
 		end,
-		fromStore = false,
-		description = "Bbb"
+		description = "Kubernetes schema v1.32.1"
 	},
 	{
+		name = "Webhooks",
 		uri = "https://unpkg.com/@octokit/webhooks-schemas@7.6.1/schema.json",
-		matcher = "/abc.yaml",
+		matcher = { "/abc.yaml", "/def.yaml" },
 	},
 	{
 		uri = "https://bonkers.json",
 		matcher = "/cde.yaml"
-	}
+	},
+	{
+		uri = "https://boop.bonkers.json",
+		matcher = "file:///home/v/code/abc.yaml"
+	},
+	{
+		uri = "https://aaaa.what.a.json",
+		matcher = "/*.yaml"
+	},
+	{
+		uri = "https://what.a.json",
+		matcher = { "/*.yaml", "/*.yml" }
+	},
+	{
+		uri = "https://bbb.what.a.json",
+		matcher = "/**/*.yaml"
+	},
 }
 
 Schemer.store_schemas = {}
 
+local H = {}
+
+---@param filename string
+---@param path string
+---@param cwd string
+H.match_filepath = function(filename, path, cwd)
+	local _, absolute_prefix = vim.regex("^file://"):match_str(path)
+	path = absolute_prefix and path:sub(absolute_prefix + 1, #path) or vim.fs.joinpath(cwd, path)
+	local pattern = vim.glob.to_lpeg(path)
+	return pattern:match(filename) ~= nil
+end
+
+---@param bufnr number
+---@param schema SchemerUserSchema
+---@param cwd string
+H.match_schema = function(bufnr, schema, cwd)
+	local matcher = schema.matcher
+	if type(matcher) == "function" then
+		return matcher(bufnr)
+	end
+	local filename = vim.api.nvim_buf_get_name(bufnr)
+
+	if type(matcher) == "string" then
+		return H.match_filepath(filename, matcher, cwd)
+	end
+
+	if type(matcher) == "table" then
+		for _, match in ipairs(matcher) do
+			if H.match_filepath(filename, match, cwd) then return true end
+		end
+	end
+end
+
 Schemer.discover = function(bufnr)
+	local client = vim.lsp.get_clients({ name = "yamlls", bufnr = bufnr })[1]
+	local cwd = client.root_dir or vim.uv.cwd() or ""
 	for _, schema in ipairs(Schemer.user_schemas) do
-		if type(schema.matcher) == "function" then
-			if schema.matcher(bufnr) then
-				Schemer.set_schema(schema, bufnr)
-			end
+		if H.match_schema(bufnr, schema, cwd) then
+			Schemer.set_schema(schema, bufnr)
+			return
 		end
 	end
 end
@@ -58,19 +107,26 @@ Schemer.set_schema = function(schema, bufnr)
 	local bufuri = vim.uri_from_bufnr(bufnr)
 	local client = vim.lsp.get_clients({ name = "yamlls", bufnr = bufnr })[1]
 
-	---@type table
 	local schemas = client.settings.yaml.schemas
 
-	for schema_uri, file in pairs(schemas) do
-		if file == bufuri then
-			schemas[schema_uri] = nil
+	for schema_uri, files in pairs(schemas) do
+		if type(schemas[schema_uri]) == "string" then
+			files = { files }
+			schemas[schema_uri] = files
+		end
+
+		for index, file in ipairs(files) do
+			if file == bufuri then
+				table.remove(files, index)
+			end
 		end
 	end
-	schemas[schema.uri] = bufuri
+
+	if not schemas[schema.uri] then schemas[schema.uri] = {} end
+	table.insert(schemas[schema.uri], bufuri)
 
 	client:notify("workspace/didChangeConfiguration", { settings = client.settings })
-	vim.notify(string.format("Changed workspace configuration %s to use %s", bufuri, schema.uri))
-	vim.b[bufnr].yaml_schema = schema
+	vim.b[bufnr].schemer_yaml_schema = schema
 end
 
 Schemer.populate_store_schemas = function()
@@ -99,7 +155,6 @@ Schemer.populate_store_schemas = function()
 end
 
 vim.api.nvim_create_user_command("Schemer", function(opts)
-	local bufnr = 0
 	local schemas = {}
 	vim.list_extend(schemas, Schemer.store_schemas)
 	vim.list_extend(schemas, Schemer.user_schemas)
@@ -112,51 +167,6 @@ vim.api.nvim_create_user_command("Schemer", function(opts)
 	vim.ui.select(
 		schemas,
 		{ format_item = function(schema) return schema.name or schema.uri end, prompt = "Select YAML Schema" },
-		function(schema) Schemer.set_schema(schema, bufnr) end
+		function(schema) Schemer.set_schema(schema, 0) end
 	)
 end, {})
-
--- MiniDeps.add "someone-stole-my-name/yaml-companion.nvim"
-
--- local cfg = require("yaml-companion").setup({
--- 	schemas = {},
-  -- lspconfig = {
-  --   cmd = {"yaml-language-server"}
-  -- },
--- })
--- require("lspconfig")["yamlls"].setup(cfg)
-
--- vim.api.nvim_create_user_command("Schema", function(_)
--- 	require"yaml-companion".open_ui_select()
--- end, { desc = "Select yaml schema" })
-
---
-
---[[
-local YamlBuddy = {}
-local H = {}
-
-H.default_config = {
-}
-
-H.setup_config = function(config)
-	config = vim.tbl_deep_extend('force', vim.deepcopy(H.default_config), config or {})
-	return config
-end
-
-H.add_hook_after = function(func, new_fn)
-  if func then
-    return function(...)
-      -- TODO which result?
-      func(...)
-      return new_fn(...)
-    end
-  else
-    return new_fn
-  end
-end
-
-YamlBuddy.setup = function(config)
-end
---]]
-

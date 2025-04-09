@@ -77,7 +77,6 @@ vim.g.language_servers = {
 		},
 		handlers = {
 			["yaml/schema/store/initialized"] = function(_, _, params, _)
-				vim.notify(string.format("client %d initialized store", params.client_id))
 				Schemer.populate_store_schemas()
 			end
 		},
@@ -88,8 +87,7 @@ vim.g.language_servers = {
 		end,
 		on_attach = function()
 			local bufnr = vim.api.nvim_get_current_buf()
-			if not vim.b[bufnr].yaml_schema or vim.b[bufnr].yaml_schema == "core" then
-				vim.notify(string.format("Discovering %d on attach", bufnr))
+			if not vim.b[bufnr].schemer_yaml_schema then
 				Schemer.discover(bufnr)
 			end
 		end

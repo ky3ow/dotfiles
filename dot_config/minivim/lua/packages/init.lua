@@ -33,7 +33,7 @@ MiniDeps.now(function()
 				local search        = MiniStatusline.section_searchcount({ trunc_width = 75 })
 				local yaml_schema   = (function(args)
 					if MiniStatusline.is_truncated(args.trunc_width) then return '' end
-					local schema = vim.b[0].yaml_schema
+					local schema = vim.b[0].schemer_yaml_schema
 					return schema and (schema.name or schema.uri) or ''
 				end)({ trunc_width = 120 })
 
