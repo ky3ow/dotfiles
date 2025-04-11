@@ -1,58 +1,14 @@
 local Schemer = {}
-_G.Schemer = Schemer
 
----@class SchemerUserSchema
+---@class SchemerYamlSchema
 ---@field name string?
 ---@field uri string
----@field matcher string | table | (fun(bufnr: number): boolean) | nil
+---@field matcher string | table | (fun(bufnr: number): boolean?) | nil
 
----@type SchemerUserSchema[]
-Schemer.user_schemas = {
-	{
-		name = "Kubernetes",
-		-- uri = "kubernetes",
-		uri = "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.32.1-standalone-strict/all.json",
+---@type SchemerYamlSchema[]
+Schemer.user_schemas = {}
 
-		matcher = function(bufnr)
-			local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-			for _, line in ipairs(lines) do
-				for _, resource in ipairs({ "ConfigMap" }) do
-					if vim.regex("^kind: " .. resource .. "$"):match_str(line) then
-						return true
-					end
-				end
-			end
-			return false
-		end,
-		description = "Kubernetes schema v1.32.1"
-	},
-	{
-		name = "Webhooks",
-		uri = "https://unpkg.com/@octokit/webhooks-schemas@7.6.1/schema.json",
-		matcher = { "/abc.yaml", "/def.yaml" },
-	},
-	{
-		uri = "https://bonkers.json",
-		matcher = "/cde.yaml"
-	},
-	{
-		uri = "https://boop.bonkers.json",
-		matcher = "file:///home/v/code/abc.yaml"
-	},
-	{
-		uri = "https://aaaa.what.a.json",
-		matcher = "/*.yaml"
-	},
-	{
-		uri = "https://what.a.json",
-		matcher = { "/*.yaml", "/*.yml" }
-	},
-	{
-		uri = "https://bbb.what.a.json",
-		matcher = "/**/*.yaml"
-	},
-}
-
+---@type SchemerYamlSchema[]
 Schemer.store_schemas = {}
 
 local H = {}
@@ -68,7 +24,7 @@ H.match_filepath = function(filename, path, cwd)
 end
 
 ---@param bufnr number
----@param schema SchemerUserSchema
+---@param schema SchemerYamlSchema
 ---@param cwd string
 H.match_schema = function(bufnr, schema, cwd)
 	local matcher = schema.matcher
@@ -88,22 +44,20 @@ H.match_schema = function(bufnr, schema, cwd)
 	end
 end
 
+---@param bufnr number
 Schemer.discover = function(bufnr)
 	local client = vim.lsp.get_clients({ name = "yamlls", bufnr = bufnr })[1]
 	local cwd = client.root_dir or vim.uv.cwd() or ""
 	for _, schema in ipairs(Schemer.user_schemas) do
 		if H.match_schema(bufnr, schema, cwd) then
-			Schemer.set_schema(schema, bufnr)
-			return
+			return Schemer.set_schema(schema, bufnr)
 		end
 	end
 end
 
+---@param schema SchemerYamlSchema
+---@param bufnr number
 Schemer.set_schema = function(schema, bufnr)
-	if not schema then
-		return
-	end
-
 	local bufuri = vim.uri_from_bufnr(bufnr)
 	local client = vim.lsp.get_clients({ name = "yamlls", bufnr = bufnr })[1]
 
@@ -126,20 +80,20 @@ Schemer.set_schema = function(schema, bufnr)
 	table.insert(schemas[schema.uri], bufuri)
 
 	client:notify("workspace/didChangeConfiguration", { settings = client.settings })
-	vim.b[bufnr].schemer_yaml_schema = schema
+	vim.b[bufnr].schemer_yaml_schema = schema.name or schema.uri
 end
 
 Schemer.populate_store_schemas = function()
+	if #Schemer.store_schemas ~= 0 then return end
 	local client = vim.lsp.get_clients({ name = "yamlls" })[1]
 	if not client then
-		vim.notify("Schemer: No `yamlls` client attached")
-		return
+		return vim.notify("Schemer: No `yamlls` client attached", vim.log.levels.ERROR)
 	end
 
 	local res, err = client:request_sync("yaml/get/all/jsonSchemas", {}, 1000, 0)
 
 	if res and res.result then
-		vim.notify("Schemer: populated store schemas")
+		vim.notify("Schemer: populated store schemas", vim.log.levels.DEBUG)
 		Schemer.store_schemas = vim.tbl_filter(function(scheme)
 			return not vim.tbl_contains(
 				Schemer.user_schemas,
@@ -148,25 +102,43 @@ Schemer.populate_store_schemas = function()
 			)
 		end, res.result)
 	elseif res and res.err then
-		vim.notify(vim.inspect(res.err))
+		vim.notify("Schemer: " .. vim.inspect(res.err), vim.log.levels.ERROR)
 	else
-		vim.notify(vim.inspect(err))
+		vim.notify("Schemer: " .. vim.inspect(err), vim.log.levels.ERROR)
 	end
 end
 
-vim.api.nvim_create_user_command("Schemer", function(opts)
-	local schemas = {}
-	vim.list_extend(schemas, Schemer.store_schemas)
-	vim.list_extend(schemas, Schemer.user_schemas)
+---@class SetupConfig
+---@field schemas SchemerYamlSchema[]
 
-	if #schemas == 0 then
-		vim.notify("No schemas available")
-		return
-	end
+---@param opts SetupConfig
+Schemer.setup = function(opts)
+	_G.Schemer = Schemer
 
-	vim.ui.select(
-		schemas,
-		{ format_item = function(schema) return schema.name or schema.uri end, prompt = "Select YAML Schema" },
-		function(schema) Schemer.set_schema(schema, 0) end
-	)
-end, {})
+	vim.validate("schemas", opts.schemas, function(s) return vim.islist(s) end, 'opts.schemas is list')
+	vim.list_extend(Schemer.user_schemas, opts.schemas)
+
+	vim.api.nvim_create_user_command("Schemer", function()
+		if vim.bo.filetype ~= "yaml" then
+			return vim.notify("Schemer: Not a yaml file", vim.log.levels.ERROR)
+		end
+		local schemas = {}
+		vim.list_extend(schemas, Schemer.store_schemas)
+		vim.list_extend(schemas, Schemer.user_schemas)
+
+		if #schemas == 0 then
+			return vim.notify("Schemer: No schemas available", vim.log.levels.INFO)
+		end
+
+		vim.ui.select(
+			schemas,
+			{ format_item = function(schema) return schema.name or schema.uri end, prompt = "Select YAML Schema" },
+			function(schema)
+				if not schema then return end
+				Schemer.set_schema(schema, 0)
+			end
+		)
+	end, {})
+end
+
+return Schemer

@@ -67,7 +67,9 @@ MiniDeps.later(function()
 			end
 		}
 	}
-	vim.notify = MiniNotify.make_notify()
+	vim.notify = MiniNotify.make_notify {
+		--DEBUG = { duration = 100, hl_group = 'DiagnosticHint' },
+	}
 
 	local notify_commands = { "clear", "history", "refresh" }
 	vim.api.nvim_create_user_command("Notify", function(opts)
@@ -100,7 +102,7 @@ MiniDeps.later(function()
 
 	require("lint").linters_by_ft = vim.g.linters
 	for linter, config in pairs(vim.g.linter_configs) do
-		local linters = require"lint".linters
+		local linters = require "lint".linters
 		linters[linter] = vim.tbl_deep_extend("force", linters[linter] --[[@as lint.Linter]] or {}, config)
 	end
 	vim.api.nvim_create_autocmd({ "BufWritePost" }, {

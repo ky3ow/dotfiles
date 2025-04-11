@@ -87,7 +87,7 @@ vim.g.language_servers = {
 		end,
 		on_attach = function()
 			local bufnr = vim.api.nvim_get_current_buf()
-			if not vim.b[bufnr].schemer_yaml_schema then
+			if not vim.b.schemer_yaml_schema then
 				Schemer.discover(bufnr)
 			end
 		end

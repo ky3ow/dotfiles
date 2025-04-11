@@ -45,6 +45,7 @@ MiniDeps.later(function()
 	miniclue.setup {
 		triggers = {
 			{ mode = "n", keys = "<Leader>" }, { mode = "x", keys = "<Leader>" },
+			{ mode = "n", keys = "<LocalLeader>" }, { mode = "x", keys = "<LocalLeader>" },
 			{ mode = "n", keys = "@" }, { mode = "x", keys = "@" },
 			{ mode = "n", keys = "[" }, { mode = "n", keys = "]" },
 			{ mode = "i", keys = "<C-x>" },
