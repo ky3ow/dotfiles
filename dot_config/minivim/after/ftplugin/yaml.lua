@@ -29,16 +29,8 @@ require "packages/yaml-picker".setup {
 			matcher = { "/abc.yaml", "/def.yaml" },
 		},
 		{
-			uri = "https://bonkers.json",
-			matcher = "/cde.yaml"
-		},
-		{
 			uri = "https://boop.bonkers.json",
 			matcher = "file:///home/v/code/abc.yaml"
-		},
-		{
-			uri = "https://aaaa.what.a.json",
-			matcher = "/*.yaml"
 		},
 		{
 			uri = "https://what.a.json",
