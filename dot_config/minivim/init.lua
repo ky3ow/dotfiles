@@ -92,6 +92,10 @@ vim.g.language_servers = {
 			end
 		end
 	},
+	powershell_es = {
+		bundle_path = vim.fn.stdpath("data") .. "/mason/packages/powershell-editor-services",
+		capabilities = vim.lsp.protocol.make_client_capabilities(),
+	},
 }
 
 local path_package = vim.fn.stdpath "data" .. "/site/"
