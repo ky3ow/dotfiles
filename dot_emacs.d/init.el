@@ -53,6 +53,25 @@
   (truncate-lines t)
   (help-window-select t)
 
+
+  (mode-line-position-column-line-format '(" [%l/%c]" ))
+  
+  (mode-line-format '("%e" mode-line-front-space
+		      (:propertize
+		       ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+		       display
+		       (min-width
+			(5.0)))
+		      mode-line-frame-identification mode-line-buffer-identification
+		      "   "
+		      mode-line-position
+		      (:eval (format "(%d/%d)"
+				     (count-lines (point-min) (point-max))
+				     (length (buffer-substring (line-beginning-position) (line-end-position)))))
+		      (vc-mode vc-mode)
+		      "  " mode-line-modes mode-line-misc-info mode-line-end-spaces))
+
+  
   :custom-face
   (default ((t (:family "Iosevka" :height 150))))
   (variable-pitch ((t (:family "Iosevka Aile" :height 140))))
@@ -218,3 +237,4 @@
 
 (use-package eat
   :ensure t)
+
