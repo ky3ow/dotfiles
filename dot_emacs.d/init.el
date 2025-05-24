@@ -77,10 +77,14 @@
   (variable-pitch ((t (:family "Iosevka Aile" :height 140))))
   
   :bind (:prefix-map clipboard-map
-		     :prefix "C-c a"
+		     :prefix "C-c c"
 		     ("c" . clipboard-kill-ring-save)
 		     ("v" . clipboard-yank)
 		     ("x" . clipboard-kill-region))
+
+  :bind (("C-S-c" . clipboard-kill-ring-save)
+	 ("C-S-v" . clipboard-yank)
+	 ("C-S-x" . clipboard-kill-region))
 
   :bind (:prefix-map option-toggles
 		     :prefix "C-c t"
