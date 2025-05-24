@@ -53,7 +53,6 @@
   (truncate-lines t)
   (help-window-select t)
 
-
   (mode-line-position-column-line-format '(" [%l/%c]" ))
   
   (mode-line-format '("%e" mode-line-front-space
@@ -71,10 +70,17 @@
 		      (vc-mode vc-mode)
 		      "  " mode-line-modes mode-line-misc-info mode-line-end-spaces))
 
+  (face-font-family-alternatives '(("Iosevka" "DejaVu Sans")
+				   ("Monospace" "courier" "fixed")
+				   ("Monospace Serif" "Courier 10 Pitch" "Consolas" "Courier Std" "FreeMono" "Nimbus Mono L" "courier" "fixed")
+				   ("courier" "CMU Typewriter Text" "fixed")
+				   ("Sans Serif" "helv" "helvetica" "arial" "fixed")
+				   ("helv" "helvetica" "arial" "fixed")))
   
   :custom-face
   (default ((t (:family "Iosevka" :height 150))))
   (variable-pitch ((t (:family "Iosevka Aile" :height 140))))
+  ;(symbol ((t (:family "DejaVu Sans"))))
   
   :bind (:prefix-map clipboard-map
 		     :prefix "C-c c"
@@ -197,9 +203,10 @@
   (org-modern-star 'replace)
   (org-modern-block-fringe nil)
   (org-modern-replace-stars "◉○◈◇✿")
-  :config
-  (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+  :custom-face
+  (org-modern-symbol ((t :family "DejaVu Sans")))
 
+  :config
   (defcustom org-modern-replace-stars-cycle t
     "Cycle replace stars instead of repeating past max defined level"
     :type 'boolean)
