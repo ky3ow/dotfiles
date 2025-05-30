@@ -24,6 +24,12 @@ require "packages/yaml-picker".setup {
 			description = "Kubernetes schema v1.32.1"
 		},
 		{
+			name = "Azure Pipelines (Mine)",
+			uri = "https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json",
+			matcher = "/*.yaml",
+		},
+		--[[
+		{
 			name = "Webhooks",
 			uri = "https://unpkg.com/@octokit/webhooks-schemas@7.6.1/schema.json",
 			matcher = { "/abc.yaml", "/def.yaml" },
@@ -40,5 +46,6 @@ require "packages/yaml-picker".setup {
 			uri = "https://bbb.what.a.json",
 			matcher = "/**/*.yaml"
 		},
+		--]]
 	}
 }

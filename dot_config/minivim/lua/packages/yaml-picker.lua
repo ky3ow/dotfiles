@@ -3,7 +3,7 @@ local Schemer = {}
 ---@class SchemerYamlSchema
 ---@field name string?
 ---@field uri string
----@field matcher string | table | (fun(bufnr: number): boolean?) | nil
+---@field matcher string | table<number,string> | (fun(bufnr: number): boolean?) | nil
 
 ---@type SchemerYamlSchema[]
 Schemer.user_schemas = {}
@@ -80,7 +80,7 @@ Schemer.set_schema = function(schema, bufnr)
 	table.insert(schemas[schema.uri], bufuri)
 
 	client:notify("workspace/didChangeConfiguration", { settings = client.settings })
-	vim.b[bufnr].schemer_yaml_schema = schema.name or schema.uri
+	vim.b[bufnr].schemer_yaml_schema = schema
 end
 
 Schemer.populate_store_schemas = function()

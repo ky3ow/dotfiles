@@ -19,7 +19,6 @@ vim.filetype.add {
 		jinja = H.jinja,
 		j2 = H.jinja,
 		tf = "terraform",
-		tfvars = "terraform",
 	},
 	filename = {
 		[config_location .. "/mini-deps-snap"] = "lua"
