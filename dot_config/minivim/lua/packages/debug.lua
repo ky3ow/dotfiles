@@ -1,3 +1,4 @@
+--[[
 return {
 	{
 		"jay-babu/mason-nvim-dap.nvim",
@@ -64,3 +65,4 @@ return {
 		end,
 	},
 }
+--]]

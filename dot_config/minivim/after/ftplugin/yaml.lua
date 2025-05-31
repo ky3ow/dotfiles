@@ -6,7 +6,7 @@ end
 
 vim.g.schemer_initialized = true
 
-require "packages/yaml-picker".setup {
+require "local_packages/yaml-picker".setup {
 	schemas = {
 		{
 			name = "Kubernetes",
