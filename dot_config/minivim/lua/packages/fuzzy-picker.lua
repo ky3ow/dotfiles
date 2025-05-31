@@ -24,10 +24,7 @@ MiniDeps.later(function()
 			},
 		},
 	}
-	require("mini.extra").setup {}
-	require("mini.icons").setup {
-		style = "glyph"
-	}
+	require "mini.extra".setup {}
 	require "mini.diff".setup {}
 
 	local H = {}

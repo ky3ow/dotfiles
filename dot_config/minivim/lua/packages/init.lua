@@ -16,9 +16,12 @@ end)
 MiniDeps.now(function()
 	MiniDeps.add "tpope/vim-fugitive"
 	MiniDeps.add "prichrd/netrw.nvim"
-	require("netrw").setup {}
+	require("netrw").setup {} -- pretty netrw with icons
 	-- Use mini.git after getting hang of vim-fugitive
 	-- require("mini.git").setup {}
+	require("mini.icons").setup {
+		style = "glyph"
+	}
 	require("mini.statusline").setup {
 		content = {
 			active = function()
@@ -56,6 +59,8 @@ MiniDeps.now(function()
 	}
 	require("mini.tabline").setup {}
 end)
+
+MiniDeps.later(MiniIcons.tweak_lsp_kind)
 
 MiniDeps.later(function()
 	MiniDeps.add "jinh0/eyeliner.nvim"

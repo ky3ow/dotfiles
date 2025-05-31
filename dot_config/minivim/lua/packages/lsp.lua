@@ -30,6 +30,8 @@ MiniDeps.now(function()
 	vim.api.nvim_create_autocmd("LspAttach", {
 		group = vim.api.nvim_create_augroup("ky3ow.LspAttach", { clear = true }),
 		callback = function(e)
+			-- vim.bo[e.buf].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
+
 			local map = function(mode, keys, func, desc)
 				vim.keymap.set(mode, keys, func, { buffer = e.buf, desc = desc })
 			end

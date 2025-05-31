@@ -38,6 +38,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
 vim.wo.signcolumn = "yes"
 vim.wo.relativenumber = true
 vim.wo.number = true
+if vim.fn.has('nvim-0.11') == 1 then
+	vim.opt.completeopt = "menuone,noselect,fuzzy"
+end
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 500 -- how long nvim waits on unresolved keybinds
 vim.opt.hlsearch = true
