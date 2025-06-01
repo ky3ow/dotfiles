@@ -25,8 +25,8 @@ vim.g.linter_configs = {
 			"parsable",
 			"-d",
 			"{extends: relaxed, rules: {indentation: {indent-sequences: whatever}}}",
-			"-"
-		}
+			"-",
+		},
 	},
 }
 
@@ -73,12 +73,12 @@ vim.g.language_servers = {
 				trace = {
 					server = "debug",
 				},
-			}
+			},
 		},
 		handlers = {
 			["yaml/schema/store/initialized"] = function(_, _, params, _)
 				Schemer.populate_store_schemas()
-			end
+			end,
 		},
 		---@param client vim.lsp.Client
 		on_init = function(client)
@@ -90,10 +90,10 @@ vim.g.language_servers = {
 			if not vim.b.schemer_yaml_schema then
 				Schemer.discover(bufnr)
 			end
-		end
+		end,
 	},
 	powershell_es = {
-		bundle_path = vim.fn.stdpath("data") .. "/mason/packages/powershell-editor-services",
+		bundle_path = vim.fn.stdpath "data" .. "/mason/packages/powershell-editor-services",
 		capabilities = vim.lsp.protocol.make_client_capabilities(),
 	},
 }
