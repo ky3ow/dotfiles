@@ -48,10 +48,9 @@ MiniDeps.now(function()
 			local map = function(mode, keys, func, desc)
 				vim.keymap.set(mode, keys, func, { buffer = e.buf, desc = desc })
 			end
-			map("n", "<leader>lr", vim.lsp.buf.rename, "[L]SP [R]ename")
-			map("n", "<leader>la", vim.lsp.buf.code_action, "[L]SP [A]ction")
-			map("n", "<leader>lf", "<cmd>Format<cr>", "[L]SP [F]ormat")
-			map("n", "<leader>ls", "<cmd>Pick lsp scope='document_symbol'<cr>", "[L]SP document [S]ymbols")
+			map("n", "<leader>lr", vim.lsp.buf.rename, "[L]anguage [R]ename")
+			map("n", "<leader>la", vim.lsp.buf.code_action, "[L]anguage [A]ction")
+			map("n", "<leader>ls", "<cmd>Pick lsp scope='document_symbol'<cr>", "[L]anguage [S]ymbols")
 
 			map("n", "gd", "<cmd>Pick lsp scope='definition'<cr>", "[G]oto [D]efinition")
 			map("n", "grr", "<cmd>Pick lsp scope='references'<cr>", "[G]oto [R]eferences")
@@ -65,7 +64,7 @@ MiniDeps.now(function()
 			map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
 			map("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
 			map("n", "<leader>wl", function()
-				print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+				vim.print(vim.lsp.buf.list_workspace_folders())
 			end, "[W]orkspace [L]ist Folders")
 		end,
 	})
@@ -117,21 +116,22 @@ MiniDeps.later(function()
 		vim.notify "Formatting with conform..."
 		conform.format { lsp_fallback = true, timeout_ms = 500 }
 	end, { desc = "Format current buffer with LSP" })
+	vim.keymap.set("n", "<leader>lf", "<cmd>Format<cr>", { desc = "[L]anguage [F]ormat" })
 
-	require("lint").linters_by_ft = vim.g.linters
+	local lint = require "lint"
+	lint.linters_by_ft = vim.g.linters
 	for linter, config in pairs(vim.g.linter_configs) do
-		local linters = require("lint").linters
+		local linters = lint.linters
 		linters[linter] = vim.tbl_deep_extend("force", linters[linter] --[[@as lint.Linter]] or {}, config)
 	end
 	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 		callback = function()
-			require("lint").try_lint(nil, { ignore_errors = true })
+			lint.try_lint(nil, { ignore_errors = true })
 		end,
 	})
 	vim.api.nvim_create_user_command("Lint", function(_)
 		vim.notify "Linting..."
-		require("lint").try_lint(nil)
+		lint.try_lint(nil)
 	end, { desc = "Run linter" })
-
-	vim.keymap.set("n", "<leader>lf", "<cmd>Format<cr>", { desc = "[L]anguage [F]ormat" })
+	vim.keymap.set("n", "<leader>ll", "<cmd>Lint<cr>", { desc = "[L]anguage [L]int" })
 end)
