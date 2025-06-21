@@ -230,8 +230,10 @@ MiniDeps.later(function()
 						if not preview_bufnr then
 							return
 						end
-
-						return MiniDiff.toggle_overlay(preview_bufnr)
+						local ok, _ = pcall(MiniDiff.toggle_overlay, preview_bufnr)
+						if not ok then
+							vim.notify("can't do that when file open")
+						end
 					end
 				},
 			},

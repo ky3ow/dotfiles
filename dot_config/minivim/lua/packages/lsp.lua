@@ -1,3 +1,6 @@
+local au = vim.api.nvim_create_autocmd
+local command = vim.api.nvim_create_user_command
+
 MiniDeps.now(function()
 	MiniDeps.add "neovim/nvim-lspconfig"
 	MiniDeps.add "folke/lazydev.nvim"
@@ -40,7 +43,7 @@ MiniDeps.now(function()
 		vim.lsp.enable(server)
 	end
 
-	vim.api.nvim_create_autocmd("LspAttach", {
+	au("LspAttach", {
 		group = vim.api.nvim_create_augroup("ky3ow.LspAttach", { clear = true }),
 		callback = function(e)
 			vim.bo[e.buf].omnifunc = "v:lua.MiniCompletion.completefunc_lsp"
@@ -89,7 +92,7 @@ MiniDeps.later(function()
 	}
 
 	local notify_commands = { "clear", "history", "refresh" }
-	vim.api.nvim_create_user_command("Notify", function(opts)
+	command("Notify", function(opts)
 		local action = opts.args
 		if action == "clear" then
 			MiniNotify.clear()
@@ -112,11 +115,10 @@ MiniDeps.later(function()
 	local conform = require "conform"
 	conform.setup { formatters_by_ft = vim.g.formatters }
 
-	vim.api.nvim_create_user_command("Format", function(_)
+	command("Format", function(_)
 		vim.notify "Formatting with conform..."
 		conform.format { lsp_fallback = true, timeout_ms = 500 }
 	end, { desc = "Format current buffer with LSP" })
-	vim.keymap.set("n", "<leader>lf", "<cmd>Format<cr>", { desc = "[L]anguage [F]ormat" })
 
 	local lint = require "lint"
 	lint.linters_by_ft = vim.g.linters
@@ -124,14 +126,16 @@ MiniDeps.later(function()
 		local linters = lint.linters
 		linters[linter] = vim.tbl_deep_extend("force", linters[linter] --[[@as lint.Linter]] or {}, config)
 	end
-	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+	au({ "BufWritePost" }, {
 		callback = function()
 			lint.try_lint(nil, { ignore_errors = true })
 		end,
 	})
-	vim.api.nvim_create_user_command("Lint", function(_)
+	command("Lint", function(_)
 		vim.notify "Linting..."
 		lint.try_lint(nil)
 	end, { desc = "Run linter" })
+
+	vim.keymap.set("n", "<leader>lf", "<cmd>Format<cr>", { desc = "[L]anguage [F]ormat" })
 	vim.keymap.set("n", "<leader>ll", "<cmd>Lint<cr>", { desc = "[L]anguage [L]int" })
 end)
