@@ -20,36 +20,38 @@ MiniDeps.now(function()
 	-- Use mini.git after getting hang of vim-fugitive
 	-- require("mini.git").setup {}
 	require("mini.icons").setup {
-		style = "glyph"
+		style = "glyph",
 	}
 	require("mini.statusline").setup {
 		content = {
 			active = function()
-				local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
-				local git           = MiniStatusline.section_git({ trunc_width = 40 })
-				local diff          = MiniStatusline.section_diff({ trunc_width = 75 })
-				local diagnostics   = MiniStatusline.section_diagnostics({ trunc_width = 75 })
-				local lsp           = MiniStatusline.section_lsp({ trunc_width = 75 })
-				local filename      = MiniStatusline.section_filename({ trunc_width = 140 })
-				local fileinfo      = MiniStatusline.section_fileinfo({ trunc_width = 120 })
-				local location      = MiniStatusline.section_location({ trunc_width = 75 })
-				local search        = MiniStatusline.section_searchcount({ trunc_width = 75 })
-				local yaml_schema   = (function(args)
-					if MiniStatusline.is_truncated(args.trunc_width) then return '' end
+				local mode, mode_hl = MiniStatusline.section_mode { trunc_width = 120 }
+				local git = MiniStatusline.section_git { trunc_width = 40 }
+				local diff = MiniStatusline.section_diff { trunc_width = 75 }
+				local diagnostics = MiniStatusline.section_diagnostics { trunc_width = 75 }
+				local lsp = MiniStatusline.section_lsp { trunc_width = 75 }
+				local filename = MiniStatusline.section_filename { trunc_width = 140 }
+				local fileinfo = MiniStatusline.section_fileinfo { trunc_width = 120 }
+				local location = MiniStatusline.section_location { trunc_width = 75 }
+				local search = MiniStatusline.section_searchcount { trunc_width = 75 }
+				local yaml_schema = (function(args)
+					if MiniStatusline.is_truncated(args.trunc_width) then
+						return ""
+					end
 					---@type SchemerYamlSchema
 					local schema = vim.b.schemer_yaml_schema
-					return schema and (schema.name or schema.uri) or ''
-				end)({ trunc_width = 120 })
+					return schema and (schema.name or schema.uri) or ""
+				end) { trunc_width = 120 }
 
-				return MiniStatusline.combine_groups({
-					{ hl = mode_hl,                 strings = { mode } },
-					{ hl = 'MiniStatuslineDevinfo', strings = { git, diff, diagnostics, lsp } },
-					'%<', -- Mark general truncate point
-					{ hl = 'MiniStatuslineFilename', strings = { filename } },
-					'%=', -- End left alignment
-					{ hl = 'MiniStatuslineFileinfo', strings = { yaml_schema, fileinfo } },
-					{ hl = mode_hl,                  strings = { search, location } },
-				})
+				return MiniStatusline.combine_groups {
+					{ hl = mode_hl, strings = { mode } },
+					{ hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
+					"%<", -- Mark general truncate point
+					{ hl = "MiniStatuslineFilename", strings = { filename } },
+					"%=", -- End left alignment
+					{ hl = "MiniStatuslineFileinfo", strings = { yaml_schema, fileinfo } },
+					{ hl = mode_hl, strings = { search, location } },
+				}
 			end,
 			inactive = nil,
 		},
@@ -103,4 +105,63 @@ MiniDeps.later(function()
 	vim.api.nvim_create_user_command("Lazygit", lazygit_toggle, { desc = "Lazygit ui" })
 
 	vim.keymap.set("n", "<leader>G", lazygit_toggle, { desc = "[G]it" })
+end)
+
+MiniDeps.later(function()
+	MiniDeps.add {
+		source = "jake-stewart/multicursor.nvim",
+		checkout = "1.0",
+		monitor = "main",
+	}
+
+	local mc = require "multicursor-nvim"
+	local wrap = function(func, arg)
+		return function()
+			func(arg)
+		end
+	end
+	mc.setup()
+
+	vim.keymap.set({ "n", "x" }, "<A-j>", wrap(mc.lineAddCursor, 1))
+	vim.keymap.set({ "n", "x" }, "<A-k>", wrap(mc.lineAddCursor, -1))
+	vim.keymap.set({ "n", "x" }, "<A-q>", mc.toggleCursor)
+	vim.keymap.set({ "n", "x" }, "<A-8>", wrap(mc.matchAddCursor, 1))
+	vim.keymap.set({ "n", "x" }, "<A-z>", wrap(mc.duplicateCursors, 1))
+	vim.keymap.set({ "n", "x" }, "<A-m>", mc.operator)
+	vim.keymap.set({ "n", "x" }, "gz", mc.restoreCursors)
+
+	vim.keymap.set("x", "S", mc.matchCursors)
+	vim.keymap.set("x", "<A-s>", mc.splitCursors)
+	vim.keymap.set("n", "&", mc.alignCursors)
+	vim.keymap.set("x", "I", mc.insertVisual)
+	vim.keymap.set("x", "A", mc.appendVisual)
+
+	vim.keymap.set({ "n", "x" }, "g<c-a>", mc.sequenceIncrement)
+	vim.keymap.set({ "n", "x" }, "g<c-x>", mc.sequenceDecrement)
+
+	vim.keymap.set("n", "<A-n>", wrap(mc.searchAddCursor, 1))
+	vim.keymap.set("n", "<A-N>", wrap(mc.searchAddCursor, -1))
+
+	mc.addKeymapLayer(function(layer_set)
+		layer_set({ "n", "x" }, "(", mc.prevCursor)
+		layer_set({ "n", "x" }, ")", mc.nextCursor)
+		layer_set({ "n", "x" }, "<A-,>", mc.deleteCursor)
+
+		layer_set("n", "<esc>", function()
+			if not mc.cursorsEnabled() then
+				mc.enableCursors()
+			else
+				mc.clearCursors()
+			end
+		end)
+	end)
+
+	local hl = vim.api.nvim_set_hl
+	hl(0, "MultiCursorCursor", { bg = "#808080" })
+	hl(0, "MultiCursorVisual", { link = "Visual" })
+	hl(0, "MultiCursorSign", { link = "SignColumn" })
+	hl(0, "MultiCursorMatchPreview", { link = "Search" })
+	hl(0, "MultiCursorDisabledCursor", { reverse = true })
+	hl(0, "MultiCursorDisabledVisual", { link = "Visual" })
+	hl(0, "MultiCursorDisabledSign", { link = "SignColumn" })
 end)
