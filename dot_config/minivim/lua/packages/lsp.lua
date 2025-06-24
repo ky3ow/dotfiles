@@ -6,6 +6,9 @@ MiniDeps.now(function()
 	MiniDeps.add "folke/lazydev.nvim"
 	MiniDeps.add "Bilal2453/luvit-meta"
 	MiniDeps.add "rafamadriz/friendly-snippets"
+	MiniDeps.add "williamboman/mason.nvim"
+
+	require("mason").setup {}
 
 	local completion = require "mini.completion"
 	completion.setup {
@@ -76,9 +79,6 @@ end)
 MiniDeps.later(function()
 	MiniDeps.add "stevearc/conform.nvim"
 	MiniDeps.add "mfussenegger/nvim-lint"
-	MiniDeps.add "williamboman/mason.nvim"
-
-	require("mason").setup {}
 
 	require("mini.notify").setup {
 		window = {
