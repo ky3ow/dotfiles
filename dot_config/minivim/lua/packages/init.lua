@@ -43,6 +43,35 @@ MiniDeps.now(function()
 					return schema and (schema.name or schema.uri) or ""
 				end) { trunc_width = 120 }
 
+				local multicursor = (function(args)
+					if MiniStatusline.is_truncated(args.trunc_width) then
+						return ""
+					end
+
+					local total = 1
+					local current = 1
+
+					local ok, mc = pcall(require, "multicursor-nvim")
+					local _mode = vim.fn.mode()
+
+					if not ok or not vim.list_contains({ "n", "v", "V" }, _mode) then
+						return ""
+					end
+
+					mc.action(function(ctx)
+						local cursors = ctx:getCursors()
+						total = #cursors
+						for index, cursor in ipairs(cursors) do
+							if cursor:isMainCursor() then
+								current = index
+								break
+							end
+						end
+					end)
+
+					return total ~= 1 and ("(%d/%d)"):format(current, total) or ""
+				end) { trunc_width = 120 }
+
 				return MiniStatusline.combine_groups {
 					{ hl = mode_hl, strings = { mode } },
 					{ hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
@@ -50,7 +79,7 @@ MiniDeps.now(function()
 					{ hl = "MiniStatuslineFilename", strings = { filename } },
 					"%=", -- End left alignment
 					{ hl = "MiniStatuslineFileinfo", strings = { yaml_schema, fileinfo } },
-					{ hl = mode_hl, strings = { search, location } },
+					{ hl = mode_hl, strings = { multicursor, search, location } },
 				}
 			end,
 			inactive = nil,
@@ -125,8 +154,9 @@ MiniDeps.later(function()
 	vim.keymap.set({ "n", "x" }, "<A-j>", wrap(mc.lineAddCursor, 1))
 	vim.keymap.set({ "n", "x" }, "<A-k>", wrap(mc.lineAddCursor, -1))
 	vim.keymap.set({ "n", "x" }, "<A-q>", mc.toggleCursor)
-	vim.keymap.set({ "n", "x" }, "<A-8>", wrap(mc.matchAddCursor, 1))
+	vim.keymap.set({ "n", "x" }, "<A-*>", wrap(mc.matchAddCursor, 1))
 	vim.keymap.set({ "n", "x" }, "<A-z>", wrap(mc.duplicateCursors, 1))
+
 	vim.keymap.set({ "n", "x" }, "<A-m>", mc.operator)
 	vim.keymap.set({ "n", "x" }, "gz", mc.restoreCursors)
 
