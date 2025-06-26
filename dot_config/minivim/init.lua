@@ -36,7 +36,7 @@ vim.g.language_servers = {
 		filetypes = { "matlab" },
 		settings = {
 			matlab = {
-				installPath = "/home/v/.local/MATLAB/",
+				installPath = vim.fn.expand "~/.local/MATLAB/",
 			},
 		},
 		single_file_support = true,
