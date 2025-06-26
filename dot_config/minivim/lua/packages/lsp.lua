@@ -117,8 +117,27 @@ MiniDeps.later(function()
 
 	command("Format", function(_)
 		vim.notify "Formatting with conform..."
-		conform.format { lsp_fallback = true, timeout_ms = 500 }
-	end, { desc = "Format current buffer with LSP" })
+		conform.format { lsp_format = "fallback", timeout_ms = 500 }
+	end, { desc = "Format current buffer with LSP", range = true })
+
+	vim.g.conformop = function(type)
+		type = type or ""
+		if type == "" then
+			vim.o.operatorfunc = "v:lua.vim.g.conformop"
+			return "g@"
+		end
+		local row_start, row_end = vim.fn.line "'[", vim.fn.line "']"
+		local col_start, col_end = 0, vim.fn.strlen(vim.fn.getline(row_end))
+
+		conform.format {
+			lsp_format = "fallback",
+			timeout_ms = 500,
+			range = {
+				start = { row_start, col_start },
+				["end"] = { row_end, col_end },
+			},
+		}
+	end
 
 	local lint = require "lint"
 	lint.linters_by_ft = vim.g.linters
@@ -136,6 +155,7 @@ MiniDeps.later(function()
 		lint.try_lint(nil)
 	end, { desc = "Run linter" })
 
-	vim.keymap.set("n", "<leader>lf", "<cmd>Format<cr>", { desc = "[L]anguage [F]ormat" })
-	vim.keymap.set("n", "<leader>ll", "<cmd>Lint<cr>", { desc = "[L]anguage [L]int" })
+	vim.keymap.set({ "n", "x" }, "gq", vim.g.conformop, { desc = "Format", expr = true })
+	vim.keymap.set("n", "gqq", "<cmd>Format<cr>", { desc = "Format" })
+	vim.keymap.set({ "n", "x" }, "gl", "<cmd>Lint<cr>", { desc = "Lint" })
 end)
