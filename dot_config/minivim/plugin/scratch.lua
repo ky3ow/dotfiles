@@ -9,7 +9,7 @@ vim.api.nvim_create_user_command('Redir', function(ctx)
 	vim.opt_local.buflisted = false
 end, { nargs = '+', complete = 'command' })
 
-_G.InspectValue = function(value)
+vim.g.InspectValue = function(value)
 	local lines = vim.split(
 		vim.inspect(value),
 		'\n',

@@ -10,15 +10,115 @@ MiniDeps.later(function()
 			use_as_default_explorer = false,
 		},
 	}
-	vim.keymap.set("n", "<leader>f", MiniFiles.open, { desc = "Mini [F]iles" })
+	vim.keymap.set("n", "<leader>f", MiniFiles.open, { desc = "[F]iles" })
+
+	MiniDeps.add "tpope/vim-fugitive"
+	-- Use mini.git after getting hang of vim-fugitive
+	-- require("mini.git").setup {}
+
+	MiniDeps.add "jinh0/eyeliner.nvim"
+	require("eyeliner").setup {
+		highlight_on_key = true,
+		dim = true,
+	}
+	vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "DiagnosticError" })
+	vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "DiagnosticInfo" })
+
+	MiniIcons.tweak_lsp_kind()
+
+	MiniDeps.add "akinsho/toggleterm.nvim"
+	vim.api.nvim_create_autocmd("TermOpen", {
+		pattern = "term://*",
+		callback = function(_)
+			local opts = { buffer = 0 }
+
+			vim.keymap.set("t", "<C-w><esc>", [[<C-\><C-n>]], opts)
+			vim.keymap.set("t", "<C-w>.", "<C-w>", opts)
+			for _, value in ipairs { "h", "j", "k", "l" } do
+				vim.keymap.set("t", "<C-w>" .. value, "<C-\\><C-n>:wincmd " .. value .. "<CR>", opts)
+			end
+		end,
+	})
+
+	require("toggleterm").setup {
+		direction = "horizontal",
+		open_mapping = [[<c-\>]],
+		persist_mode = false,
+	}
+
+	local Terminal = require("toggleterm.terminal").Terminal
+	local lazygit = Terminal:new { cmd = "lazygit", hidden = true, direction = "float" }
+
+	local function lazygit_toggle()
+		lazygit:toggle()
+	end
+
+	vim.api.nvim_create_user_command("Lazygit", lazygit_toggle, { desc = "Lazygit ui" })
+
+	vim.keymap.set("n", "<leader>G", lazygit_toggle, { desc = "[G]it" })
+
+	MiniDeps.add {
+		source = "jake-stewart/multicursor.nvim",
+		checkout = "1.0",
+		monitor = "main",
+	}
+
+	local mc = require "multicursor-nvim"
+	local wrap = function(func, arg)
+		return function()
+			func(arg)
+		end
+	end
+	mc.setup()
+
+	vim.keymap.set({ "n", "x" }, "<A-j>", wrap(mc.lineAddCursor, 1))
+	vim.keymap.set({ "n", "x" }, "<A-k>", wrap(mc.lineAddCursor, -1))
+	vim.keymap.set({ "n", "x" }, "<A-q>", mc.toggleCursor)
+	vim.keymap.set({ "n", "x" }, "<A-*>", wrap(mc.matchAddCursor, 1))
+	vim.keymap.set({ "n", "x" }, "<A-z>", wrap(mc.duplicateCursors, 1))
+
+	vim.keymap.set({ "n", "x" }, "<A-m>", mc.operator)
+	vim.keymap.set({ "n", "x" }, "gz", mc.restoreCursors)
+
+	vim.keymap.set("x", "S", mc.matchCursors)
+	vim.keymap.set("x", "<A-s>", mc.splitCursors)
+	vim.keymap.set("n", "&", mc.alignCursors)
+	vim.keymap.set("x", "I", mc.insertVisual)
+	vim.keymap.set("x", "A", mc.appendVisual)
+
+	vim.keymap.set({ "n", "x" }, "g<c-a>", mc.sequenceIncrement)
+	vim.keymap.set({ "n", "x" }, "g<c-x>", mc.sequenceDecrement)
+
+	vim.keymap.set("n", "<A-n>", wrap(mc.searchAddCursor, 1))
+	vim.keymap.set("n", "<A-N>", wrap(mc.searchAddCursor, -1))
+
+	mc.addKeymapLayer(function(layer_set)
+		layer_set({ "n", "x" }, "(", mc.prevCursor)
+		layer_set({ "n", "x" }, ")", mc.nextCursor)
+		layer_set({ "n", "x" }, "<A-,>", mc.deleteCursor)
+
+		layer_set("n", "<esc>", function()
+			if not mc.cursorsEnabled() then
+				mc.enableCursors()
+			else
+				mc.clearCursors()
+			end
+		end)
+	end)
+
+	local hl = vim.api.nvim_set_hl
+	hl(0, "MultiCursorCursor", { bg = "#808080" })
+	hl(0, "MultiCursorVisual", { link = "Visual" })
+	hl(0, "MultiCursorSign", { link = "SignColumn" })
+	hl(0, "MultiCursorMatchPreview", { link = "Search" })
+	hl(0, "MultiCursorDisabledCursor", { reverse = true })
+	hl(0, "MultiCursorDisabledVisual", { link = "Visual" })
+	hl(0, "MultiCursorDisabledSign", { link = "SignColumn" })
 end)
 
 MiniDeps.now(function()
-	MiniDeps.add "tpope/vim-fugitive"
 	MiniDeps.add "prichrd/netrw.nvim"
 	require("netrw").setup {} -- pretty netrw with icons
-	-- Use mini.git after getting hang of vim-fugitive
-	-- require("mini.git").setup {}
 	require("mini.icons").setup {
 		style = "glyph",
 	}
@@ -89,109 +189,4 @@ MiniDeps.now(function()
 		set_vim_settings = true,
 	}
 	require("mini.tabline").setup {}
-end)
-
-MiniDeps.later(MiniIcons.tweak_lsp_kind)
-
-MiniDeps.later(function()
-	MiniDeps.add "jinh0/eyeliner.nvim"
-	require("eyeliner").setup {
-		highlight_on_key = true,
-		dim = true,
-	}
-	vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "DiagnosticError" })
-	vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "DiagnosticInfo" })
-end)
-
-MiniDeps.later(function()
-	MiniDeps.add "akinsho/toggleterm.nvim"
-	vim.api.nvim_create_autocmd("TermOpen", {
-		pattern = "term://*",
-		callback = function(_)
-			local opts = { buffer = 0 }
-
-			vim.keymap.set("t", "<C-w><esc>", [[<C-\><C-n>]], opts)
-			vim.keymap.set("t", "<C-w>.", "<C-w>", opts)
-			for _, value in ipairs { "h", "j", "k", "l" } do
-				vim.keymap.set("t", "<C-w>" .. value, "<C-\\><C-n>:wincmd " .. value .. "<CR>", opts)
-			end
-		end,
-	})
-
-	require("toggleterm").setup {
-		direction = "horizontal",
-		open_mapping = [[<c-\>]],
-		persist_mode = false,
-	}
-
-	local Terminal = require("toggleterm.terminal").Terminal
-	local lazygit = Terminal:new { cmd = "lazygit", hidden = true, direction = "float" }
-
-	local function lazygit_toggle()
-		lazygit:toggle()
-	end
-
-	vim.api.nvim_create_user_command("Lazygit", lazygit_toggle, { desc = "Lazygit ui" })
-
-	vim.keymap.set("n", "<leader>G", lazygit_toggle, { desc = "[G]it" })
-end)
-
-MiniDeps.later(function()
-	MiniDeps.add {
-		source = "jake-stewart/multicursor.nvim",
-		checkout = "1.0",
-		monitor = "main",
-	}
-
-	local mc = require "multicursor-nvim"
-	local wrap = function(func, arg)
-		return function()
-			func(arg)
-		end
-	end
-	mc.setup()
-
-	vim.keymap.set({ "n", "x" }, "<A-j>", wrap(mc.lineAddCursor, 1))
-	vim.keymap.set({ "n", "x" }, "<A-k>", wrap(mc.lineAddCursor, -1))
-	vim.keymap.set({ "n", "x" }, "<A-q>", mc.toggleCursor)
-	vim.keymap.set({ "n", "x" }, "<A-*>", wrap(mc.matchAddCursor, 1))
-	vim.keymap.set({ "n", "x" }, "<A-z>", wrap(mc.duplicateCursors, 1))
-
-	vim.keymap.set({ "n", "x" }, "<A-m>", mc.operator)
-	vim.keymap.set({ "n", "x" }, "gz", mc.restoreCursors)
-
-	vim.keymap.set("x", "S", mc.matchCursors)
-	vim.keymap.set("x", "<A-s>", mc.splitCursors)
-	vim.keymap.set("n", "&", mc.alignCursors)
-	vim.keymap.set("x", "I", mc.insertVisual)
-	vim.keymap.set("x", "A", mc.appendVisual)
-
-	vim.keymap.set({ "n", "x" }, "g<c-a>", mc.sequenceIncrement)
-	vim.keymap.set({ "n", "x" }, "g<c-x>", mc.sequenceDecrement)
-
-	vim.keymap.set("n", "<A-n>", wrap(mc.searchAddCursor, 1))
-	vim.keymap.set("n", "<A-N>", wrap(mc.searchAddCursor, -1))
-
-	mc.addKeymapLayer(function(layer_set)
-		layer_set({ "n", "x" }, "(", mc.prevCursor)
-		layer_set({ "n", "x" }, ")", mc.nextCursor)
-		layer_set({ "n", "x" }, "<A-,>", mc.deleteCursor)
-
-		layer_set("n", "<esc>", function()
-			if not mc.cursorsEnabled() then
-				mc.enableCursors()
-			else
-				mc.clearCursors()
-			end
-		end)
-	end)
-
-	local hl = vim.api.nvim_set_hl
-	hl(0, "MultiCursorCursor", { bg = "#808080" })
-	hl(0, "MultiCursorVisual", { link = "Visual" })
-	hl(0, "MultiCursorSign", { link = "SignColumn" })
-	hl(0, "MultiCursorMatchPreview", { link = "Search" })
-	hl(0, "MultiCursorDisabledCursor", { reverse = true })
-	hl(0, "MultiCursorDisabledVisual", { link = "Visual" })
-	hl(0, "MultiCursorDisabledSign", { link = "SignColumn" })
 end)

@@ -348,27 +348,27 @@ MiniDeps.later(function()
 		MiniPick.builtin.buffers(local_opts, { mappings = buffer_mappings })
 	end
 
-	vim.keymap.set("n", "<leader>sf", "<cmd>Pick files<cr>", { desc = "[S]earch [f]iles" })
-	-- vim.keymap.set("n", "<leader>sg", "<cmd>Pick grep_live<cr>", { desc = "[S]earch [g]rep" })
-	vim.keymap.set("n", "<leader>sg", "<cmd>Pick rg_live<cr>", { desc = "[S]earch [g]rep" })
-	vim.keymap.set("n", "<leader>sG", "<cmd>Pick grep<cr>", { desc = "[S]earch [g]rep(non interactive)" })
-	vim.keymap.set("n", "<leader>sh", "<cmd>Pick help<cr>", { desc = "[S]earch [h]elp" })
-	vim.keymap.set("n", "<leader><leader>", "<cmd>Pick buffers<cr>", { desc = "[S]earch [b]uffers" })
+	vim.keymap.set("n", "<leader>sf", "<cmd>Pick files<cr>", { desc = "Search files" })
+	-- vim.keymap.set("n", "<leader>sg", "<cmd>Pick grep_live<cr>", { desc = "Search grep" })
+	vim.keymap.set("n", "<leader>sg", "<cmd>Pick rg_live<cr>", { desc = "Search grep" })
+	vim.keymap.set("n", "<leader>sG", "<cmd>Pick grep<cr>", { desc = "Search grep(non interactive)" })
+	vim.keymap.set("n", "<leader>sh", "<cmd>Pick help<cr>", { desc = "Search help" })
+	vim.keymap.set("n", "<leader><leader>", "<cmd>Pick buffers<cr>", { desc = "Search buffers" })
 
-	vim.keymap.set("n", "<leader>sc", "<cmd>Pick list scope='quickfix'<cr>", { desc = "[S]earch qui[c]fix" })
-	vim.keymap.set("n", "<leader>sm", "<cmd>Pick modified<cr>", { desc = "[S]earch [g]it" })
-	vim.keymap.set("n", "<leader>sn", "<cmd>Pick narrow<cr>", { desc = "[S]earch [n]arrowing" })
-	vim.keymap.set("n", "<leader>sd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "[S]earch [d]ignostic" })
+	vim.keymap.set("n", "<leader>sc", "<cmd>Pick list scope='quickfix'<cr>", { desc = "Search quicfix" })
+	vim.keymap.set("n", "<leader>sm", "<cmd>Pick modified<cr>", { desc = "Search git" })
+	vim.keymap.set("n", "<leader>sn", "<cmd>Pick narrow<cr>", { desc = "Search narrowing" })
+	vim.keymap.set("n", "<leader>sd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "Search dignostic" })
 
 	vim.keymap.set("n", "<leader>spf", [[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]],
-		{ desc = "[S]earch [P]ackage [f]iles" })
+		{ desc = "Search Package files" })
 	vim.keymap.set("n", "<leader>spg", [[<cmd>execute 'Pick rg_live cwd="' . g:mini_deps . '"'<cr>]],
-		{ desc = "[S]earch [P]ackage [g]rep" })
+		{ desc = "Search Package grep" })
 	-- vim.keymap.set("n", "<leader>spg", [[<cmd>execute 'Pick grep_live cwd="' . g:mini_deps . '"'<cr>]],
 	-- 	{ desc = "[S]earch [P]ackage [g]rep" })
 
-	vim.keymap.set("n", "<leader>sw", "<cmd>Pick grep_word<cr>", { desc = "[S]earch [w]ord" })
-	vim.keymap.set("n", "<leader>s/", "<cmd>Pick buf_lines scope='current'<cr>", { desc = "[S]earch [/]lines" })
+	vim.keymap.set("n", "<leader>sw", "<cmd>Pick grep_word<cr>", { desc = "Search word" })
+	vim.keymap.set("n", "<leader>s/", "<cmd>Pick buf_lines scope='current'<cr>", { desc = "Search /lines" })
 
 	vim.ui.select = MiniPick.ui_select
 end)
