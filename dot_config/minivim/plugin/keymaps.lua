@@ -2,8 +2,8 @@
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 
 vim.keymap.set("n", "<esc>", "<cmd>nohlsearch<cr>", { desc = "Clear highlight" })
-vim.keymap.set("n", "-", "<cmd>Ex<cr>", { desc = "[E]xplorer" })
-vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
+vim.keymap.set("n", "<leader>d", "<cmd>Ex<cr>", { desc = "Directory" })
+vim.keymap.set({ "i", "n" }, "<A-e>", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
 -- Remap for dealing with word wrap
@@ -11,8 +11,8 @@ vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = tr
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
+vim.keymap.set("n", "[d", "<cmd>lua vim.diagnostic.jump{count=-1}<cr>", { desc = "Go to previous diagnostic message" })
+vim.keymap.set("n", "]d", "<cmd>lua vim.diagnostic.jump{count=1}<cr>", { desc = "Go to next diagnostic message" })
 
 -- Quickfix
 vim.keymap.set("n", "]c", "<cmd>cnext<cr>", { desc = "Go to next quickfix entry message" })
@@ -27,12 +27,12 @@ vim.keymap.set("n", "n", "nzzzv", { desc = "Next search" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Prev search" })
 
 -- Navigate buffers
-vim.keymap.set("n", "]b", "<cmd>bnext<cr>", { desc = "Next [B]uffer" })
-vim.keymap.set("n", "[b", "<cmd>bprevious<cr>", { desc = "Prev [B]uffer" })
+vim.keymap.set("n", "]b", "<cmd>bnext<cr>", { desc = "Next Buffer" })
+vim.keymap.set("n", "[b", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 
 -- Navigate tabs
-vim.keymap.set("n", "]t", "gt", { desc = "Next [T]ab" })
-vim.keymap.set("n", "[t", "gT", { desc = "Prev [T]ab" })
+vim.keymap.set("n", "]t", "gt", { desc = "Next Tab" })
+vim.keymap.set("n", "[t", "gT", { desc = "Prev Tab" })
 
 -- Stay in indent mode
 vim.keymap.set("v", "<", "<gv", { desc = "Outdent" })
