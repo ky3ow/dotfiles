@@ -65,9 +65,41 @@ vim.keymap.set(
 	{ desc = "Visual at", expr = true }
 )
 
-vim.keymap.set("x", "gl", ":lua<cr>", { desc = "Go lua" })
-vim.keymap.set("n", "gl", "<cmd>source %<cr>", { desc = "Go lua" })
 vim.keymap.set({ "n", "i" }, "<M-d>", "<cmd>silent! write | bdelete!<cr>", { desc = "Delete buffer(save before)" })
 
 -- mini.surround
 vim.keymap.set({ "n", "x" }, "s", "<nop>")
+
+vim.g.luaop = function(type)
+	type = type or ""
+	if type == "" then
+		vim.o.operatorfunc = "v:lua.vim.g.luaop"
+		return "g@"
+	end
+	local start_line, end_line = vim.fn.line "'[", vim.fn.line "']"
+	local start_col, end_col
+	if type == "line" then
+		start_col, end_col = 1, vim.fn.strlen(vim.fn.getline(end_line))
+	else
+		start_col, end_col = vim.fn.col "'[", vim.fn.col "']"
+	end
+
+	local text = vim.api.nvim_buf_get_text(0, start_line - 1, start_col - 1, end_line - 1, end_col, {})
+
+	vim.notify(vim.inspect{ start_line - 1, start_col - 1, end_line - 1, end_col }, vim.log.levels.DEBUG)
+	vim.notify("TEXT:" .. vim.inspect(text), vim.log.levels.DEBUG)
+
+	local func, parse_err = load(table.concat(text, "\n"))
+	if func then
+		local ok, res = pcall(func)
+		if not res and ok then return end
+		res = vim.inspect(res)
+		local level = (not ok or res:find('^"*%[string') ~= nil) and vim.log.levels.ERROR or vim.log.levels.INFO
+		vim.notify("Runtime: "  .. res, level)
+	else
+		vim.notify("Parse error: " .. parse_err, vim.log.levels.ERROR)
+	end
+end
+
+vim.keymap.set({ "n", "x" }, "g=", vim.g.luaop, { desc = "Go lua", expr = true })
+vim.keymap.set("n", "g==", "<cmd>source %<cr>", { desc = "Go lua" })
