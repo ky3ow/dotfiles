@@ -2,15 +2,11 @@ local au = vim.api.nvim_create_autocmd
 local command = vim.api.nvim_create_user_command
 
 MiniDeps.now(function()
-	MiniDeps.add "neovim/nvim-lspconfig"
 	MiniDeps.add "folke/lazydev.nvim"
 	MiniDeps.add "Bilal2453/luvit-meta"
 	MiniDeps.add "rafamadriz/friendly-snippets"
-	MiniDeps.add "williamboman/mason.nvim"
-
-	require("mason").setup {}
-
 	local completion = require "mini.completion"
+
 	completion.setup {
 		delay = {
 			completion = 10,
@@ -41,11 +37,6 @@ MiniDeps.now(function()
 		),
 	})
 
-	for server, config in pairs(vim.g.language_servers) do
-		vim.lsp.config(server, config)
-		vim.lsp.enable(server)
-	end
-
 	au("LspAttach", {
 		group = vim.api.nvim_create_augroup("ky3ow.LspAttach", { clear = true }),
 		callback = function(e)
@@ -74,11 +65,6 @@ MiniDeps.now(function()
 			end, "Workspace List Folders")
 		end,
 	})
-end)
-
-MiniDeps.later(function()
-	MiniDeps.add "stevearc/conform.nvim"
-	MiniDeps.add "mfussenegger/nvim-lint"
 
 	require("mini.notify").setup {
 		window = {
@@ -87,11 +73,15 @@ MiniDeps.later(function()
 			end,
 		},
 	}
-	vim.notify = MiniNotify.make_notify {
-		--DEBUG = { duration = 100, hl_group = 'DiagnosticHint' },
+
+	local regular_notify = MiniNotify.make_notify {}
+	local debug_notify = MiniNotify.make_notify {
+		DEBUG = { duration = 1000, hl_group = 'DiagnosticHint' },
 	}
 
-	local notify_commands = { "clear", "history", "refresh" }
+	vim.notify = regular_notify
+
+	local notify_commands = { "clear", "history", "refresh", "toggle_debug" }
 	command("Notify", function(opts)
 		local action = opts.args
 		if action == "clear" then
@@ -100,6 +90,14 @@ MiniDeps.later(function()
 			MiniNotify.show_history()
 		elseif action == "refresh" then
 			MiniNotify.refresh()
+		elseif action == "toggle_debug" then
+			if vim.g.notify_debug == true then
+				vim.notify = regular_notify
+				vim.g.notify_debug = false
+			else
+				vim.notify = debug_notify
+				vim.g.notify_debug = true
+			end
 		end
 	end, {
 		nargs = 1,
@@ -111,6 +109,23 @@ MiniDeps.later(function()
 			return matches
 		end,
 	})
+end)
+
+MiniDeps.later(function()
+	MiniDeps.add "williamboman/mason.nvim"
+	MiniDeps.add "neovim/nvim-lspconfig"
+	MiniDeps.add "stevearc/conform.nvim"
+	MiniDeps.add "mfussenegger/nvim-lint"
+
+	require("mason").setup {}
+	for server, config in pairs(vim.g.language_servers) do
+		vim.lsp.config(server, config)
+		vim.lsp.enable(server)
+	end
+
+	vim.schedule(function()
+		vim.api.nvim_exec_autocmds("BufRead", { buffer = 0 })
+	end)
 
 	local conform = require "conform"
 	conform.setup { formatters_by_ft = vim.g.formatters }

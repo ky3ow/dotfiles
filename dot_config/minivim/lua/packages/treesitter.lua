@@ -1,4 +1,4 @@
-MiniDeps.now(function()
+MiniDeps.later(function()
 	local ai = require("mini.ai")
 	local ts = ai.gen_spec.treesitter
 
