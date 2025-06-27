@@ -9,6 +9,7 @@ return {
   ["luvit-meta"] = "1df30b60b1b4aecfebc785aa98943db6c6989716",
   ["mason.nvim"] = "8024d64e1330b86044fed4c8494ef3dcd483a67c",
   ["mini.nvim"] = "de0a88d925c8e69fdbb498141207ee43504e5cd1",
+  ["multicursor.nvim"] = "9eedebdd395bbbc4711081e33b0606c079e054c3",
   neovim = "6b9840790cc7acdfadde07f308d34b62dd9cc675",
   ["netrw.nvim"] = "90501c62b9b816ed3ed1e912ae9db9af5671a1b2",
   ["nightfox.nvim"] = "ba47d4b4c5ec308718641ba7402c143836f35aa9",
