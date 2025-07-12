@@ -1,4 +1,4 @@
--- Do not setup lazydev multiple times
+---[[ Do not setup lazydev multiple times
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.formatoptions:remove "o" -- `o` don't add comment
@@ -15,3 +15,4 @@ require("lazydev").setup {
 		{ path = "luvit-meta/library", words = { "vim%.uv" } },
 	},
 }
+--]]

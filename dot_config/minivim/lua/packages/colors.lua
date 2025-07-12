@@ -99,6 +99,7 @@ MiniDeps.now(function()
 				}
 			end,
 		},
+
 	}
 
 	-- [[ Highlight on yank ]]

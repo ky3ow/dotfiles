@@ -5,8 +5,8 @@ MiniDeps.now(function()
 	MiniDeps.add "folke/lazydev.nvim"
 	MiniDeps.add "Bilal2453/luvit-meta"
 	MiniDeps.add "rafamadriz/friendly-snippets"
-	local completion = require "mini.completion"
 
+	local completion = require "mini.completion"
 	completion.setup {
 		delay = {
 			completion = 10,
@@ -76,7 +76,7 @@ MiniDeps.now(function()
 
 	local regular_notify = MiniNotify.make_notify {}
 	local debug_notify = MiniNotify.make_notify {
-		DEBUG = { duration = 1000, hl_group = 'DiagnosticHint' },
+		DEBUG = { duration = 1000, hl_group = "DiagnosticHint" },
 	}
 
 	vim.notify = regular_notify
@@ -118,13 +118,16 @@ MiniDeps.later(function()
 	MiniDeps.add "mfussenegger/nvim-lint"
 
 	require("mason").setup {}
+
 	for server, config in pairs(vim.g.language_servers) do
 		vim.lsp.config(server, config)
 		vim.lsp.enable(server)
 	end
 
 	vim.schedule(function()
-		vim.api.nvim_exec_autocmds("BufRead", { buffer = 0 })
+		-- because we defer starting lsp until first screen
+		-- re-trigger stuff that will attach it for first opened file
+		vim.api.nvim_exec_autocmds("FileType", { buffer = 0 })
 	end)
 
 	local conform = require "conform"
