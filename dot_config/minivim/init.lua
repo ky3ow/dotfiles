@@ -70,27 +70,11 @@ vim.g.language_servers = {
 				schemaDownload = {
 					enable = true,
 				},
-				trace = {
-					server = "debug",
-				},
+				-- trace = {
+				-- 	server = "debug",
+				-- },
 			},
 		},
-		handlers = {
-			["yaml/schema/store/initialized"] = function(_, _, params, _)
-				Schemer.populate_store_schemas()
-			end,
-		},
-		---@param client vim.lsp.Client
-		on_init = function(client)
-			client.capabilities.workspace.didChangeConfiguration.dynamicRegistration = true
-			client:notify("yaml/supportSchemaSelection", { {} })
-		end,
-		on_attach = function()
-			local bufnr = vim.api.nvim_get_current_buf()
-			if not vim.b.schemer_yaml_schema then
-				Schemer.discover(bufnr)
-			end
-		end,
 	},
 	powershell_es = {
 		bundle_path = vim.fn.stdpath "data" .. "/mason/packages/powershell-editor-services",
@@ -117,5 +101,5 @@ end
 vim.g.mini_deps = path_package .. "pack/deps/"
 require("mini.deps").setup { path = { package = path_package } }
 
--- Source all packages
+--Source all packages
 vim.cmd.runtime { "lua/packages/*.lua", bang = true }

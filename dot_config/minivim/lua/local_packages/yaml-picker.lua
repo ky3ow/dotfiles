@@ -116,6 +116,25 @@ Schemer.setup = function(opts)
 	_G.Schemer = Schemer
 
 	vim.validate("schemas", opts.schemas, function(s) return vim.islist(s) end, 'opts.schemas is list')
+
+	vim.lsp.config("yamlls", {
+		handlers = {
+			["yaml/schema/store/initialized"] = function(_, _, params, _)
+				Schemer.populate_store_schemas()
+			end,
+		},
+		---@param client vim.lsp.Client
+		on_init = function(client)
+			client.capabilities.workspace.didChangeConfiguration.dynamicRegistration = true
+			client:notify("yaml/supportSchemaSelection", { {} })
+		end,
+		on_attach = function()
+			local bufnr = vim.api.nvim_get_current_buf()
+			if not vim.b.schemer_yaml_schema then
+				Schemer.discover(bufnr)
+			end
+		end,
+	})
 	vim.list_extend(Schemer.user_schemas, opts.schemas)
 
 	vim.api.nvim_create_user_command("Schemer", function()
