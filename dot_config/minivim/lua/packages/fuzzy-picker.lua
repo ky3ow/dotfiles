@@ -1,8 +1,20 @@
 MiniDeps.later(function()
+	local H = {}
+
+	---@param keys string
+	function H.map_keys(keys)
+		return function()
+			keys = vim.api.nvim_replace_termcodes(keys, true, true, true)
+			vim.api.nvim_feedkeys(keys, "n", false)
+		end
+	end
+
+	-- TODO! review pickers
 	require("mini.pick").setup {
 		mappings = {
-			choose_marked = "<M-q>",
-			refine = "<C-j>",
+			choose_marked = "<C-j>",
+			choose = "<CR>",
+			refine = "<C-Space>",
 			refine_marked = "<M-j>",
 
 			scroll_right = "<M-l>",
@@ -10,30 +22,25 @@ MiniDeps.later(function()
 
 			mark_down = {
 				char = "<M-n>",
-				func = function()
-					local keys = vim.api.nvim_replace_termcodes("<C-x><C-n>", true, true, true)
-					vim.api.nvim_feedkeys(keys, "n", false)
-				end
+				func = H.map_keys "<C-x><C-n>",
 			},
 			mark_up = {
 				char = "<M-p>",
-				func = function()
-					local keys = vim.api.nvim_replace_termcodes("<C-x><C-p>", true, true, true)
-					vim.api.nvim_feedkeys(keys, "n", false)
-				end
+				func = H.map_keys "<C-x><C-p>",
 			},
 		},
 	}
-	require "mini.extra".setup {}
-	require "mini.diff".setup {}
-
-	local H = {}
+	require("mini.extra").setup {}
+	require("mini.diff").setup {}
 
 	function H.show_with_icons(buf_id, items, query)
 		MiniPick.default_show(buf_id, items, query, { show_icons = true })
 	end
 
-	function H.full_path(path) return (vim.fn.fnamemodify(path, ':p'):gsub('(.)/$', '%1')) end
+	function H.full_path(path)
+		-- handle root dir
+		return (vim.fn.fnamemodify(path, ":p"):gsub("(.)/$", "%1"))
+	end
 
 	MiniPick.registry.narrow = function(local_opts)
 		local cwd = H.full_path(local_opts.cwd or vim.fn.getcwd())
@@ -51,14 +58,14 @@ MiniDeps.later(function()
 			end
 
 			if #remembered_files == 0 then
-				MiniPick.set_picker_opts({ source = { name = name() } })
-				return MiniPick.set_picker_query({ "" })
+				MiniPick.set_picker_opts { source = { name = name() } }
+				return MiniPick.set_picker_query { "" }
 			end
 
 			table.remove(remembered_files, #remembered_files)
 			local last_query = table.remove(remembered_queries, #remembered_queries)
 
-			MiniPick.set_picker_opts({ source = { name = name() } })
+			MiniPick.set_picker_opts { source = { name = name() } }
 			MiniPick.set_picker_query(vim.split(last_query, ""))
 		end
 
@@ -70,9 +77,8 @@ MiniDeps.later(function()
 
 			local seen = {}
 			local files = vim.tbl_map(function(item)
-					return vim.split(item, "\x00")[1]
-				end,
-				items)
+				return vim.split(item, "\x00")[1]
+			end, items)
 			files = vim.tbl_filter(function(file)
 				local unique = not vim.tbl_contains(seen, file)
 				if unique then
@@ -85,8 +91,8 @@ MiniDeps.later(function()
 			table.insert(remembered_queries, table.concat(query))
 
 			show_files, just_narrowed = true, true
-			MiniPick.set_picker_opts({ source = { name = name() } })
-			MiniPick.set_picker_query({ "" })
+			MiniPick.set_picker_opts { source = { name = name() } }
+			MiniPick.set_picker_query { "" }
 		end
 
 		local set_items_opts, spawn_opts = { do_match = false, querytick = MiniPick.get_querytick() }, { cwd = cwd }
@@ -95,12 +101,25 @@ MiniDeps.later(function()
 			pcall(vim.uv.process_kill, process)
 
 			local tick = MiniPick.get_querytick()
-			if tick == set_items_opts.querytick then return end
-			if #query == 0 then return MiniPick.set_picker_items({}, set_items_opts) end
+			if tick == set_items_opts.querytick then
+				return
+			end
+			if #query == 0 then
+				return MiniPick.set_picker_items({}, set_items_opts)
+			end
 
 			local command = {
-				"rg", "--column", "--line-number", "--no-heading", "--field-match-separator", "\\x00", "--no-follow",
-				"--color=never", "--with-filename", "-e", table.concat(query),
+				"rg",
+				"--column",
+				"--line-number",
+				"--no-heading",
+				"--field-match-separator",
+				"\\x00",
+				"--no-follow",
+				"--color=never",
+				"--with-filename",
+				"-e",
+				table.concat(query),
 			}
 
 			if not exact then
@@ -113,10 +132,14 @@ MiniDeps.later(function()
 
 			vim.list_extend(command, remembered_files[#remembered_files] or {})
 
-			if just_narrowed and show_files then just_narrowed, show_files = false, false end
+			if just_narrowed and show_files then
+				just_narrowed, show_files = false, false
+			end
 			set_items_opts.querytick = tick
-			process = MiniPick.set_picker_items_from_cli(command,
-				{ set_items_opts = set_items_opts, spawn_opts = spawn_opts })
+			process = MiniPick.set_picker_items_from_cli(
+				command,
+				{ set_items_opts = set_items_opts, spawn_opts = spawn_opts }
+			)
 		end
 
 		return MiniPick.start {
@@ -132,17 +155,17 @@ MiniDeps.later(function()
 					char = "<C-l>",
 					func = function()
 						show_files = not show_files
-						MiniPick.set_picker_opts({ source = { name = name() } })
+						MiniPick.set_picker_opts { source = { name = name() } }
 						MiniPick.set_picker_query(MiniPick.get_picker_query() or { "" })
-					end
+					end,
 				},
 				toggle_case = {
 					char = "<C-d>",
 					func = function()
 						exact = not exact
-						MiniPick.set_picker_opts({ source = { name = name() } })
+						MiniPick.set_picker_opts { source = { name = name() } }
 						MiniPick.set_picker_query(MiniPick.get_picker_query() or { "" })
-					end
+					end,
 				},
 				narrow = { char = "<Space>", func = narrow },
 				widen = { char = "<C-w>", func = widen },
@@ -173,12 +196,22 @@ MiniDeps.later(function()
 			pcall(vim.uv.process_kill, process)
 
 			local tick = MiniPick.get_querytick()
-			if tick == set_items_opts.querytick then return end
-			if #query == 0 then return MiniPick.set_picker_items({}, set_items_opts) end
+			if tick == set_items_opts.querytick then
+				return
+			end
+			if #query == 0 then
+				return MiniPick.set_picker_items({}, set_items_opts)
+			end
 
 			local command = {
-				"rg", "--column", "--line-number", "--no-heading", "--field-match-separator", "\\x00", "--no-follow",
-				"--color=never"
+				"rg",
+				"--column",
+				"--line-number",
+				"--no-heading",
+				"--field-match-separator",
+				"\\x00",
+				"--no-follow",
+				"--color=never",
 			}
 
 			local querystr = table.concat(query)
@@ -191,8 +224,10 @@ MiniDeps.later(function()
 			table.insert(command, querystr)
 
 			set_items_opts.querytick = tick
-			process = MiniPick.set_picker_items_from_cli(command,
-				{ set_items_opts = set_items_opts, spawn_opts = spawn_opts })
+			process = MiniPick.set_picker_items_from_cli(
+				command,
+				{ set_items_opts = set_items_opts, spawn_opts = spawn_opts }
+			)
 		end
 
 		return MiniPick.start {
@@ -201,17 +236,19 @@ MiniDeps.later(function()
 				match = match,
 				show = H.show_with_icons,
 				items = {},
-				cwd = cwd
+				cwd = cwd,
 			},
 			mappings = {
 				toggle_case = {
 					char = "<C-d>",
 					func = function()
 						exact = not exact
-						MiniPick.set_picker_opts({ source = { name = string.format("Grep Live(case: %s)", exact and "I" or "i") } })
+						MiniPick.set_picker_opts {
+							source = { name = string.format("Grep Live(case: %s)", exact and "I" or "i") },
+						}
 						MiniPick.set_picker_query(MiniPick.get_picker_query() or { "" })
-					end
-				}
+					end,
+				},
 			},
 		}
 	end
@@ -223,7 +260,7 @@ MiniDeps.later(function()
 		local opts = {
 			mappings = {
 				open = {
-					char = '<C-d>',
+					char = "<C-d>",
 					func = function()
 						local state = MiniPick.get_picker_state()
 						local preview_bufnr = state and state.buffers.preview
@@ -232,15 +269,17 @@ MiniDeps.later(function()
 						end
 						local ok, _ = pcall(MiniDiff.toggle_overlay, preview_bufnr)
 						if not ok then
-							vim.notify("can't do that when file open")
+							vim.notify "can't do that when file open"
 						end
-					end
+					end,
 				},
 			},
 			source = {
 				preview = function(buf_id, path, opts)
 					local win_id = vim.fn.bufwinid(buf_id)
-					if win_id == -1 then return end
+					if win_id == -1 then
+						return
+					end
 					vim.wo[win_id].number = true
 
 					local ok, _ = pcall(vim.api.nvim_buf_set_name, buf_id, path)
@@ -250,7 +289,7 @@ MiniDeps.later(function()
 					end
 
 					return MiniPick.default_preview(buf_id, path, opts)
-				end
+				end,
 			},
 		}
 
@@ -258,12 +297,12 @@ MiniDeps.later(function()
 	end
 
 	MiniPick.registry.grep_word = function()
-		local word = vim.fn.expand("<cword>")
+		local word = vim.fn.expand "<cword>"
 		return MiniPick.builtin.grep({
-			pattern = word
+			pattern = word,
 		}, {
 			source = {
-				name = string.format('Grep: <%s>', word)
+				name = string.format("Grep: <%s>", word),
 			},
 		})
 	end
@@ -291,8 +330,8 @@ MiniDeps.later(function()
 				cwd = local_opts.cwd,
 			},
 			mappings = {
-				open = { char = '<C-o>', func = open_selected },
-			}
+				open = { char = "<C-o>", func = open_selected },
+			},
 		}
 		local_opts.cwd = nil
 		return MiniPick.builtin.files(local_opts, opts)
@@ -310,7 +349,7 @@ MiniDeps.later(function()
 		for name, value in pairs(highlights) do
 			table.insert(hls, { name = name, value = value })
 		end
-		return MiniPick.start({
+		return MiniPick.start {
 			source = {
 				items = hls,
 				show = function(buf_id, items_arr, query) ---@diagnostic disable-line: unused-local
@@ -321,9 +360,9 @@ MiniDeps.later(function()
 					for index, hlgroup in ipairs(items_arr) do
 						vim.api.nvim_buf_add_highlight(buf_id, -1, hlgroup.name, index - 1, 0, #hlgroup.name)
 					end
-				end
+				end,
 			},
-		})
+		}
 	end
 
 	MiniPick.registry.buffers = function(local_opts)
@@ -333,8 +372,9 @@ MiniDeps.later(function()
 				return
 			end
 
-			local deleted = vim.tbl_map(function(v) return v.bufnr end,
-				#matches.marked > 0 and matches.marked or { matches.current })
+			local deleted = vim.tbl_map(function(v)
+				return v.bufnr
+			end, #matches.marked > 0 and matches.marked or { matches.current })
 			local remaining = vim.tbl_filter(function(m)
 				return not vim.tbl_contains(deleted, m.bufnr, {})
 			end, matches.all)
@@ -344,7 +384,7 @@ MiniDeps.later(function()
 			end
 			MiniPick.set_picker_items(remaining)
 		end
-		local buffer_mappings = { wipeout = { char = '<C-d>', func = wipeout } }
+		local buffer_mappings = { wipeout = { char = "<C-d>", func = wipeout } }
 		MiniPick.builtin.buffers(local_opts, { mappings = buffer_mappings })
 	end
 
@@ -360,10 +400,18 @@ MiniDeps.later(function()
 	vim.keymap.set("n", "<leader>sn", "<cmd>Pick narrow<cr>", { desc = "Search narrowing" })
 	vim.keymap.set("n", "<leader>sd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "Search dignostic" })
 
-	vim.keymap.set("n", "<leader>spf", [[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]],
-		{ desc = "Search Package files" })
-	vim.keymap.set("n", "<leader>spg", [[<cmd>execute 'Pick rg_live cwd="' . g:mini_deps . '"'<cr>]],
-		{ desc = "Search Package grep" })
+	vim.keymap.set(
+		"n",
+		"<leader>spf",
+		[[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]],
+		{ desc = "Search Package files" }
+	)
+	vim.keymap.set(
+		"n",
+		"<leader>spg",
+		[[<cmd>execute 'Pick rg_live cwd="' . g:mini_deps . '"'<cr>]],
+		{ desc = "Search Package grep" }
+	)
 	-- vim.keymap.set("n", "<leader>spg", [[<cmd>execute 'Pick grep_live cwd="' . g:mini_deps . '"'<cr>]],
 	-- 	{ desc = "[S]earch [P]ackage [g]rep" })
 

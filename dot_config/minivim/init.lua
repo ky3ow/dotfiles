@@ -98,6 +98,11 @@ if not (vim.uv or vim.loop).fs_stat(mini_path) then
 	vim.cmd 'echo "Installed `mini.nvim`" | redraw'
 end
 
+local path_binary = vim.fn.expand(vim.fn.stdpath "data" .. "/bin")
+local path_separator = vim.uv.os_uname().sysname == "Windows_NT" and ";" or ":"
+vim.env.PATH = path_binary .. path_separator .. vim.env.PATH
+vim.g.path_binary = path_binary
+
 vim.g.mini_deps = path_package .. "pack/deps/"
 require("mini.deps").setup { path = { package = path_package } }
 

@@ -1,4 +1,5 @@
 MiniDeps.later(function()
+	-- TODO! quicker-nvim, nvim-bqf
 	require("mini.comment").setup {
 		options = {
 			ignore_blank_line = true,
@@ -13,16 +14,16 @@ MiniDeps.later(function()
 	vim.keymap.set("n", "<leader>f", MiniFiles.open, { desc = "[F]iles" })
 
 	MiniDeps.add "tpope/vim-fugitive"
-	-- Use mini.git after getting hang of vim-fugitive
-	-- require("mini.git").setup {}
 
-	MiniDeps.add "jinh0/eyeliner.nvim"
-	require("eyeliner").setup {
-		highlight_on_key = true,
-		dim = true,
+	MiniDeps.add "samiulsami/fFtT-highlights.nvim"
+	require "fFtT-highlights":setup {
+		jumpable_chars = {
+			show_instantly_jumpable = "on_key_press",
+			show_secondary_jumpable = "on_key_press"
+		}
 	}
-	vim.api.nvim_set_hl(0, "EyelinerPrimary", { link = "DiagnosticError" })
-	vim.api.nvim_set_hl(0, "EyelinerSecondary", { link = "DiagnosticInfo" })
+	vim.api.nvim_set_hl(0, "fFtTUniqueHighlight", { link = "DiagnosticError" })
+	vim.api.nvim_set_hl(0, "fFtTUniqueHighlightSecondary", { link = "DiagnosticInfo" })
 
 	MiniIcons.tweak_lsp_kind()
 
@@ -45,17 +46,6 @@ MiniDeps.later(function()
 		open_mapping = [[<c-\>]],
 		persist_mode = false,
 	}
-
-	local Terminal = require("toggleterm.terminal").Terminal
-	local lazygit = Terminal:new { cmd = "lazygit", hidden = true, direction = "float" }
-
-	local function lazygit_toggle()
-		lazygit:toggle()
-	end
-
-	vim.api.nvim_create_user_command("Lazygit", lazygit_toggle, { desc = "Lazygit ui" })
-
-	vim.keymap.set("n", "<leader>G", lazygit_toggle, { desc = "[G]it" })
 
 	MiniDeps.add {
 		source = "jake-stewart/multicursor.nvim",
