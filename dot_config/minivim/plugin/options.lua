@@ -61,8 +61,7 @@ vim.opt.formatoptions:remove "o" -- `o` don't add comment
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.cursorline = true
-vim.opt.foldmethod = "expr" -- use fold expression
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()" -- fold by treesitter
+vim.opt.foldmethod = "indent"
 vim.opt.foldlevel = 99 -- so file is not folded by default
 vim.opt.fillchars = { fold = " " }
 vim.opt.list = true
