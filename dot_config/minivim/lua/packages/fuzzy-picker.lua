@@ -115,7 +115,7 @@ MiniDeps.later(function()
 		end)
 	end
 
-	function State.wrap_cycle(self, module)
+	function State.wrap_cycle_items(self, module)
 		return function()
 			self.modules[module]:cycle()
 			local command = self:command()
@@ -128,6 +128,45 @@ MiniDeps.later(function()
 			MiniPick.set_picker_items_from_cli(command, self.local_opts.spawn_opts)
 		end
 	end
+
+	function State.wrap_cycle_query(self, module)
+		return function()
+			self.modules[module]:cycle()
+
+			MiniPick.set_picker_opts {
+				source = {
+					name = self:name(),
+				},
+			}
+			MiniPick.set_picker_query(MiniPick.get_picker_query() or { "" })
+		end
+	end
+
+	local hidden_toggle = {
+		{
+			name = "-",
+			value = {},
+		},
+		{
+			name = "h",
+			value = { "--hidden" },
+		},
+		{
+			name = "H",
+			value = { "--hidden", "--no-ignore" },
+		},
+	}
+
+	local case_toggle = {
+		{
+			name = "i",
+			value = { "--ignore-case" },
+		},
+		{
+			name = "I",
+			value = {},
+		},
+	}
 
 	MiniPick.registry.narrow = function(local_opts)
 		local cwd = H.full_path(local_opts.cwd or vim.fn.getcwd())
@@ -262,20 +301,7 @@ MiniDeps.later(function()
 
 	MiniPick.registry.rg_files = function(local_opts)
 		local state = State.new("Find files", local_opts, {
-			hidden = Module.new {
-				{
-					name = "l",
-					value = {},
-				},
-				{
-					name = "h",
-					value = { "--hidden" },
-				},
-				{
-					name = "H",
-					value = { "--hidden", "--no-ignore" },
-				},
-			},
+			hidden = Module.new(hidden_toggle),
 		})
 
 		local open_selected = function()
@@ -311,7 +337,7 @@ MiniDeps.later(function()
 			source = { show = H.show_with_icons, name = state:name(), cwd = cwd },
 			mappings = {
 				open = { char = "<C-o>", func = open_selected },
-				cycle_hidden = { char = "<C-d>", func = state:wrap_cycle "hidden" },
+				cycle_hidden = { char = "<C-d>", func = state:wrap_cycle_items "hidden" },
 			},
 		}
 
@@ -319,10 +345,24 @@ MiniDeps.later(function()
 	end
 
 	MiniPick.registry.rg_live = function(local_opts)
+		local state = State.new("Grep Live", local_opts, {
+			case = Module.new(case_toggle),
+			hidden = Module.new(hidden_toggle),
+		})
 		local cwd = H.full_path(local_opts.cwd or vim.fn.getcwd())
-		local exact = local_opts.exact
+		local_opts.spawn_opts = { cwd = cwd }
+		local_opts.command = {
+			"rg",
+			"--column",
+			"--line-number",
+			"--no-heading",
+			"--field-match-separator",
+			"\\x00",
+			"--no-follow",
+			"--color=never",
+		}
 
-		local set_items_opts, spawn_opts = { do_match = false, querytick = MiniPick.get_querytick() }, { cwd = cwd }
+		local set_items_opts = { do_match = false, querytick = MiniPick.get_querytick() }
 		local process
 		local match = function(_, _, query)
 			pcall(vim.uv.process_kill, process)
@@ -335,51 +375,35 @@ MiniDeps.later(function()
 				return MiniPick.set_picker_items({}, set_items_opts)
 			end
 
-			local command = {
-				"rg",
-				"--column",
-				"--line-number",
-				"--no-heading",
-				"--field-match-separator",
-				"\\x00",
-				"--no-follow",
-				"--color=never",
-			}
-
 			local querystr = table.concat(query)
 
-			if not exact then
-				table.insert(command, "--ignore-case")
-			end
-
+			local command = state:command()
 			table.insert(command, "--")
 			table.insert(command, querystr)
 
 			set_items_opts.querytick = tick
 			process = MiniPick.set_picker_items_from_cli(
 				command,
-				{ set_items_opts = set_items_opts, spawn_opts = spawn_opts }
+				{ set_items_opts = set_items_opts, spawn_opts = local_opts.spawn_opts }
 			)
 		end
 
 		return MiniPick.start {
 			source = {
-				name = string.format("Grep Live(case: %s)", exact and "I" or "i"),
+				name = state:name(),
 				match = match,
 				show = H.show_with_icons,
 				items = {},
 				cwd = cwd,
 			},
 			mappings = {
-				toggle_case = {
+				toggle_hidden = {
 					char = "<C-d>",
-					func = function()
-						exact = not exact
-						MiniPick.set_picker_opts {
-							source = { name = string.format("Grep Live(case: %s)", exact and "I" or "i") },
-						}
-						MiniPick.set_picker_query(MiniPick.get_picker_query() or { "" })
-					end,
+					func = state:wrap_cycle_query "hidden",
+				},
+				toggle_case = {
+					char = "<A-c>",
+					func = state:wrap_cycle_query "case",
 				},
 			},
 		}
