@@ -9,6 +9,15 @@ MiniDeps.later(function()
 		end
 	end
 
+	function H.show_with_icons(buf_id, items, query)
+		MiniPick.default_show(buf_id, items, query, { show_icons = true })
+	end
+
+	function H.full_path(path)
+		-- handle root dir
+		return (vim.fn.fnamemodify(path, ":p"):gsub("(.)/$", "%1"))
+	end
+
 	-- TODO! review pickers
 	require("mini.pick").setup {
 		mappings = {
@@ -33,13 +42,91 @@ MiniDeps.later(function()
 	require("mini.extra").setup {}
 	require("mini.diff").setup {}
 
-	function H.show_with_icons(buf_id, items, query)
-		MiniPick.default_show(buf_id, items, query, { show_icons = true })
+	---@class ModuleState
+	---@field name string
+	---@field value string[]
+
+	---@class Module
+	---@field _idx integer
+	---@field states ModuleState[]
+	local Module = {
+		_idx = 1,
+		states = {},
+	}
+
+	---@return ModuleState
+	function Module.cycle(self)
+		self._idx = self._idx + 1
+		if self._idx > #self.states then
+			self._idx = 1
+		end
+		return self:current()
 	end
 
-	function H.full_path(path)
-		-- handle root dir
-		return (vim.fn.fnamemodify(path, ":p"):gsub("(.)/$", "%1"))
+	---@return ModuleState
+	function Module.current(self)
+		return self.states[self._idx]
+	end
+
+	---@param states ModuleState[]
+	---@return Module
+	function Module.new(states)
+		local self = setmetatable({}, {
+			__index = Module,
+		})
+		self.states = states
+		return self
+	end
+
+	---@class State
+	---@field _name string
+	---@field local_opts table
+	---@field modules table<string, Module>
+	local State = {
+		modules = {},
+	}
+
+	---@param name string
+	---@param local_opts table
+	---@param modules table<string, Module>
+	---@return State
+	function State.new(name, local_opts, modules)
+		local self = setmetatable({}, {
+			__index = State,
+		})
+		self._name = name
+		self.local_opts = local_opts
+		self.modules = modules
+		return self
+	end
+
+	---@return string
+	function State.name(self)
+		local names = {}
+		for _, module in pairs(self.modules) do
+			table.insert(names, module:current().name)
+		end
+		return ("%s(:%s:)"):format(self._name, table.concat(names, ":"))
+	end
+
+	function State.command(self)
+		return vim.iter(self.modules):fold(vim.deepcopy(self.local_opts.command), function(acc, _, val)
+			return vim.list_extend(acc, val:current().value)
+		end)
+	end
+
+	function State.wrap_cycle(self, module)
+		return function()
+			self.modules[module]:cycle()
+			local command = self:command()
+
+			MiniPick.set_picker_opts {
+				source = {
+					name = self:name(),
+				},
+			}
+			MiniPick.set_picker_items_from_cli(command, self.local_opts.spawn_opts)
+		end
 	end
 
 	MiniPick.registry.narrow = function(local_opts)
@@ -173,15 +260,60 @@ MiniDeps.later(function()
 		}
 	end
 
-	MiniPick.registry.rg = function(local_opts)
-		local picker_opts = { source = { cwd = local_opts.cwd, show = H.show_with_icons } }
+	MiniPick.registry.rg_files = function(local_opts)
+		local state = State.new("Find files", local_opts, {
+			hidden = Module.new {
+				{
+					name = "l",
+					value = {},
+				},
+				{
+					name = "h",
+					value = { "--hidden" },
+				},
+				{
+					name = "H",
+					value = { "--hidden", "--no-ignore" },
+				},
+			},
+		})
 
-		local_opts.cwd = nil
-		local_opts.command = { "rg", "--files", "--no-follow", "--color=never" }
+		local open_selected = function()
+			local matches = MiniPick.get_picker_matches()
+			if not matches then
+				return
+			end
 
-		if local_opts.all then
-			table.insert(local_opts.command, "--hidden")
+			local selected = #matches.marked > 0 and matches.marked or { matches.current }
+
+			vim.schedule(function()
+				for _, path in ipairs(selected) do
+					MiniPick.default_choose(path)
+				end
+			end)
+
+			return MiniPick.stop()
 		end
+
+		local cwd = H.full_path(local_opts.cwd or vim.fn.getcwd())
+
+		local_opts.command = {
+			"rg",
+			"--files",
+			"--no-follow",
+			"--color=never",
+			"--field-match-separator",
+			"\\x00",
+		}
+		local_opts.spawn_opts = { cwd = cwd }
+
+		local picker_opts = {
+			source = { show = H.show_with_icons, name = state:name(), cwd = cwd },
+			mappings = {
+				open = { char = "<C-o>", func = open_selected },
+				cycle_hidden = { char = "<C-d>", func = state:wrap_cycle "hidden" },
+			},
+		}
 
 		return MiniPick.builtin.cli(local_opts, picker_opts)
 	end
@@ -307,58 +439,28 @@ MiniDeps.later(function()
 		})
 	end
 
-	MiniPick.registry.files = function(local_opts)
-		local open_selected = function()
-			local matches = MiniPick.get_picker_matches()
-			if not matches then
-				return
-			end
-
-			local selected = #matches.marked > 0 and matches.marked or { matches.current }
-
-			vim.schedule(function()
-				for _, path in ipairs(selected) do
-					MiniPick.default_choose(path)
-				end
-			end)
-
-			return MiniPick.stop()
-		end
-
-		local opts = {
-			source = {
-				cwd = local_opts.cwd,
-			},
-			mappings = {
-				open = { char = "<C-o>", func = open_selected },
-			},
-		}
-		local_opts.cwd = nil
-		return MiniPick.builtin.files(local_opts, opts)
-	end
-
-	MiniPick.registry.grep_live = function(local_opts)
-		local opts = { source = { cwd = local_opts.cwd } }
-		local_opts.cwd = nil
-		return MiniPick.builtin.grep_live(local_opts, opts)
-	end
-
 	MiniPick.registry.highlights = function()
-		local highlights = vim.api.nvim_get_hl(0, {})
-		local hls = {}
-		for name, value in pairs(highlights) do
-			table.insert(hls, { name = name, value = value })
-		end
+		local highlights = vim.iter(vim.api.nvim_get_hl(0, {}))
+			:map(function(name, hl)
+				return { name = name, value = hl }
+			end)
+			:totable()
 		return MiniPick.start {
 			source = {
-				items = hls,
+				items = highlights,
 				show = function(buf_id, items_arr, query) ---@diagnostic disable-line: unused-local
 					local lines = vim.tbl_map(function(hl)
 						return string.format("%s: %s", hl.name, vim.inspect(hl.value, { newline = " ", indent = "" }))
 					end, items_arr)
 					vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
 					for index, hlgroup in ipairs(items_arr) do
-						vim.api.nvim_buf_add_highlight(buf_id, -1, hlgroup.name, index - 1, 0, #hlgroup.name)
+						vim.api.nvim_buf_set_extmark(
+							buf_id,
+							vim.api.nvim_create_namespace "",
+							index - 1,
+							0,
+							{ end_col = #hlgroup.name, hl_group = hlgroup.name }
+						)
 					end
 				end,
 			},
@@ -388,8 +490,7 @@ MiniDeps.later(function()
 		MiniPick.builtin.buffers(local_opts, { mappings = buffer_mappings })
 	end
 
-	vim.keymap.set("n", "<leader>sf", "<cmd>Pick files<cr>", { desc = "Search files" })
-	-- vim.keymap.set("n", "<leader>sg", "<cmd>Pick grep_live<cr>", { desc = "Search grep" })
+	vim.keymap.set("n", "<leader>sf", "<cmd>Pick rg_files<cr>", { desc = "Search files" })
 	vim.keymap.set("n", "<leader>sg", "<cmd>Pick rg_live<cr>", { desc = "Search grep" })
 	vim.keymap.set("n", "<leader>sG", "<cmd>Pick grep<cr>", { desc = "Search grep(non interactive)" })
 	vim.keymap.set("n", "<leader>sh", "<cmd>Pick help<cr>", { desc = "Search help" })
@@ -400,20 +501,9 @@ MiniDeps.later(function()
 	vim.keymap.set("n", "<leader>sn", "<cmd>Pick narrow<cr>", { desc = "Search narrowing" })
 	vim.keymap.set("n", "<leader>sd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "Search dignostic" })
 
-	vim.keymap.set(
-		"n",
-		"<leader>spf",
-		[[<cmd>execute 'Pick files cwd="' . g:mini_deps . '"'<cr>]],
-		{ desc = "Search Package files" }
-	)
-	vim.keymap.set(
-		"n",
-		"<leader>spg",
-		[[<cmd>execute 'Pick rg_live cwd="' . g:mini_deps . '"'<cr>]],
-		{ desc = "Search Package grep" }
-	)
-	-- vim.keymap.set("n", "<leader>spg", [[<cmd>execute 'Pick grep_live cwd="' . g:mini_deps . '"'<cr>]],
-	-- 	{ desc = "[S]earch [P]ackage [g]rep" })
+	vim.keymap.set("n", "<leader>spf", "<cmd>Pick rg_files cwd=vim.g.mini_deps<cr>", { desc = "Search Package files" })
+
+	vim.keymap.set("n", "<leader>spg", "<cmd>Pick rg_live cwd=vim.g.mini_deps<cr>", { desc = "Search Package grep" })
 
 	vim.keymap.set("n", "<leader>sw", "<cmd>Pick grep_word<cr>", { desc = "Search word" })
 	vim.keymap.set("n", "<leader>s/", "<cmd>Pick buf_lines scope='current'<cr>", { desc = "Search /lines" })
