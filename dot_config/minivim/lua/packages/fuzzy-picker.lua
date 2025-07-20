@@ -115,6 +115,18 @@ MiniDeps.later(function()
 		end)
 	end
 
+	function State.cycle_items(self, module)
+		self.modules[module]:cycle()
+		local command = self:command()
+
+		MiniPick.set_picker_opts {
+			source = {
+				name = self:name(),
+			},
+		}
+		MiniPick.set_picker_items_from_cli(command, self.local_opts.spawn_opts)
+	end
+
 	function State.wrap_cycle_items(self, module)
 		return function()
 			self.modules[module]:cycle()
@@ -129,16 +141,20 @@ MiniDeps.later(function()
 		end
 	end
 
+	function State.cycle_query(self, module)
+		self.modules[module]:cycle()
+
+		MiniPick.set_picker_opts {
+			source = {
+				name = self:name(),
+			},
+		}
+		MiniPick.set_picker_query(MiniPick.get_picker_query() or { "" })
+	end
+
 	function State.wrap_cycle_query(self, module)
 		return function()
-			self.modules[module]:cycle()
-
-			MiniPick.set_picker_opts {
-				source = {
-					name = self:name(),
-				},
-			}
-			MiniPick.set_picker_query(MiniPick.get_picker_query() or { "" })
+			self:cycle_query(module)
 		end
 	end
 
@@ -168,14 +184,50 @@ MiniDeps.later(function()
 		},
 	}
 
-	MiniPick.registry.narrow = function(local_opts)
-		local cwd = H.full_path(local_opts.cwd or vim.fn.getcwd())
-		local exact = local_opts.exact
-		local show_files, just_narrowed = false, false
-		local remembered_files, remembered_queries = {}, {}
+	local file_toggle = {
+		{
+			name = "g",
+			value = {},
+		},
+		{
+			name = "f",
+			value = { "--files-with-matches" },
+		},
+	}
 
-		local function name()
-			return string.format("Grep Live(%s) State(%s)", exact and "I" or "i", table.concat(remembered_queries, ","))
+	MiniPick.registry.narrow = function(local_opts)
+		local state = State.new("Narrow", local_opts, {
+			case = Module.new(case_toggle),
+			file = Module.new(file_toggle),
+		})
+		local cwd = H.full_path(local_opts.cwd or vim.fn.getcwd())
+		local_opts.spawn_opts = { cwd = cwd }
+		local_opts.command = {
+			"rg",
+			"--column",
+			"--line-number",
+			"--no-heading",
+			"--field-match-separator",
+			"\\x00",
+			"--no-follow",
+			"--color=never",
+			"--with-filename",
+		}
+
+		local just_narrowed = false
+
+		---@class Memory
+		---@field files string[]
+		---@field query string
+
+		---@type Memory[]
+		local remember = {}
+
+		function state.name(self)
+			local queries = vim.iter(remember):map(function(mem)
+				return mem.query
+			end):totable()
+			return ("%s > %s"):format(State.name(self), table.concat(queries, ","))
 		end
 
 		local function widen()
@@ -183,16 +235,16 @@ MiniDeps.later(function()
 				return
 			end
 
-			if #remembered_files == 0 then
-				MiniPick.set_picker_opts { source = { name = name() } }
+			if not remember[#remember] then
+				MiniPick.set_picker_opts { source = { name = state:name() } }
 				return MiniPick.set_picker_query { "" }
 			end
 
-			table.remove(remembered_files, #remembered_files)
-			local last_query = table.remove(remembered_queries, #remembered_queries)
+			local tail = table.remove(remember, #remember) --[[@as Memory]]
 
-			MiniPick.set_picker_opts { source = { name = name() } }
-			MiniPick.set_picker_query(vim.split(last_query, ""))
+			state.modules.file._idx = 1
+			MiniPick.set_picker_opts { source = { name = state:name() } }
+			MiniPick.set_picker_query(vim.split(tail.query, ""))
 		end
 
 		local function narrow()
@@ -202,26 +254,24 @@ MiniDeps.later(function()
 			end
 
 			local seen = {}
-			local files = vim.tbl_map(function(item)
-				return vim.split(item, "\x00")[1]
-			end, items)
-			files = vim.tbl_filter(function(file)
-				local unique = not vim.tbl_contains(seen, file)
-				if unique then
-					table.insert(seen, file)
+			local files = {}
+			for _, item in ipairs(items) do
+				local file = vim.split(item, "\x00")[1]
+				if not seen[file] then
+					seen[file] = true
+					table.insert(files, file)
 				end
-				return unique
-			end, files)
+			end
 
-			table.insert(remembered_files, files)
-			table.insert(remembered_queries, table.concat(query))
+			table.insert(remember, { files = files, query = table.concat(query) })
 
-			show_files, just_narrowed = true, true
-			MiniPick.set_picker_opts { source = { name = name() } }
+			just_narrowed = true
+			state.modules.file._idx = #state.modules.file.states
+			MiniPick.set_picker_opts { source = { name = state:name() } }
 			MiniPick.set_picker_query { "" }
 		end
 
-		local set_items_opts, spawn_opts = { do_match = false, querytick = MiniPick.get_querytick() }, { cwd = cwd }
+		local set_items_opts = { do_match = false, querytick = MiniPick.get_querytick() }
 		local process
 		local match = function(_, _, query)
 			pcall(vim.uv.process_kill, process)
@@ -234,43 +284,27 @@ MiniDeps.later(function()
 				return MiniPick.set_picker_items({}, set_items_opts)
 			end
 
-			local command = {
-				"rg",
-				"--column",
-				"--line-number",
-				"--no-heading",
-				"--field-match-separator",
-				"\\x00",
-				"--no-follow",
-				"--color=never",
-				"--with-filename",
-				"-e",
-				table.concat(query),
-			}
+			local command = state:command()
+			table.insert(command, "-e")
+			table.insert(command, table.concat(query))
+			vim.list_extend(command, (#remember > 0 and remember[#remember].files) or {})
 
-			if not exact then
-				table.insert(command, "--ignore-case")
+			if just_narrowed and state.modules.file._idx == #state.modules.file.states then
+				just_narrowed = false
+				state.modules.file._idx = 1
+				MiniPick.set_picker_opts { source = { name = state:name() } }
 			end
 
-			if show_files then
-				table.insert(command, "--files-with-matches")
-			end
-
-			vim.list_extend(command, remembered_files[#remembered_files] or {})
-
-			if just_narrowed and show_files then
-				just_narrowed, show_files = false, false
-			end
 			set_items_opts.querytick = tick
 			process = MiniPick.set_picker_items_from_cli(
 				command,
-				{ set_items_opts = set_items_opts, spawn_opts = spawn_opts }
+				{ set_items_opts = set_items_opts, spawn_opts = local_opts.spawn_opts }
 			)
 		end
 
 		return MiniPick.start {
 			source = {
-				name = name(),
+				name = state:name(),
 				match = match,
 				show = H.show_with_icons,
 				items = {},
@@ -279,19 +313,11 @@ MiniDeps.later(function()
 				delete_word = "<M-w>",
 				unique_files = {
 					char = "<C-l>",
-					func = function()
-						show_files = not show_files
-						MiniPick.set_picker_opts { source = { name = name() } }
-						MiniPick.set_picker_query(MiniPick.get_picker_query() or { "" })
-					end,
+					func = state:wrap_cycle_query "file",
 				},
 				toggle_case = {
-					char = "<C-d>",
-					func = function()
-						exact = not exact
-						MiniPick.set_picker_opts { source = { name = name() } }
-						MiniPick.set_picker_query(MiniPick.get_picker_query() or { "" })
-					end,
+					char = "<A-c>",
+					func = state:wrap_cycle_query "case",
 				},
 				narrow = { char = "<Space>", func = narrow },
 				widen = { char = "<C-w>", func = widen },
