@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 (add-to-list 'load-path (expand-file-name "elisp" user-emacs-directory)) ;; packages dir
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")
@@ -7,6 +8,32 @@
   :custom (unclutter-use-customize nil))
 
 (use-package emacs
+  :preface
+  (defun my-toggle-truncate-lines ()
+    "Toggle the `truncate-lines` setting."
+    (interactive)
+    (setopt truncate-lines (not truncate-lines))
+    (if truncate-lines
+	(message "Truncate lines: On")
+      (message "Truncate lines: Off")))
+  
+  (defun wslp()
+    (and
+     (eq system-type 'gnu/linux)
+     (file-exists-p "/run/WSL")))
+
+  (defun smarter-move-beginning-of-line (arg)
+    (interactive "^p")
+    (setq arg (or arg 1))
+    ;; Move lines first
+    (when (/= arg 1)
+      (let ((line-move-visual nil))
+	(forward-line (1- arg))))
+    (let ((orig-point (point)))
+      (back-to-indentation)
+      (when (= orig-point (point))
+	(move-beginning-of-line 1))))
+  
   :custom
   (tool-bar-mode nil)
   (menu-bar-mode nil)
@@ -97,33 +124,11 @@
 		     ("w" . my-toggle-truncate-lines)
 		     ("s" . visual-line-mode))
 
-  :preface
-  (defun my-toggle-truncate-lines ()
-    "Toggle the `truncate-lines` setting."
-    (interactive)
-    (setq truncate-lines (not truncate-lines))
-    (if truncate-lines
-	(message "Truncate lines: On")
-      (message "Truncate lines: Off")))
-  
-  (defun wslp()
-    (and
-     (eq system-type 'gnu/linux)
-     (file-exists-p "/run/WSL")))
+  :bind ("<remap> <move-beginning-of-line>" . smarter-move-beginning-of-line)
 
   :config
   (put 'narrow-to-region 'disabled nil)
   
-  ;; general hooks
-  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-  (add-hook 'text-mode-hook 'visual-line-mode)
-
-  (let ((hl-line-hooks '(text-mode-hook prog-mode-hook)))
-    (mapc (lambda (hook) (add-hook hook 'hl-line-mode)) hl-line-hooks))
-
-  (when (display-graphic-p)
-    (context-menu-mode))
-
   (when (wslp)
     (setq select-active-regions nil)
     (let ((cmd-exe "/mnt/c/Windows/System32/cmd.exe")
@@ -133,7 +138,17 @@
 	      browse-url-generic-args     cmd-args
 	      browse-url-browser-function 'browse-url-generic
 	      search-web-default-browser 'browse-url-generic))))
-  )
+  
+  :hook
+  (prog-mode . display-line-numbers-mode)
+  (text-mode . visual-line-mode)
+  ((prog-mode text-mode) . hl-line-mode))
+
+(use-package outline
+  :bind (:map outline-minor-mode-map
+	      ("<backtab>" . outline-cycle))
+  :hook
+  (prog-mode . outline-minor-mode))
 
 (use-package tab-bar
   :custom
@@ -179,8 +194,7 @@
   (which-key-side-window-location '(right bottom))
   (which-key-popup-type 'side-window)
   (which-key-idle-delay 1)
-  :config
-  (which-key-mode))
+  (which-key-mode t))
 
 (use-package org
   :custom
