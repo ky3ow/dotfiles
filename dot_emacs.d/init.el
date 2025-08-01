@@ -67,6 +67,9 @@
   ;;(completion-auto-select 'second-tab)
   (completions-max-height 20)
 
+  ;; hide commands in -x which do not work in current mode
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  
   (x-underline-at-descent-line nil)
   (switch-to-buffer-obey-display-actions t)
 
@@ -103,11 +106,14 @@
 				   ("courier" "CMU Typewriter Text" "fixed")
 				   ("Sans Serif" "helv" "helvetica" "arial" "fixed")
 				   ("helv" "helvetica" "arial" "fixed")))
-  
+
+  (context-menu-mode t)
+  (xterm-mouse-mode (not (display-graphic-p)))
+      
   :custom-face
   (default ((t (:family "Iosevka" :height 150))))
   (variable-pitch ((t (:family "Iosevka Aile" :height 140))))
-  ;(symbol ((t (:family "DejaVu Sans"))))
+					;(symbol ((t (:family "DejaVu Sans"))))
   
   :bind (:prefix-map clipboard-map
 		     :prefix "C-c c"
@@ -117,14 +123,13 @@
 
   :bind (("C-S-c" . clipboard-kill-ring-save)
 	 ("C-S-v" . clipboard-yank)
-	 ("C-S-x" . clipboard-kill-region))
+	 ("C-S-x" . clipboard-kill-region)
+	 ("<remap> <move-beginning-of-line>" . smarter-move-beginning-of-line))
 
   :bind (:prefix-map option-toggles
 		     :prefix "C-c t"
 		     ("w" . my-toggle-truncate-lines)
 		     ("s" . visual-line-mode))
-
-  :bind ("<remap> <move-beginning-of-line>" . smarter-move-beginning-of-line)
 
   :config
   (put 'narrow-to-region 'disabled nil)
@@ -145,6 +150,9 @@
   ((prog-mode text-mode) . hl-line-mode))
 
 (use-package outline
+  :custom
+  (outline-blank-line t)
+  (outline-minor-mode-cycle t)
   :bind (:map outline-minor-mode-map
 	      ("<backtab>" . outline-cycle))
   :hook
@@ -175,7 +183,7 @@
        'face (funcall tab-bar-tab-face-function tab))))
   :config
   (dotimes (i 9)
-    (let ((keybind (format "C-c C-%d" (1+ i))))
+    (let ((keybind (format "C-c c %d" (1+ i))))
       (global-set-key (kbd keybind)
 		      `(lambda ()
 			 (interactive)
@@ -261,5 +269,24 @@
   (org-mode . olivetti-mode))
 
 (use-package eat
-  :ensure t)
+  :ensure t
+  :custom
+  (eat-kill-buffer-on-exit t)
+  (eat-maximum-latency 0.005)
+  (eat-minimum-latency 0.001))
+
+(use-package vertico
+  :ensure t
+  :custom
+  (vertico-cycle t)
+  (vertico-mode t))
+
+(use-package xclip
+  :ensure t
+  :custom
+  (xclip-mode (not (display-graphic-p))))
+
+(use-package ediff
+  :custom
+  (ediff-window-setup-function 'ediff-setup-windows-plain)
 
