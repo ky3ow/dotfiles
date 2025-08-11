@@ -1,8 +1,8 @@
 ;; -*- lexical-binding: t; -*-
 (add-to-list 'load-path (expand-file-name "elisp" user-emacs-directory)) ;; packages dir
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-						 ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-						 ("melpa" . "https://melpa.org/packages/")))
+			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+			 ("melpa" . "https://melpa.org/packages/")))
 
 (use-package unclutter
   :custom (unclutter-use-customize nil))
@@ -141,6 +141,8 @@
 
   :config
   (put 'narrow-to-region 'disabled nil)
+  (put 'downcase-region 'disabled nil)
+  (put 'upcase-region 'disabled nil)
 
   (when (wslp)
 	(setq select-active-regions nil)
@@ -154,11 +156,10 @@
 
   :hook
 
-  (prog-mode . whitespace-mode)
   (prog-mode . display-line-numbers-mode)
+  ((prog-mode yaml-mode) . whitespace-mode)
   (text-mode . visual-line-mode)
-  ((prog-mode text-mode) . hl-line-mode)
-  ((prog-mode text-mode) . whitespace-mode))
+  ((prog-mode text-mode) . hl-line-mode))
 
 (use-package ef-themes
   :ensure t
@@ -174,8 +175,7 @@
   (whitespace-style
    '(face trailing tabs spaces newline missing-newline-at-eof empty
 	  indentation space-after-tab space-before-tab space-mark
-	  tab-mark))
-  (whitespace-action '(auto-cleanup)))
+	  tab-mark)))
 
 (use-package hideshow
   :custom
@@ -236,6 +236,8 @@
   (org-catch-invisible-edits 'show-and-error)
   (org-special-ctrl-a/e t)
 
+  (org-edit-src-content-indentation 4)
+
   (org-pretty-entities t)
   (org-agenda-tags-column 0)
   (org-ellipsis "…")
@@ -288,6 +290,10 @@
   :hook
   (org-mode . org-modern-mode))
 
+(use-package toc-org ;; probably don't need that
+  :commands toc-org-enable
+  :hook (org-mode . toc-org-mode))
+
 (use-package olivetti
   :ensure t
   :custom
@@ -300,7 +306,9 @@
   :custom
   (eat-kill-buffer-on-exit t)
   (eat-maximum-latency 0.005)
-  (eat-minimum-latency 0.001))
+  (eat-minimum-latency 0.001)
+  :hook
+  ('eshell-load-hook . #'eat-eshell-mode))
 
 (use-package vertico
   :ensure t
@@ -319,8 +327,80 @@
   (ediff-window-setup-function 'ediff-setup-windows-plain))
 
 (use-package magit
+  :ensure t)
+
+(use-package diff-hl
   :ensure t
-  :commands (magit-status magit-diff))
+  :custom
+  (global-diff-hl-mode t)
+  (diff-hl-margin-mode t)
+  (diff-hl-disable-on-remote t)
+  :hook
+  (dired-mode . diff-hl-dired-mode-unless-remote)
+  (magit-post-refresh-hook . diff-hl-magit-post-refresh))
+
+(use-package corfu
+  :ensure t
+  :custom
+  (corfu-cycle t)
+  (corfu-auto t)
+  (corfu-auto-prefix 2)
+  (corfu-popupinfo-mode t)
+  (corfu-popuinfo-delay 0.5)
+  (corfu-separator ?\s)
+  (corfu-preselect 'prompt)
+
+  (completion-ignore-case t)
+
+  (text-mode-ispell-word-completion nil)
+  (global-corfu-mode t)
+  :bind
+  (:map corfu-map
+		("RET" . corfu-insert))
+  :config
+  (dolist (key '("TAB" "<down>" "<up>"
+				 "<remap> <next-line>" "<remap> <previous-line>"))
+	(keymap-unset corfu-map key)))
+
+(use-package cape
+  :ensure t
+  :bind
+  ("M-/" . dabbrev-completion)
+  ("C-M-/" . dabbrev-expand)
+  (:prefix-map capes-map
+			   :prefix "C-c /"
+			   ("f" . #'cape-file)
+			   ("d" . #'cape-dict)
+			   ("b" . #'cape-elisp-block)
+			   ("l" . #'cape-line)
+			   ("n" . #'cape-keyword)))
+
+(use-package orderless
+  :ensure t
+  :custom
+  (orderless-matching-styles '(orderless-flex orderless-literal orderless-regexp))
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
+(use-package marginalia
+  :ensure t
+  :after vertico
+  :custom
+  (marginalia-mode t))
+
+(use-package consult
+  :ensure t
+  :config
+  (advice-add #'register-preview :override #'consult-register-preview)
+  :custom
+  (xref-show-xrefs-function . #'consult-xref)
+  (xref-show-definitions-function . #'consult-xref)
+  (consult-project-function . #'projectile-project-root)
+  :bind
+  (:prefix-map my-find-map
+			   :prefix "C-c s"
+			   ("f" . consult-find)
+			   ("g" . consult-ripgrep)))
 
 (use-package treesit
   :custom
@@ -328,3 +408,5 @@
 					:commit "88e446476a1e97a8724dff7a23e2d709855077f2")
 				   (python "https://github.com/tree-sitter/tree-sitter-python" :commit
 					   "bffb65a8cfe4e46290331dfef0dbf0ef3679de11"))))
+
+
