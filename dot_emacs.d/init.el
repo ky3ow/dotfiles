@@ -1,8 +1,8 @@
 ;; -*- lexical-binding: t; -*-
 (add-to-list 'load-path (expand-file-name "elisp" user-emacs-directory)) ;; packages dir
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-			 ("melpa" . "https://melpa.org/packages/")))
+						 ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+						 ("melpa" . "https://melpa.org/packages/")))
 
 (use-package unclutter
   :custom (unclutter-use-customize nil))
