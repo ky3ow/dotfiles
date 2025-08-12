@@ -34,6 +34,10 @@
 	  (when (= orig-point (point))
 	(move-beginning-of-line 1))))
 
+  (defun skip-these-buffers (_window buffer _bury-or-kill)
+	"Function for `switch-to-prev-buffer-skip'."
+	(string-match "\\*[^*]+\\*" (buffer-name buffer)))
+
   :custom
   (tool-bar-mode nil)
   (menu-bar-mode nil)
@@ -51,7 +55,6 @@
   (delete-selection-mode t)
   (electric-pair-mode t)
 
-  (dired-kill-when-opening-new-dired-buffer t)
   (recentf-mode t)
 
   (column-number-mode t)
@@ -82,6 +85,7 @@
   (mouse-wheel-tilt-scroll t)
   (mouse-wheel-flip-direction t)
   (pixel-scroll-precision-mode t)
+  (pixel-scroll-precision-use-momentum nil)
   (scroll-conservatively 100)
   (scroll-margin 8)
 
@@ -118,6 +122,10 @@
   (context-menu-mode t)
   (xterm-mouse-mode (not (display-graphic-p)))
 
+  (treesit-font-lock-level 4)
+
+  (switch-to-prev-buffer-skip 'skip-these-buffers)
+
   :custom-face
   (default ((t (:family "Iosevka" :height 150))))
   (variable-pitch ((t (:family "Iosevka Aile" :height 140))))
@@ -132,7 +140,8 @@
   :bind (("C-S-c" . clipboard-kill-ring-save)
 	 ("C-S-v" . clipboard-yank)
 	 ("C-S-x" . clipboard-kill-region)
-	 ("<remap> <move-beginning-of-line>" . smarter-move-beginning-of-line))
+	 ("<remap> <move-beginning-of-line>" . smarter-move-beginning-of-line)
+	 ("C-x C-b" . ibuffer))
 
   :bind (:prefix-map option-toggles
 			 :prefix "C-c t"
@@ -160,6 +169,15 @@
   ((prog-mode yaml-mode) . whitespace-mode)
   (text-mode . visual-line-mode)
   ((prog-mode text-mode) . hl-line-mode))
+
+(use-package dired
+  :custom
+  (dired-kill-when-opening-new-dired-buffer t)
+  (delete-by-moving-to-trash t)
+  (dired-guess-shell-alist-user
+   '(("\\.\\(png\\|jpe?g\\|tiff\\)" "feh" "xdg-open" "open") ;; Open image files with `feh' or the default viewer.
+	 ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open") ;; Open audio and video files with `mpv'.
+	 (".*" "open" "xdg-open"))))
 
 (use-package ef-themes
   :ensure t
@@ -301,6 +319,12 @@
   :hook
   (org-mode . olivetti-mode))
 
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :custom
+  (markdown-command "multimarkdown"))
+
 (use-package eat
   :ensure t
   :custom
@@ -326,18 +350,37 @@
   :custom
   (ediff-window-setup-function 'ediff-setup-windows-plain))
 
+(use-package smerge-mode
+  :ensure nil
+  :defer t
+  :bind (:map smerge-mode-map
+			  ("C-c m u" . smerge-keep-upper)
+			  ("C-c m l" . smerge-keep-lower)
+			  ("C-c m n" . smerge-next)
+			  ("C-c m p" . smerge-previous)))
+
+(use-package eldoc
+  :custom
+  (eldoc-idle-delay 0)
+  (eldoc-echo-are-use-multiline-p nil)
+  (eldoc-echo-area-display-truncation-message nil))
+
+(use-package flymake
+  :hook
+  (prog-mode . flymake-mode))
+
 (use-package magit
   :ensure t)
 
 (use-package diff-hl
   :ensure t
   :custom
-  (global-diff-hl-mode t)
   (diff-hl-margin-mode t)
   (diff-hl-disable-on-remote t)
   :hook
   (dired-mode . diff-hl-dired-mode-unless-remote)
-  (magit-post-refresh-hook . diff-hl-magit-post-refresh))
+  (magit-post-refresh-hook . diff-hl-magit-post-refresh)
+  ((prog-mode conf-mode) . diff-hl-mode))
 
 (use-package corfu
   :ensure t
@@ -346,9 +389,11 @@
   (corfu-auto t)
   (corfu-auto-prefix 2)
   (corfu-popupinfo-mode t)
-  (corfu-popuinfo-delay 0.5)
+  (corfu-popuinfo-delay 0.1)
   (corfu-separator ?\s)
   (corfu-preselect 'prompt)
+  (corfu-quit-no-match t)
+  (corfu-scroll-margin 3)
 
   (completion-ignore-case t)
 
@@ -356,9 +401,9 @@
   (global-corfu-mode t)
   :bind
   (:map corfu-map
-		("RET" . corfu-insert))
+		("M-RET" . corfu-insert))
   :config
-  (dolist (key '("TAB" "<down>" "<up>"
+  (dolist (key '("TAB" "RET" "<down>" "<up>"
 				 "<remap> <next-line>" "<remap> <previous-line>"))
 	(keymap-unset corfu-map key)))
 
@@ -388,25 +433,55 @@
   :custom
   (marginalia-mode t))
 
+(use-package projectile
+  :ensure t
+  :custom
+  (projectile-mode t)
+  (projectile-run-use-comint-mode t)
+  (projectile-switch-project-action #'projectile-dired)
+  (projectile-project-search-path '("~/code/" ("~/.config" . 1))))
+
 (use-package consult
   :ensure t
   :config
   (advice-add #'register-preview :override #'consult-register-preview)
   :custom
-  (xref-show-xrefs-function . #'consult-xref)
-  (xref-show-definitions-function . #'consult-xref)
-  (consult-project-function . #'projectile-project-root)
+  (xref-show-xrefs-function #'consult-xref)
+  (xref-show-definitions-function #'consult-xref)
+  (consult-project-function #'projectile-project-root)
   :bind
   (:prefix-map my-find-map
 			   :prefix "C-c s"
 			   ("f" . consult-find)
-			   ("g" . consult-ripgrep)))
+			   ("g" . consult-ripgrep)
+			   ("r" . recentf-open)
+			   ("i" . consult-info)
+			   ("/" . consult-line)))
+
+(use-package embark
+  :ensure t
+  :bind
+  ("C-c ." . embark-act))
+
+(use-package embark-consult
+  :ensure t
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+
+(use-package sideline
+  :ensure t)
+
+(use-package sideline-flymake
+  :ensure t
+  :hook (flymake-mode . sideline-mode)
+  :custom
+  (sideline-flymake-display-mode 'point)
+  (sideline-backends-right '(sideline-flymake)))
 
 (use-package treesit
   :custom
-  (treesit-language-source-alist '((lua "https://github.com/tree-sitter-grammars/tree-sitter-lua"
-					:commit "88e446476a1e97a8724dff7a23e2d709855077f2")
-				   (python "https://github.com/tree-sitter/tree-sitter-python" :commit
-					   "bffb65a8cfe4e46290331dfef0dbf0ef3679de11"))))
-
-
+  (treesit-language-source-alist
+   '((lua "https://github.com/tree-sitter-grammars/tree-sitter-lua"
+		  :commit "88e446476a1e97a8724dff7a23e2d709855077f2")
+	 (python "https://github.com/tree-sitter/tree-sitter-python"
+			 :commit "bffb65a8cfe4e46290331dfef0dbf0ef3679de11"))))
