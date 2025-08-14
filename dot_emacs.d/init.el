@@ -14,7 +14,7 @@
 	(interactive)
 	(setopt truncate-lines (not truncate-lines))
 	(if truncate-lines
-	(message "Truncate lines: On")
+	  (message "Truncate lines: On")
 	  (message "Truncate lines: Off")))
 
   (defun wslp()
@@ -54,6 +54,7 @@
 
   (delete-selection-mode t)
   (electric-pair-mode t)
+  (electric-indent-mode nil)
 
   (recentf-mode t)
 
@@ -126,27 +127,47 @@
 
   (switch-to-prev-buffer-skip 'skip-these-buffers)
 
+  (ad-redefinition-action 'accept)
+
+  (kill-do-not-save-duplicates t)
+
+  (kill-region-dwim 'unix-word)
+
+  (use-short-answers t)
+
+  (remote-file-name-inhibit-delete-by-moving-to-trash t)
+  (remote-file-name-inhibit-auto-save t)
+  (remote-file-name-inhibit-locks t)
+  (remote-file-name-inhibit-auto-save-visited t)
+
   :custom-face
   (default ((t (:family "Iosevka" :height 150))))
   (variable-pitch ((t (:family "Iosevka Aile" :height 140))))
 					;(symbol ((t (:family "DejaVu Sans"))))
 
-  :bind (:prefix-map clipboard-map
-			 :prefix "C-c c"
-			 ("c" . clipboard-kill-ring-save)
-			 ("v" . clipboard-yank)
-			 ("x" . clipboard-kill-region))
+  :bind
+  (:prefix-map clipboard-map
+			   :prefix "C-c c"
+			   ("c" . clipboard-kill-ring-save)
+			   ("v" . clipboard-yank)
+			   ("x" . clipboard-kill-region))
 
-  :bind (("C-S-c" . clipboard-kill-ring-save)
-	 ("C-S-v" . clipboard-yank)
-	 ("C-S-x" . clipboard-kill-region)
-	 ("<remap> <move-beginning-of-line>" . smarter-move-beginning-of-line)
-	 ("C-x C-b" . ibuffer))
+  :bind
+  ("C-S-c" . clipboard-kill-ring-save)
+  ("C-S-v" . clipboard-yank)
+  ("C-S-x" . clipboard-kill-region)
+  ("<remap> <move-beginning-of-line>" . smarter-move-beginning-of-line)
+  ("C-x C-b" . ibuffer)
+  ("C-M-y" . duplicate-dwim)
+  ("RET" . newline-and-indent)
+  ("C-x C-z" . nil)
+  ("C-z" . nil)
 
-  :bind (:prefix-map option-toggles
-			 :prefix "C-c t"
-			 ("w" . my-toggle-truncate-lines)
-			 ("s" . visual-line-mode))
+  :bind
+  (:prefix-map option-toggles
+			   :prefix "C-c t"
+			   ("w" . my-toggle-truncate-lines)
+			   ("s" . visual-line-mode))
 
   :config
   (put 'narrow-to-region 'disabled nil)
@@ -164,11 +185,13 @@
 		  search-web-default-browser 'browse-url-generic))))
 
   :hook
-
   (prog-mode . display-line-numbers-mode)
   ((prog-mode yaml-mode) . whitespace-mode)
   (text-mode . visual-line-mode)
   ((prog-mode text-mode) . hl-line-mode))
+
+(use-package delight
+  :ensure t)
 
 (use-package dired
   :custom
@@ -177,7 +200,18 @@
   (dired-guess-shell-alist-user
    '(("\\.\\(png\\|jpe?g\\|tiff\\)" "feh" "xdg-open" "open") ;; Open image files with `feh' or the default viewer.
 	 ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open") ;; Open audio and video files with `mpv'.
-	 (".*" "open" "xdg-open"))))
+	 (".*" "open" "xdg-open")))
+  :bind
+  ("C-x f" . find-name-dired))
+
+(use-package ibuffer
+  :custom
+  (ibuffer-human-readable-size t))
+
+(use-package recentf
+  :custom
+  (recentf-max-saved-items 100)
+  (recentf-max-menu-items 15))
 
 (use-package ef-themes
   :ensure t
@@ -189,6 +223,7 @@
 	 `(whitespace-indent ((,c :foreground ,bg-alt))))))
 
 (use-package whitespace
+  :delight
   :custom
   (whitespace-style
    '(face trailing tabs spaces newline missing-newline-at-eof empty
@@ -196,6 +231,7 @@
 	  tab-mark)))
 
 (use-package hideshow
+  :delight (hs-minor-mode)
   :custom
   (outline-blank-line t)
   :bind-keymap ("C-c o" . hs-minor-mode-map)
@@ -240,6 +276,7 @@
   )
 
 (use-package which-key
+  :delight
   :ensure t
   :custom
   (which-key-side-window-location 'bottom)
@@ -360,12 +397,21 @@
 			  ("C-c m p" . smerge-previous)))
 
 (use-package eldoc
+  :delight
   :custom
   (eldoc-idle-delay 0)
-  (eldoc-echo-are-use-multiline-p nil)
+  (eldoc-echo-area-use-multiline-p nil)
   (eldoc-echo-area-display-truncation-message nil))
 
+(use-package eldoc-box
+  :ensure t
+  :bind
+  ("C-h C-k" . eldoc-box-help-at-point)
+  ("C-h C-b" . eldoc-doc-buffer))
+
 (use-package flymake
+  :custom
+  (flymake-mode-line-lighter " FM")
   :hook
   (prog-mode . flymake-mode))
 
@@ -439,7 +485,8 @@
   (projectile-mode t)
   (projectile-run-use-comint-mode t)
   (projectile-switch-project-action #'projectile-dired)
-  (projectile-project-search-path '("~/code/" ("~/.config" . 1))))
+  (projectile-project-search-path '("~/code/" ("~/.config" . 1)))
+  (projectile-mode-line-prefix " Dir"))
 
 (use-package consult
   :ensure t
@@ -450,13 +497,12 @@
   (xref-show-definitions-function #'consult-xref)
   (consult-project-function #'projectile-project-root)
   :bind
-  (:prefix-map my-find-map
-			   :prefix "C-c s"
-			   ("f" . consult-find)
-			   ("g" . consult-ripgrep)
-			   ("r" . recentf-open)
-			   ("i" . consult-info)
-			   ("/" . consult-line)))
+  ("M-s f" . consult-find)
+  ("M-s g" . consult-ripgrep)
+  ("M-s r" . recentf-open)
+  ("M-s i" . consult-info)
+  ("M-s /" . consult-line)
+  ("M-s G" . grep))
 
 (use-package embark
   :ensure t
@@ -469,6 +515,7 @@
   (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package sideline
+  :delight
   :ensure t)
 
 (use-package sideline-flymake
@@ -485,3 +532,4 @@
 		  :commit "88e446476a1e97a8724dff7a23e2d709855077f2")
 	 (python "https://github.com/tree-sitter/tree-sitter-python"
 			 :commit "bffb65a8cfe4e46290331dfef0dbf0ef3679de11"))))
+
