@@ -1,8 +1,14 @@
-;; -*- lexical-binding: t; -*-
+;;; init --- My init file -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; tries to make everything the way that does not annoy me
+;;; Code:
 (add-to-list 'load-path (expand-file-name "elisp" user-emacs-directory)) ;; packages dir
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+
+(use-package package
+  :custom
+  (package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-			 ("melpa" . "https://melpa.org/packages/")))
+			 ("melpa" . "https://melpa.org/packages/"))))
 
 (use-package unclutter
   :custom (unclutter-use-customize nil))
@@ -162,6 +168,8 @@
   ("RET" . newline-and-indent)
   ("C-x C-z" . nil)
   ("C-z" . nil)
+  ("C-x C-p" . previous-buffer)
+  ("C-x C-n" . next-buffer)
 
   :bind
   (:prefix-map option-toggles
@@ -189,6 +197,7 @@
   ((prog-mode yaml-mode) . whitespace-mode)
   (text-mode . visual-line-mode)
   ((prog-mode text-mode) . hl-line-mode))
+
 
 (use-package delight
   :ensure t)
@@ -369,7 +378,7 @@
   (eat-maximum-latency 0.005)
   (eat-minimum-latency 0.001)
   :hook
-  ('eshell-load-hook . #'eat-eshell-mode))
+  (eshell-load . eat-eshell-mode))
 
 (use-package vertico
   :ensure t
@@ -499,15 +508,24 @@
   :bind
   ("M-s f" . consult-find)
   ("M-s g" . consult-ripgrep)
-  ("M-s r" . recentf-open)
+  ("M-s r" . consult-recent-file)
+  ("M-s b" . consult-buffer)
   ("M-s i" . consult-info)
   ("M-s /" . consult-line)
   ("M-s G" . grep))
 
 (use-package embark
   :ensure t
+  :preface
+  (defun embark-select-and-go ()
+	(interactive)
+	(embark-select)
+	(forward-line 1))
   :bind
-  ("C-c ." . embark-act))
+  ("C-c ." . embark-act)
+  (:map embark-collect-mode-map
+		("m" . embark-select)
+		("M-m" . embark-select-and-go)))
 
 (use-package embark-consult
   :ensure t
@@ -533,3 +551,44 @@
 	 (python "https://github.com/tree-sitter/tree-sitter-python"
 			 :commit "bffb65a8cfe4e46290331dfef0dbf0ef3679de11"))))
 
+(use-package kmacro-x
+  :ensure t
+  :delight
+  (kmacro-x-mc-atomic-undo-mode)
+  (kmacro-x-atomic-undo-mode)
+  :preface
+  (defun my-macro-on-lines ()
+	"Apply macro on region lines and amalgamate undo"
+	(interactive)
+	(with-undo-amalgamate
+	  (apply-macro-to-region-lines (region-beginning) (region-end))))
+
+  :custom
+  (kmacro-x-mc-atomic-undo-mode t)
+  (kmacro-x-atomic-undo-mode t)
+  :bind
+  (:map kmacro-x-mc-mode-map
+		("RET" . nil)
+		("M-RET" . nil)
+		("C-g" . kmacro-x-mc-quit)
+		("M-o" . kmacro-x-mc-apply-one))
+
+  (:repeat-map my-kmacro-x-mc-keymap
+			   ("n" . kmacro-x-mc-mark-next)
+			   ("p" . kmacro-x-mc-mark-previous)
+			   :exit
+			   ("l" . my-macro-on-lines)
+			   ("a" . kmacro-x-mc-apply))
+
+  :bind-keymap
+  ("C-c k" . my-kmacro-x-mc-keymap))
+
+(use-package repeat
+  :custom
+  (repeat-mode t))
+
+(use-package wgrep
+  :ensure t)
+
+(provide 'init.el)
+;;; init.el ends here
