@@ -501,6 +501,34 @@
   :ensure t
   :config
   (advice-add #'register-preview :override #'consult-register-preview)
+  (defvar-local my-consult-rg-restart-info nil
+	"Holds info to restart a consult-rg search after exit.")
+
+  (defun my-consult-rg-refresh-and-exit-hook ()
+	"A hook function that restarts consult-ripgrep and removes itself."
+	(remove-hook 'minibuffer-exit-hook #'my-consult-rg-refresh-and-exit-hook)
+	(when my-consult-rg-restart-info
+      (let* ((input (car my-consult-rg-restart-info))
+			 (new-command (cdr my-consult-rg-restart-info)))
+		(setq my-consult-rg-restart-info nil)
+		(message input)
+		(let ((consult-ripgrep-args new-command))
+          (consult-ripgrep nil input)))))
+
+  (defun my-consult-rg-toggle-vimgrep ()
+	"Toggles the --vimgrep flag for consult-ripgrep and restarts."
+	(interactive)
+	(let* ((current-input (minibuffer-contents))
+           (original-command consult-ripgrep-args)
+           (new-command
+			(if (string-match-p " --ignore-case" original-command)
+				(replace-regexp-in-string " --ignore-case" "" original-command)
+              (concat original-command " --ignore-case"))))
+      (setq my-consult-rg-restart-info (cons current-input new-command))
+      (add-hook 'minibuffer-exit-hook #'my-consult-rg-refresh-and-exit-hook nil t)
+      (minibuffer-quit-recursive-edit)))
+
+  (define-key minibuffer-local-map (kbd "C-c v") 'my-consult-rg-toggle-vimgrep)
   :custom
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
@@ -513,6 +541,7 @@
   ("M-s i" . consult-info)
   ("M-s /" . consult-line)
   ("M-s G" . grep))
+
 
 (use-package embark
   :ensure t
@@ -589,6 +618,8 @@
 
 (use-package wgrep
   :ensure t)
+
+
 
 (provide 'init.el)
 ;;; init.el ends here
