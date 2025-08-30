@@ -504,31 +504,76 @@
   (defvar-local my-consult-rg-restart-info nil
 	"Holds info to restart a consult-rg search after exit.")
 
-  (defun my-consult-rg-refresh-and-exit-hook ()
-	"A hook function that restarts consult-ripgrep and removes itself."
-	(remove-hook 'minibuffer-exit-hook #'my-consult-rg-refresh-and-exit-hook)
-	(when my-consult-rg-restart-info
-      (let* ((input (car my-consult-rg-restart-info))
-			 (new-command (cdr my-consult-rg-restart-info)))
-		(setq my-consult-rg-restart-info nil)
-		(message input)
-		(let ((consult-ripgrep-args new-command))
-          (consult-ripgrep nil input)))))
+  (require 'transient)
+  
+  (transient-define-infix my-consult-rg-case ()
+	:description "Ignore case"
+	:key "-i"
+	:argument "--ignore-case")
 
-  (defun my-consult-rg-toggle-vimgrep ()
-	"Toggles the --vimgrep flag for consult-ripgrep and restarts."
+  (transient-define-infix my-consult-rg-toggle-hidden ()
+	:description "Hidden"
+	:key "-."
+	:argument "--hidden")
+
+  (defvar my-consult-ripgrep-args
+	"rg --null --line-buffered --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number --search-zip")
+
+  (defun my--consult-rg-impl ()
+	(let* ((input (if (boundp 'my-consult-rg-restart-info)
+					  my-consult-rg-restart-info
+					nil))
+		   (base my-consult-ripgrep-args)
+		   (extra-flags-list (transient-args 'my-consult-rg-flags-transient))
+		   (new-flags (mapconcat #'identity extra-flags-list " "))
+		   (new-command (concat base " " new-flags)))
+	  (setq my-consult-rg-restart-info nil)
+	  (message "%S" extra-flags-list)
+	  (let ((consult-ripgrep-args new-command))
+		(message "%S" consult-ripgrep-args)
+        (consult-ripgrep nil input))))
+
+  (defun my-consult-rg ()
 	(interactive)
-	(let* ((current-input (minibuffer-contents))
-           (original-command consult-ripgrep-args)
-           (new-command
-			(if (string-match-p " --ignore-case" original-command)
-				(replace-regexp-in-string " --ignore-case" "" original-command)
-              (concat original-command " --ignore-case"))))
-      (setq my-consult-rg-restart-info (cons current-input new-command))
-      (add-hook 'minibuffer-exit-hook #'my-consult-rg-refresh-and-exit-hook nil t)
-      (minibuffer-quit-recursive-edit)))
+	(if (minibufferp)
+		(progn
+		  (setq my-consult-rg-restart-info (minibuffer-contents))
+		  (add-hook 'minibuffer-exit-hook #'my--consult-rg-impl nil t)
+		  (minibuffer-quit-recursive-edit))
+	  (my--consult-rg-impl)))
 
-  (define-key minibuffer-local-map (kbd "C-c v") 'my-consult-rg-toggle-vimgrep)
+  (transient-define-prefix my-consult-rg-flags-transient ()
+	"Transient menu for toggling consult-ripgrep flags."
+	[
+	 ["Flags"
+      (my-consult-rg-case)
+      (my-consult-rg-toggle-hidden)
+	  ]
+	 ["Actions"
+	  ("s" "Save options" transient-save)
+	  ("d" "Debug" (lambda () (interactive) (message "%S" consult-ripgrep-args)) :transient t)
+	  ("q" "Quit" transient-quit-one)
+	  ("c" "Invoke command" (lambda ()
+									  (interactive)
+									  (transient-save)
+									  (transient-quit-one)
+									  (my-consult-rg)))
+	  ]
+	 ])
+
+  (define-key minibuffer-local-map (kbd "C-c m") #'my-consult-rg-flags-transient)
+  (define-key global-map (kbd "C-c s g") 'my-consult-rg-flags-transient)
+
+  ;; (defun my-transient-auto-save (&rest _)
+  ;; 	"Save state only for `my-consult-rg-flags-transient`."
+  ;; 	(when (and (boundp 'transient--prefix)
+  ;;              (object-of-class-p transient--prefix transient-prefix)
+  ;;              (eq (oref transient--prefix command)
+  ;;                  'my-consult-rg-flags-transient))
+  ;; 	  (message "SAVING")
+  ;;     (transient-save)))
+  ;; (advice-add 'transient-infix-set :after #'my-transient-auto-save)
+
   :custom
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
