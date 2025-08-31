@@ -506,7 +506,7 @@
   (defvar-local my-consult-rg-restart-info nil
 	"Holds info to restart a consult-rg search after exit.")
 
-  (defmacro my-consult-define-prefix (name doc flags impl-fn)
+  (cl-defmacro my-consult-define-prefix (name &key doc flags command)
 	`(transient-define-prefix ,name ()
        ,doc
        [
@@ -517,7 +517,7 @@
 		 ("c" "Invoke command" (lambda ()
 								 (interactive)
 								 (transient-quit-one)
-								 (,impl-fn)))
+								 (,command)))
 		 ]
 		]))
 
@@ -539,7 +539,7 @@
 					  my-consult-rg-restart-info
 					nil))
 		   (base my-consult-ripgrep-args)
-		   (extra-flags-list (transient-args 'my-consult-rg-flags-transient))
+		   (extra-flags-list (transient-args 'my-transient-consult-rg))
 		   (new-flags (mapconcat #'identity extra-flags-list " "))
 		   (new-command (concat base " " new-flags)))
 	  (setq my-consult-rg-restart-info nil)
@@ -558,15 +558,21 @@
 	  (my--consult-rg-impl)))
 
   (my-consult-define-prefix my-transient-consult-rg
-							"Ripgrep flags"
+							:doc "Ripgrep flags"
+							:flags
 							((my-consult-rg-toggle-hidden)
-							 (my-consult-rg-case))
-							my-consult-rg)
+							(my-consult-rg-case))
+							:command my-consult-rg)
 
   (transient-define-prefix my-consult-main-transient ()
   "Main menu for consult search commands."
   [["Commands"
-    ("r" "Consult-ripgrep" my-transient-consult-rg)]])
+    ("r" "Consult-ripgrep" my-transient-consult-rg)
+	]
+   ["Actions"
+	("q" "Quit" transient-quit-one)
+	]
+   ])
 
   ;; need calling consult ripgrep first for some reason
   ;; (defun my-transient-auto-save (&rest _)
@@ -591,10 +597,9 @@
   ("M-s i" . consult-info)
   ("M-s /" . consult-line)
   ("M-s G" . grep)
-  ("C-c s g" . my-consult-rg-flags-transient)
   ("C-c m" . my-consult-main-transient)
   (:map minibuffer-local-map
-   ("C-." . my-consult-rg-flags-transient)))
+   ("C-." . my-consult-main-transient)))
 
 
 (use-package embark
