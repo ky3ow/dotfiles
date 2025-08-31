@@ -497,6 +497,8 @@
   (projectile-project-search-path '("~/code/" ("~/.config" . 1)))
   (projectile-mode-line-prefix " Dir"))
 
+(use-package transient)
+
 (use-package consult
   :ensure t
   :config
@@ -504,8 +506,21 @@
   (defvar-local my-consult-rg-restart-info nil
 	"Holds info to restart a consult-rg search after exit.")
 
-  (require 'transient)
-  
+  (defmacro my-consult-define-prefix (name doc flags impl-fn)
+	`(transient-define-prefix ,name ()
+       ,doc
+       [
+		["Flags" ,@flags]
+		["Actions"
+		 ("s" "Save options" transient-save)
+		 ("q" "Quit" transient-quit-one)
+		 ("c" "Invoke command" (lambda ()
+								 (interactive)
+								 (transient-quit-one)
+								 (,impl-fn)))
+		 ]
+		]))
+
   (transient-define-infix my-consult-rg-case ()
 	:description "Ignore case"
 	:key "-i"
@@ -542,28 +557,18 @@
 		  (minibuffer-quit-recursive-edit))
 	  (my--consult-rg-impl)))
 
-  (transient-define-prefix my-consult-rg-flags-transient ()
-	"Transient menu for toggling consult-ripgrep flags."
-	[
-	 ["Flags"
-      (my-consult-rg-case)
-      (my-consult-rg-toggle-hidden)
-	  ]
-	 ["Actions"
-	  ("s" "Save options" transient-save)
-	  ("d" "Debug" (lambda () (interactive) (message "%S" consult-ripgrep-args)) :transient t)
-	  ("q" "Quit" transient-quit-one)
-	  ("c" "Invoke command" (lambda ()
-									  (interactive)
-									  (transient-save)
-									  (transient-quit-one)
-									  (my-consult-rg)))
-	  ]
-	 ])
+  (my-consult-define-prefix my-transient-consult-rg
+							"Ripgrep flags"
+							((my-consult-rg-toggle-hidden)
+							 (my-consult-rg-case))
+							my-consult-rg)
 
-  (define-key minibuffer-local-map (kbd "C-c m") #'my-consult-rg-flags-transient)
-  (define-key global-map (kbd "C-c s g") 'my-consult-rg-flags-transient)
+  (transient-define-prefix my-consult-main-transient ()
+  "Main menu for consult search commands."
+  [["Commands"
+    ("r" "Consult-ripgrep" my-transient-consult-rg)]])
 
+  ;; need calling consult ripgrep first for some reason
   ;; (defun my-transient-auto-save (&rest _)
   ;; 	"Save state only for `my-consult-rg-flags-transient`."
   ;; 	(when (and (boundp 'transient--prefix)
@@ -585,7 +590,11 @@
   ("M-s b" . consult-buffer)
   ("M-s i" . consult-info)
   ("M-s /" . consult-line)
-  ("M-s G" . grep))
+  ("M-s G" . grep)
+  ("C-c s g" . my-consult-rg-flags-transient)
+  ("C-c m" . my-consult-main-transient)
+  (:map minibuffer-local-map
+   ("C-." . my-consult-rg-flags-transient)))
 
 
 (use-package embark
