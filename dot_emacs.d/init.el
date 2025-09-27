@@ -503,8 +503,6 @@
   :ensure t
   :config
   (advice-add #'register-preview :override #'consult-register-preview)
-  (defvar-local my-consult-rg-restart-info nil
-	"Holds info to restart a consult-rg search after exit.")
 
   (cl-defmacro my-consult-define-prefix (name &key doc flags command)
 	`(transient-define-prefix ,name ()
@@ -532,28 +530,22 @@
 	:argument "--hidden")
 
   (defvar my-consult-ripgrep-args
-	"rg --null --line-buffered --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number --search-zip")
+	;; --smart-case
+	"rg --null --line-buffered --color=never --max-columns=1000 --path-separator /  --no-heading --with-filename --line-number --search-zip")
 
-  (defun my--consult-rg-impl ()
-	(let* ((input (if (boundp 'my-consult-rg-restart-info)
-					  my-consult-rg-restart-info
-					nil))
-		   (base my-consult-ripgrep-args)
+  (defun my--consult-rg-impl (&optional my-consult-input)
+	(let* ((base my-consult-ripgrep-args)
 		   (extra-flags-list (transient-args 'my-transient-consult-rg))
 		   (new-flags (mapconcat #'identity extra-flags-list " "))
 		   (new-command (concat base " " new-flags)))
-	  (setq my-consult-rg-restart-info nil)
-	  (message "%S" extra-flags-list)
 	  (let ((consult-ripgrep-args new-command))
-		(message "%S" consult-ripgrep-args)
-        (consult-ripgrep nil input))))
+		(consult-ripgrep nil my-consult-input))))
 
   (defun my-consult-rg ()
 	(interactive)
 	(if (minibufferp)
-		(progn
-		  (setq my-consult-rg-restart-info (minibuffer-contents))
-		  (add-hook 'minibuffer-exit-hook #'my--consult-rg-impl nil t)
+		(let ((my-consult-input (minibuffer-contents)))
+		  (add-hook 'minibuffer-exit-hook (lambda () (my--consult-rg-impl my-consult-input))  nil t)
 		  (minibuffer-quit-recursive-edit))
 	  (my--consult-rg-impl)))
 
@@ -678,7 +670,8 @@
 (use-package wgrep
   :ensure t)
 
-
+(use-package chezmoi
+  :ensure t)
 
 (provide 'init.el)
 ;;; init.el ends here
