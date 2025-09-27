@@ -545,7 +545,7 @@
 	(interactive)
 	(if (minibufferp)
 		(let ((my-consult-input (minibuffer-contents)))
-		  (add-hook 'minibuffer-exit-hook (lambda () (my--consult-rg-impl my-consult-input))  nil t)
+		  (run-at-time 0.01 nil #'my--consult-rg-impl my-consult-input)
 		  (minibuffer-quit-recursive-edit))
 	  (my--consult-rg-impl)))
 
