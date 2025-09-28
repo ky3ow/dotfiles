@@ -399,11 +399,12 @@
 (use-package smerge-mode
   :ensure nil
   :defer t
-  :bind (:map smerge-mode-map
-			  ("C-c m u" . smerge-keep-upper)
-			  ("C-c m l" . smerge-keep-lower)
-			  ("C-c m n" . smerge-next)
-			  ("C-c m p" . smerge-previous)))
+  :bind
+  (:repeat-map smerge-mode-map
+			   ("u" . smerge-keep-upper)
+			   ("l" . smerge-keep-lower)
+			   ("n" . smerge-next)
+			   ("p" . smerge-prev)))
 
 (use-package eldoc
   :delight
