@@ -400,11 +400,26 @@
   :ensure nil
   :defer t
   :bind
-  (:repeat-map smerge-mode-map
-			   ("u" . smerge-keep-upper)
+  (:repeat-map my-smerge-mode-map
+			   ("RET" . smerge-keep-current)
+			   ("C" . smerge-combine-with-next)
+			   ("E" . smerge-ediff)
+			   ("R" . smerge-refine)
+			   ("a" . smerge-keep-all)
+			   ("b" . smerge-keep-base)
 			   ("l" . smerge-keep-lower)
 			   ("n" . smerge-next)
-			   ("p" . smerge-prev)))
+			   ("p" . smerge-prev)
+			   ("r" . smerge-resolve)
+			   ("u" . smerge-keep-upper)
+			   ("= <" . smerge-diff-base-upper)
+			   ("= =" . smerge-diff-upper-lower)
+			   ("= >" . smerge-diff-base-lower))
+  :bind-keymap
+  ("C-c ^" . my-smerge-mode-map))
+
+
+
 
 (use-package eldoc
   :delight
