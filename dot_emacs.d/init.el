@@ -504,6 +504,15 @@
   :config
   (advice-add #'register-preview :override #'consult-register-preview)
 
+  (defvar my-consult-last-prefix
+	nil
+	"Last called prefix for consult")
+
+  (defun my-consult-reopen-last ()
+	(interactive)
+	(when-let ((f my-consult-last-prefix))
+	  (funcall f)))
+
   (cl-defmacro my-consult-define-prefix (name &key doc flags command)
 	`(transient-define-prefix ,name ()
        ,doc
@@ -512,9 +521,11 @@
 		["Actions"
 		 ("s" "Save options" transient-save)
 		 ("q" "Quit" transient-quit-one)
+		 ("a" "Quit all" transient-quit-all)
 		 ("c" "Invoke command" (lambda ()
 								 (interactive)
 								 (transient-quit-one)
+								 (setq my-consult-last-prefix #',name)
 								 (,command)))
 		 ]
 		]))
@@ -526,28 +537,28 @@
 
   (transient-define-infix my-consult-rg-toggle-hidden ()
 	:description "Hidden"
-	:key "-."
+	:key "-h"
 	:argument "--hidden")
 
   (defvar my-consult-ripgrep-args
 	;; --smart-case
 	"rg --null --line-buffered --color=never --max-columns=1000 --path-separator /  --no-heading --with-filename --line-number --search-zip")
 
-  (defun my--consult-rg-impl (&optional my-consult-input)
+  (defun my--consult-rg (flags &optional my-consult-input)
 	(let* ((base my-consult-ripgrep-args)
-		   (extra-flags-list (transient-args 'my-transient-consult-rg))
-		   (new-flags (mapconcat #'identity extra-flags-list " "))
-		   (new-command (concat base " " new-flags)))
-	  (let ((consult-ripgrep-args new-command))
+		   (extra (string-join flags " "))
+		   (cmd (concat base " " extra)))
+	  (let ((consult-ripgrep-args cmd))
 		(consult-ripgrep nil my-consult-input))))
 
   (defun my-consult-rg ()
 	(interactive)
-	(if (minibufferp)
+	(let ((transient-flags (transient-args 'my-transient-consult-rg)))
+	  (if (minibufferp)
 		(let ((my-consult-input (minibuffer-contents)))
-		  (run-at-time 0.01 nil #'my--consult-rg-impl my-consult-input)
+		  (run-at-time 0 nil #'my--consult-rg transient-flags my-consult-input)
 		  (minibuffer-quit-recursive-edit))
-	  (my--consult-rg-impl)))
+	  (my--consult-rg transient-flags))))
 
   (my-consult-define-prefix my-transient-consult-rg
 							:doc "Ripgrep flags"
@@ -591,7 +602,7 @@
   ("M-s G" . grep)
   ("C-c m" . my-consult-main-transient)
   (:map minibuffer-local-map
-   ("C-." . my-consult-main-transient)))
+   ("C-." . my-consult-reopen-last)))
 
 
 (use-package embark
