@@ -30,8 +30,12 @@ elif [ -f /usr/share/bash-completion/bash_completion ] && [ -z "$BASH_COMPLETION
   source /usr/share/bash-completion/bash_completion
 fi
 
-if command -v starship &>/dev/null; then 
+if command -v starship &>/dev/null; then
   eval "$(starship init bash)"
+fi
+
+if [ -n "$EAT_SHELL_INTEGRATION_DIR" ]; then
+  source "$EAT_SHELL_INTEGRATION_DIR/bash"
 fi
 
 if command -v eza &>/dev/null; then
@@ -116,7 +120,7 @@ fi
 
 alias grep="grep --color=auto"
 
-if command -v fzf &>/dev/null; then 
+if command -v fzf &>/dev/null; then
   FZF_CUR_VER="$(fzf --version | grep -o '^[0-9]*\.[0-9]*')"
   FZF_MIN_VER="0.48"
   FZF_IS_COMPATIBLE="$(printf "%.2f > %.2f\n" "$FZF_CUR_VER" "$FZF_MIN_VER" | bc)"
