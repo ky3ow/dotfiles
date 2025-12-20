@@ -1,14 +1,6 @@
 [user]
-	name = {{ if hasKey . "name" }}
-				{{- .name | quote }}
-		   {{- else }}
-				{{- "ky3ow" }}
-		   {{- end }}
-	email = {{ if hasKey . "email" }}
-				{{- .email | quote }}
-		   {{- else }}
-				{{- "vova2341591@gmail.com" }}
-		   {{- end }}
+	name = {{ .name }}
+	email = {{ .email }}
 [push]
 	default = current
 [pull]
