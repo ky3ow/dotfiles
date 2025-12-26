@@ -647,7 +647,7 @@
   :ensure t
   :hook (flymake-mode . sideline-mode)
   :custom
-  (sideline-flymake-display-mode 'point)
+  (sideline-flymake-display-mode 'line)
   (sideline-backends-right '(sideline-flymake)))
 
 (use-package treesit
@@ -699,6 +699,14 @@
 
 (use-package chezmoi
   :ensure t)
+
+(use-package epg
+  :custom
+  (epg-pinentry-mode 'loopback))
+
+(use-package epa
+  :custom
+  (epa-file-encrypt-to '("vova2341591@gmail.com")))
 
 (provide 'init.el)
 ;;; init.el ends here
