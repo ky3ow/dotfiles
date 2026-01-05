@@ -1,0 +1,27 @@
+from xsh.xontribs import Xontrib
+import xsh.helpers as h
+
+module_ensures = [
+    Xontrib("abbrevs"),
+    Xontrib("coreutils"),
+    Xontrib("argcomplete"),
+]
+
+for module in module_ensures:
+    module.ensure()
+
+h.binalias(
+    "mini",
+    ["nvim"],
+    decorators=[h.unthreadable, h.uncapturable],
+    NVIM_APPNAME="minivim",
+)
+
+if(bin := h.find_exe("eza")):
+    h.stralias("ls", bin)
+
+if(h.find_exe("zoxide")):
+    h.stralias("cd", "z")
+    zoxide_init = h.subproc_captured_stdout(["zoxide", "init", "xonsh"])
+    assert h.XSH.execer is not None
+    h.XSH.execer.exec(zoxide_init, 'exec', h.XSH.ctx, filename='zoxide')
