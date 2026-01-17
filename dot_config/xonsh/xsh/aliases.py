@@ -28,8 +28,13 @@ def string(name: str, cmdline: str):
     assert XSH.builtins is not None
     XSH.builtins.abbrevs[name] = match_beginning(cmdline)
 
+
 def match_beginning(expansion: str):
     def _impl(buffer: Buffer, word: str):
-        return expansion if buffer.text.startswith(word) else word
+        return (
+            expansion
+            if buffer.text.startswith(word) and buffer.cursor_position == len(word)
+            else word
+        )
 
     return _impl
