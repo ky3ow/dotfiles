@@ -17,4 +17,4 @@ class Xontrib:
             print(f"{self.module} not installed. Installing {package}")
             subproc_uncaptured(["xpip", "install", package])
 
-        subproc_uncaptured(["xontrib", "load", self.module])
+        xontribs_load([self.module])
