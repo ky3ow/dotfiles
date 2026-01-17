@@ -1,8 +1,6 @@
 from xonsh.built_ins import XSH, subproc_captured_stdout
 from xonsh.tools import unthreadable, uncapturable
 import xonsh.procs.executables as exes
-import xonsh.api.subprocess
-import xonsh.api.os
 
 from functools import reduce
 from typing import Callable, Any

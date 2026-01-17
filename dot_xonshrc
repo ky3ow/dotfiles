@@ -1,5 +1,7 @@
+from xonsh.aliases import source_alias_fn
 from xsh.xontribs import Xontrib
 import xsh.helpers as h
+import re
 
 module_ensures = [
     Xontrib("abbrevs"),
@@ -17,11 +19,32 @@ h.binalias(
     NVIM_APPNAME="minivim",
 )
 
-if(bin := h.find_exe("eza")):
+if bin := h.find_exe("eza"):
     h.stralias("ls", bin)
 
-if(h.find_exe("zoxide")):
+if h.find_exe("zoxide"):
     h.stralias("cd", "z")
     zoxide_init = h.subproc_captured_stdout(["zoxide", "init", "xonsh"])
     assert h.XSH.execer is not None
     h.XSH.execer.exec(zoxide_init, 'exec', h.XSH.ctx, filename='zoxide')
+
+$XONSH_COPY_ON_DELETE = True
+
+@events.on_ptk_create
+def custom_keybindings(bindings, **_):
+    # Regex for a "Big Word": 
+    # Matches a quoted string OR a sequence of non-whitespace characters
+    big_word = re.compile(r'("[^"]*"|\'[^\']*\'|\S+)')
+
+    @bindings.add('escape', 'c-f')
+    def _(event):
+        buf = event.current_buffer
+        if match := big_word.search(buf.document.text_after_cursor):
+            buf.cursor_position += match.end()
+
+    @bindings.add('escape', 'c-b')
+    def _(event):
+        buf = event.current_buffer
+        if matches := list(big_word.finditer(buf.document.text_before_cursor)):
+            # Move to the start of the last match before the cursor
+            buf.cursor_position = matches[-1].start()
