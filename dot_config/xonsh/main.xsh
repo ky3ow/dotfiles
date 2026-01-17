@@ -2,10 +2,6 @@ import xsh.aliases as alias
 import xsh.helpers as h
 import re
 
-assert h.XSH.env is not None
-
-h.XSH.env["XONSH_COPY_ON_DELETE"] = True
-
 if bin := h.which("nvim"):
     alias.bin(
         "mini",
