@@ -1,3 +1,21 @@
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
+
+font_reset="$(tput sgr0)"
+font_bold="$(tput bold)"
+font_underline="$(tput smul)"
+font_black="$(tput setaf 0)"
+font_red="$(tput setaf 1)"
+font_green="$(tput setaf 2)"
+font_cyan="$(tput setaf 6)"
+bg_yellow="$(tput setab 3)"
+
+HISTSIZE=1000 # size in memory
+SAVEHIST=2000 # size in file
+
 bindkey -e
 
 autoload -U select-word-style
@@ -7,10 +25,9 @@ autoload -z edit-command-line
 zle -N edit-command-line
 bindkey "^X^E" edit-command-line
 
-autoload -U forward-word-match backward-word-match kill-word-match backward-kill-word-match
-
 for action in forward backward kill backward-kill; do
-    zle -N "big-$action" "${action}-word-match"
+    autoload -U "${action}-word-match"
+    zle -N "big-${action}" "${action}-word-match"
 done
 
 zstyle ":zle:big-*" word-style shell
@@ -19,3 +36,99 @@ bindkey "^[^f" big-forward
 bindkey "^[^b" big-backward
 bindkey "^[^d" big-kill
 bindkey "^w" big-backward-kill
+
+_use_carapace=true
+if $_use_carapace && command -v carapace &>/dev/null; then
+  source <(carapace _carapace zsh)
+fi
+
+zstyle ':completion:*' menu select
+
+mkdir -p "$HOME/.local/share/zsh"
+ABBR_AUTOLOAD=0
+ABBR_QUIETER=1
+__ABBR_HOME="$HOME/.local/share/zsh/abbrs"
+if [ ! -d "$HOME/.local/share/zsh/abbrs" ]; then
+  git clone "https://github.com/olets/zsh-abbr" --recurse-submodules --depth 1 "$__ABBR_HOME"
+  git -C "$__ABBR_HOME" fetch origin '4facba32711875fb2049720a0f6d6d5c3b56b986'
+  git -C "$__ABBR_HOME" reset --hard '4facba32711875fb2049720a0f6d6d5c3b56b986'
+fi
+source "$__ABBR_HOME/zsh-abbr.zsh"
+unset __ABBR_HOME
+
+# if command -v starship &>/dev/null; then
+#   eval "$(starship init zsh)"
+# fi
+
+if command -v eza &>/dev/null; then
+  abbr -S --force ls=eza
+fi
+
+if command -v zoxide &>/dev/null; then
+  eval "$(zoxide init bash)"
+  abbr -S cd=z
+  abbr -S cdi=zi
+fi
+
+if command -v kubectl &>/dev/null; then
+  abbr -S k=kubectl
+fi
+
+if command -v bat &>/dev/null; then
+  manless() {
+    for cmd in "$@"; do
+      man "$cmd"
+    done | sed -u -e "s/\\x1B\[[0-9;]*m//g; s/.\\x08//g" | bat -p -l man
+  }
+else
+  manless() {
+    LESS_TERMCAP_mb="${font_bold}${font_green}" \
+    LESS_TERMCAP_md="${font_bold}${font_cyan}" \
+    LESS_TERMCAP_me="${font_reset}" \
+    LESS_TERMCAP_se="${font_reset}" \
+    LESS_TERMCAP_ue="${font_reset}" \
+    LESS_TERMCAP_so="${font_black}${bg_yellow}" \
+    LESS_TERMCAP_us="${font_underline}${font_red}" \
+    LESSOPEN='|man %s' less -is "$@"
+  }
+fi
+
+if command -v nvim &>/dev/null; then
+  export MANPAGER="nvim +Man!"
+elif command -v vim &>/dev/null; then
+  export MANPAGER="vim +MANPAGER"
+fi
+
+if command -v git &>/dev/null; then
+  abbr -S ga="git add"
+  abbr -S gp="git push"
+  abbr -S gP="git pull"
+
+  abbr -S gc="git commit"
+  abbr -S gA="git commit --amend --no-edit"
+
+  abbr -S gf="git fetch"
+  abbr -S gco="git switch"
+
+  abbr -S gs="git status"
+  abbr -S gd="git diff"
+  abbr -S gD="git diff --staged"
+
+  abbr -S gr="git reset"
+  abbr -S gR="git reset --hard"
+
+  abbr -S gC="git cherry-pick"
+  abbr -S gB="git rebase"
+  abbr -S gM="git merge"
+
+  abbr -S gm="git push -u origin HEAD"
+fi
+
+alias grep="grep --color=auto"
+
+abbr -S mini='NVIM_APPNAME=minivim nvim'
+
+take() {
+  mkdir "$1"
+  cd "$1"
+}
