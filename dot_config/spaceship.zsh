@@ -1,0 +1,17 @@
+SPACESHIP_USER_SHOW=always
+
+SPACESHIP_PROMPT_ASYNC=true
+SPACESHIP_PROMPT_ADD_NEWLINE=true
+
+SPACESHIP_GIT_COMMIT_SHOW=true
+SPACESHIP_GIT_COMMIT_SYMBOL="@"
+
+SPACESHIP_PROMPT_ORDER=(
+    time
+    user
+    dir
+    python
+    git
+    line_sep
+    char
+)
