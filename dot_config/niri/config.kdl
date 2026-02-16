@@ -8,6 +8,7 @@
 // https://yalter.github.io/niri/Configuration:-Input
 input {
     keyboard {
+		track-layout "window"
         xkb {
             // You can set rules, model, layout, variant and options.
             // For more information, see xkeyboard-config(7).
@@ -314,6 +315,12 @@ window-rule {
     clip-to-geometry true
 }
 
+window-rule {
+    match app-id=r#"flameshot"#
+    open-floating true
+    open-fullscreen false
+}
+
 binds {
     // Keys consist of modifiers separated by + signs, followed by an XKB key name
     // in the end. To find an XKB name for a particular key, you may use a program
@@ -559,7 +566,9 @@ binds {
     // Mod+Space       { switch-layout "next"; }
     // Mod+Shift+Space { switch-layout "prev"; }
 
-    Mod+Shift+S { screenshot; }
+    // Mod+Shift+S { screenshot; }
+
+    Mod+Shift+S { spawn-sh "XDG_CURRENT_DESKTOP=sway flameshot gui"; }
 
     Mod+Shift+Ctrl+S { screenshot-screen; }
     Mod+Shift+Alt+S { screenshot-window; }
