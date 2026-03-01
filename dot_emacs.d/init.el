@@ -700,13 +700,21 @@
 (use-package chezmoi
   :ensure t)
 
-(use-package epg
-  :custom
-  (epg-pinentry-mode 'loopback))
+;; (use-package epg
+;;   :custom
+;;   (epg-pinentry-mode 'loopback))
 
 (use-package epa
   :custom
   (epa-file-encrypt-to '("vova2341591@gmail.com")))
+
+(use-package age
+  :ensure t
+  :custom
+  (age-default-identity "~/.age/key.txt")
+  (age-default-recipient "age1j7cgzhv04papy5za2dr6wjver2df6c2ewwt2ksygqferau8q8e5sk7z243")
+  :config
+  (age-file-enable))
 
 (provide 'init.el)
 ;;; init.el ends here
