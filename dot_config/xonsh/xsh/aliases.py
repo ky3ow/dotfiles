@@ -28,6 +28,10 @@ def string(name: str, cmdline: str):
     assert XSH.builtins is not None
     XSH.builtins.abbrevs[name] = match_beginning(cmdline)
 
+def suffix(name: str, cmdline: str):
+    """Suffix string abbreviations, uses xontrib-abbrevs"""
+    assert XSH.builtins is not None
+    XSH.builtins.abbrevs[name] = cmdline
 
 def match_beginning(expansion: str):
     def _impl(buffer: Buffer, word: str):

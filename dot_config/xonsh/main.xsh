@@ -2,6 +2,7 @@ import xsh.aliases as alias
 import xsh.helpers as h
 import re
 
+# https://xon.sh/tutorial.html#decorator-aliases
 if bin := h.which("nvim"):
     alias.bin(
         "mini",
@@ -20,6 +21,14 @@ if h.which("zoxide"):
 
     alias.string("cd", "z")
 
+for exe in ["clip.exe", "xclip", "wlcopy", "pbcopy"]:
+    if existing := h.which(exe):
+        alias.string("@L", f"echo @(@.lastcmd.output) | {existing}")
+        break
+
+alias.suffix("@1", "out>/dev/null")
+alias.suffix("@2", "err>/dev/null")
+alias.suffix("@3", "all>/dev/null")
 
 assert h.XSH.builtins is not None
 

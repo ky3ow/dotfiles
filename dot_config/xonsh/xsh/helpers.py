@@ -10,9 +10,8 @@ from typing import Optional
 
 
 def which(exe: str) -> str | None:
-    full = exes.locate_executable(exe)
-    return str(XonshPathLiteral(full).name)
-
+    if located := exes.locate_executable(exe):
+        return str(XonshPathLiteral(located).name)
 
 def source(*paths: XonshPathLiteral):
     source_alias_fn([str(path.expanduser()) for path in paths])
