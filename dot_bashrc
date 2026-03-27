@@ -22,15 +22,19 @@ font_green="$(tput setaf 2)"
 font_cyan="$(tput setaf 6)"
 bg_yellow="$(tput setab 3)"
 
+__exists() {
+  command -v "$1" 2>&1 >/dev/null
+}
+
 _use_carapace=true
-if "$_use_carapace" && command -v carapace &>/dev/null; then
+if "$_use_carapace" && __exists carapace; then
   source <(carapace _carapace bash)
   unset BASH_COMPLETION_VERSINFO
 elif [ -f /usr/share/bash-completion/bash_completion ] && [ -z "$BASH_COMPLETION_VERSINFO" ]; then
   source /usr/share/bash-completion/bash_completion
 fi
 
-if command -v starship &>/dev/null; then
+if __exists starship; then
   eval "$(starship init bash)"
 fi
 
@@ -38,28 +42,28 @@ if [ -n "$EAT_SHELL_INTEGRATION_DIR" ]; then
   source "$EAT_SHELL_INTEGRATION_DIR/bash"
 fi
 
-if command -v eza &>/dev/null; then
+if __exists eza; then
   alias ls=eza
 fi
 
-if command -v zoxide &>/dev/null; then
+if __exists zoxide; then
   eval "$(zoxide init bash)"
   alias cd=z
   alias cdi=zi
 fi
 
-if command -v xpkg &>/dev/null; then
+if __exists xpkg; then
   alias xrm="sudo xbps-remove"
   xs() {
     xpkg -a | fzf -m --preview 'xq {1}' --preview-window=right:66%:wrap | xargs -ro xi
   }
 fi
 
-if command -v kubectl &>/dev/null; then
+if __exists kubectl; then
   alias k=kubectl
 fi
 
-if command -v bat &>/dev/null; then
+if __exists bat; then
   manless() {
     for cmd in "$@"; do
       man "$cmd"
@@ -78,60 +82,35 @@ else
   }
 fi
 
-if command -v nvim &>/dev/null; then
+if __exists nvim; then
   alias v="nvim"
   export MANPAGER="nvim +Man!"
-elif command -v vim &>/dev/null; then
+elif __exists vim; then
   export MANPAGER="vim +MANPAGER"
 fi
 
-if command -v chezmoi &>/dev/null; then
-  alias che="chezmoi edit"
-  alias chu="chezmoi update"
-  alias cha="chezmoi apply"
-  alias chr="chezmoi re-add"
-  alias chc="chezmoi cd"
-fi
-
-if command -v git &>/dev/null; then
+if __exists git; then
+  alias gs="git status"
   alias ga="git add"
+  alias gc="git commit"
   alias gp="git push"
   alias gP="git pull"
-
-  alias gc="git commit"
-  alias gA="git commit --amend --no-edit"
-
-  alias gf="git fetch"
   alias gco="git switch"
-
-  alias gs="git status"
   alias gd="git diff"
   alias gD="git diff --staged"
-
-  alias gr="git reset"
-  alias gR="git reset --hard"
-
-  alias gC="git cherry-pick"
-  alias gB="git rebase"
-  alias gM="git merge"
-
-  alias gm="git push -u origin HEAD"
 fi
 
 alias grep="grep --color=auto"
 
-if command -v fzf &>/dev/null; then
-  FZF_CUR_VER="$(fzf --version | grep -o '^[0-9]*\.[0-9]*')"
-  FZF_MIN_VER="0.48"
-  FZF_IS_COMPATIBLE="$(printf "%.2f > %.2f\n" "$FZF_CUR_VER" "$FZF_MIN_VER" | bc)"
-
-  if [ "$FZF_IS_COMPATIBLE" -eq 1 ]; then
+if __exists fzf; then
+  FZF_SCRIPT="$(fzf --bash 2>/dev/null)"
+  if [ "$?" -eq 0 ]; then
     export FZF_ALT_C_COMMAND="find -L -type d"
     export FZF_ALT_C_OPTS="--preview 'tree {}'"
-    eval "$(fzf --bash)"
+    eval "$FZF_SCRIPT"
   fi
 
-  unset FZF_CUR_VER FZF_MIN_VER FZF_IS_COMPATIBLE
+  unset FZF_SCRIPT
 fi
 
 take() {
@@ -139,15 +118,7 @@ take() {
   cd "$1"
 }
 
-tf_mod() {
-  ! [ -r "./versions.tf" ] && echo "Should invoke command in root terraform dir" && return 2
-  [ -z "$1" ] && read -p "Module name: " name || name="$1"
-
-  mkdir -p "./modules/${name}"
-
-  for file in {main,outputs,variables}; do
-	  touch "./modules/${name}/${file}.tf"
-  done
+_xonsh() {
+  local temp_path=$(echo "$PATH" | tr ':' '\n' | grep -v "/mnt/c/" | tr '\n' ':' | sed 's/:$//')
+  PATH="$temp_path" PYTHONPATH="$PYTHONPATH:$HOME/.config/xonsh" xonsh
 }
-
-alias mini="NVIM_APPNAME=minivim nvim"
