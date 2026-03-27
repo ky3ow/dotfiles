@@ -6,28 +6,31 @@ export PAGER=less
 export LESS=-RFQ
 #export WEZTERM_SHELL_SKIP_ALL=1
 
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
-fi
+__add_path() {
+  for dir in "$@"; do
+    if [ -d "$dir" ]; then
+      case ":$PATH:" in
+        *":$dir:"*)
+          ;;
+        *)
+          PATH="$dir:$PATH"
+          ;;
+      esac
+    fi
+  done
+}
 
-if [ -d "$HOME/go/bin" ] ; then
-    PATH="$HOME/go/bin:$PATH"
-fi
-
-if [ -d "$HOME/.venv/bin" ] ; then
-    PATH="$HOME/.venv/bin:$PATH"
-fi
+__add_path "$HOME/.local/bin" \
+           "$HOME/go/bin"     \
+           "$HOME/.venv/bin"  \
+           "$HOME/.bun/bin"   \
 
 for file in "$HOME/.profile.d"/*.sh; do
   if [ -f "$file" ] && [ -r "$file" ]; then
-    source "$file"
+    . "$file"
   fi
 done
 
-if [ -d "$HOME/.bun/bin" ]; then
-  PATH="$HOME/.bun/bin:$PATH"
-fi
-
 if [ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ]; then
-	source "$HOME/.bashrc"
+	. "$HOME/.bashrc"
 fi
