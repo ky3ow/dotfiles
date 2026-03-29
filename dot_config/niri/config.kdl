@@ -3,12 +3,47 @@
 // Check the wiki for a full description of the configuration:
 // https://yalter.github.io/niri/Configuration:-Introduction
 
+workspace "browser"
+
+window-rule {
+    match at-startup=true app-id=r#"^org.telegram.desktop$"#
+	open-on-workspace "browser"
+	default-column-width { proportion 0.2; }
+}
+
+window-rule {
+    match app-id="^org.telegram.desktop$" title="^Media viewer$"
+    default-column-width { proportion 0.700000; }
+    open-fullscreen false
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^vivaldi"#
+	default-column-width { proportion 1.0; }
+	open-on-workspace "browser"
+}
+
+window-rule {
+    match app-id="steam" title="Friends List"
+	// open-floating true
+	default-column-width { proportion 0.15; }
+}
+
+
+window-rule {
+    match app-id=r#"^vivaldi"# title="^Vivaldi Settings"
+    open-floating true
+}
+
+spawn-sh-at-startup "~/.config/niri/scripts/setup-workspace-1.sh"
+
+workspace "main"
+
 // Input device configuration.
 // Find the full list of options on the wiki:
 // https://yalter.github.io/niri/Configuration:-Input
 input {
     keyboard {
-		track-layout "window"
         xkb {
             // You can set rules, model, layout, variant and options.
             // For more information, see xkeyboard-config(7).
@@ -23,6 +58,7 @@ input {
             // localectl set-x11-keymap.
         }
 
+		track-layout "window"
         // Enable numlock on startup, omitting this setting disables it.
         // numlock
     }
@@ -69,6 +105,11 @@ input {
     // Focus windows and outputs automatically when moving the mouse into them.
     // Setting max-scroll-amount="0%" makes it work only on windows already fully on screen.
     // focus-follows-mouse max-scroll-amount="0%"
+}
+
+output "DP-2" {
+		mode "2560x1440@143.999"
+	// mode "2560x1440@59.951"
 }
 
 // You can configure outputs by their name, which you can find
@@ -244,12 +285,11 @@ layout {
     }
 }
 
-spawn-at-startup "pipewire"
+//spawn-at-startup "pipewire"
 spawn-sh-at-startup "qs -c noctalia-shell"
 
 hotkey-overlay {
-    // Uncomment this line to disable the "Important Hotkeys" pop-up at startup.
-    // skip-at-startup
+    skip-at-startup
 }
 
 // Uncomment this line to ask the clients to omit their client-side decorations if possible.
@@ -300,12 +340,12 @@ window-rule {
 
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)
-/-window-rule {
+window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     match app-id=r#"^org\.gnome\.World\.Secrets$"#
+    match app-id=r#"^Bitwarden$"#
 
     block-out-from "screen-capture"
-
     // Use this instead if you want them visible on third-party screenshot tools.
     // block-out-from "screencast"
 }
@@ -313,12 +353,6 @@ window-rule {
 window-rule {
     geometry-corner-radius 4
     clip-to-geometry true
-}
-
-window-rule {
-    match app-id=r#"flameshot"#
-    open-floating true
-    open-fullscreen false
 }
 
 binds {
@@ -566,9 +600,7 @@ binds {
     // Mod+Space       { switch-layout "next"; }
     // Mod+Shift+Space { switch-layout "prev"; }
 
-    // Mod+Shift+S { screenshot; }
-
-    Mod+Shift+S { spawn-sh "XDG_CURRENT_DESKTOP=sway flameshot gui"; }
+    Mod+Shift+S { screenshot; }
 
     Mod+Shift+Ctrl+S { screenshot-screen; }
     Mod+Shift+Alt+S { screenshot-window; }
@@ -592,6 +624,15 @@ binds {
     Mod+Shift+P { power-off-monitors; }
 
 	Mod+Shift+Period { spawn-sh "qs -c noctalia-shell ipc call launcher emoji"; }
+}
+
+recent-windows {
+	binds {
+		Alt+Tab         { next-window; }
+		Alt+Shift+Tab   { previous-window; }
+		Alt+grave       { next-window     filter="app-id"; }
+		Alt+Shift+grave { previous-window filter="app-id"; }
+	}
 }
 
 debug {
