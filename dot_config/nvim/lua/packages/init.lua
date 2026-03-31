@@ -20,8 +20,9 @@ Config.later(function()
 
 		callback = function(args)
 			vim.keymap.set('n', 'g.', function()
-				local folders = (MiniFiles.get_explorer_state() or {}).branch
-				vim.cmd.cd(folders[#folders])
+				local state = MiniFiles.get_explorer_state()
+				if not state then return end
+				vim.cmd.cd(state.branch[state.depth_focus])
 			end, { buffer = args.data.buf_id, desc = 'Set CWD' })
 		end,
 	})
