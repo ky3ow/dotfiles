@@ -39,7 +39,7 @@ function H.setup_visual_at()
 	})
 end
 
-MiniDeps.later(function()
+Config.later(function()
 	local miniclue = require "mini.clue"
 	local clues = miniclue.gen_clues
 

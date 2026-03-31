@@ -113,29 +113,51 @@ vim.g.language_servers = {
 	tinymist = {},
 }
 
-local path_package = vim.fn.stdpath "data" .. "/site/"
-local mini_path = path_package .. "pack/deps/start/mini.nvim"
-if not (vim.uv or vim.loop).fs_stat(mini_path) then
-	vim.cmd 'echo "Installing `mini.nvim`" | redraw'
-	local clone_cmd = {
-		"git",
-		"clone",
-		"--filter=blob:none",
-		"https://github.com/echasnovski/mini.nvim",
-		mini_path,
-	}
-	vim.fn.system(clone_cmd)
-	vim.cmd "packadd mini.nvim | helptags ALL"
-	vim.cmd 'echo "Installed `mini.nvim`" | redraw'
+_G.Config = {}
+
+vim.pack.add { "https://github.com/nvim-mini/mini.nvim" }
+
+local misc = require "mini.misc"
+
+Config.now = function(f) misc.safely('now', f) end
+Config.later = function(f) misc.safely('later', f) end
+Config.on_event = function(ev, f) misc.safely('event:' .. ev, f) end
+Config.on_filetype = function(ft, f) misc.safely('filetype:' .. ft, f) end
+
+---@alias PackChangeType
+---| "install"
+---| "update"
+---| "delete"
+
+---@class PackChangedEventData
+---@field active boolean
+---@field kind PackChangeType
+---@field spec vim.pack.Spec
+---@field path string
+
+---@class PackChangedEvent: vim.api.keyset.create_autocmd.callback_args
+---@field data PackChangedEventData
+
+---@param plugin string
+---@param kinds PackChangeType[]
+---@param callback fun()
+Config.on_packchanged = function(plugin, kinds, callback)
+	vim.api.nvim_create_autocmd("PackChanged", { callback = function(ev)
+		---@cast ev PackChangedEvent
+		local name, kind = ev.data.spec.name, ev.data.kind
+		if not (name == plugin and vim.tbl_contains(kinds, kind)) then return end
+
+		if not ev.data.active then vim.cmd.packadd(plugin) end
+		callback()
+	end})
 end
 
 local path_binary = vim.fn.expand(vim.fn.stdpath "data" .. "/bin")
 local path_separator = vim.uv.os_uname().sysname == "Windows_NT" and ";" or ":"
 vim.env.PATH = path_binary .. path_separator .. vim.env.PATH
-vim.g.path_binary = path_binary
 
-vim.g.mini_deps = path_package .. "pack/deps/"
-require("mini.deps").setup { path = { package = path_package } }
+vim.g.path_package = vim.fn.stdpath "data" .. "/site/pack/core"
+vim.g.path_binary = path_binary
 
 --Source all packages
 vim.cmd.runtime { "lua/packages/*.lua", bang = true }

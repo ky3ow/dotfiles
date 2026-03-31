@@ -3,11 +3,11 @@
 ---@field setup? function
 ---@field configured? boolean
 
-MiniDeps.now(function()
 
+Config.now(function()
 	---@type table<string, Colorscheme>
 	vim.g.colorschemes = {
-		["neanias/everforest-nvim"] = {
+		["https://github.com/neanias/everforest-nvim"] = {
 			names = { "everforest" },
 			setup = function()
 				require("everforest").setup {
@@ -21,7 +21,7 @@ MiniDeps.now(function()
 			end,
 		},
 
-		["ellisonleao/gruvbox.nvim"] = {
+		["https://github.com/ellisonleao/gruvbox.nvim"] = {
 			names = { "gruvbox" },
 			setup = function()
 				require("gruvbox").setup {
@@ -39,7 +39,7 @@ MiniDeps.now(function()
 			end,
 		},
 
-		["rose-pine/neovim"] = {
+		["https://github.com/rose-pine/neovim"] = {
 			names = { "rose-pine", "rose-pine-dawn", "rose-pine-main", "rose-pine-moon" },
 			setup = function()
 				require("rose-pine").setup {
@@ -50,14 +50,14 @@ MiniDeps.now(function()
 			end,
 		},
 
-		["EdenEast/nightfox.nvim"] = {
+		["https://github.com/EdenEast/nightfox.nvim"] = {
 			names = { "nightfox", "duskfox", "carbonfox", "nordfox", "dawnfox", "terafox" },
 			setup = function()
 				require("nightfox").setup {}
 			end,
 		},
 
-		["oonamo/ef-themes.nvim"] = {
+		["https://github.com/oonamo/ef-themes.nvim"] = {
 			names = {
 				"ef-autumn",
 				"ef-bio",
@@ -147,7 +147,8 @@ MiniDeps.now(function()
 	})
 
 	for source, _ in pairs(vim.g.colorschemes) do
-		MiniDeps.add(source)
+		vim.pack.add({ source })
 	end
+
 	vim.cmd.colorscheme(vim.g.colors_name)
 end)

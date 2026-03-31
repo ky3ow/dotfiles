@@ -1,4 +1,4 @@
-MiniDeps.later(function()
+Config.later(function()
 	-- TODO! quicker-nvim, nvim-bqf
 	require("mini.comment").setup {
 		options = {
@@ -26,9 +26,9 @@ MiniDeps.later(function()
 		end,
 	})
 
-	MiniDeps.add "tpope/vim-fugitive"
+	vim.pack.add { "https://github.com/tpope/vim-fugitive" }
 
-	MiniDeps.add "samiulsami/fFtT-highlights.nvim"
+	vim.pack.add { "https://github.com/samiulsami/fFtT-highlights.nvim" }
 	require "fFtT-highlights":setup {
 		jumpable_chars = {
 			show_instantly_jumpable = "on_key_press",
@@ -40,7 +40,7 @@ MiniDeps.later(function()
 
 	MiniIcons.tweak_lsp_kind()
 
-	MiniDeps.add "akinsho/toggleterm.nvim"
+	vim.pack.add { "https://github.com/akinsho/toggleterm.nvim" }
 	vim.api.nvim_create_autocmd("TermOpen", {
 		pattern = "term://*",
 		callback = function(_)
@@ -60,16 +60,15 @@ MiniDeps.later(function()
 		persist_mode = false,
 	}
 
-	MiniDeps.add {
-		source = "chomosuke/typst-preview.nvim",
-	}
+	vim.pack.add { "https://github.com/chomosuke/typst-preview.nvim" }
 
 	require "typst-preview".setup {}
 
-	MiniDeps.add {
-		source = "jake-stewart/multicursor.nvim",
-		checkout = "1.0",
-		monitor = "main",
+	vim.pack.add {
+		{
+			src = "https://github.com/jake-stewart/multicursor.nvim",
+			version = "1.0",
+		}
 	}
 
 	local mc = require "multicursor-nvim"
@@ -125,12 +124,13 @@ MiniDeps.later(function()
 	hl(0, "MultiCursorDisabledSign", { link = "SignColumn" })
 end)
 
-MiniDeps.now(function()
-	MiniDeps.add "prichrd/netrw.nvim"
+Config.now(function()
+	vim.pack.add { "https://github.com/prichrd/netrw.nvim" }
 	require("netrw").setup {} -- pretty netrw with icons
 	require("mini.icons").setup {
 		style = "glyph",
 	}
+
 	require("mini.statusline").setup {
 		content = {
 			active = function()
@@ -181,9 +181,16 @@ MiniDeps.now(function()
 					return total ~= 1 and ("(%d/%d)"):format(current, total) or ""
 				end) { trunc_width = 120 }
 
+				local cwd = (function(args)
+					if MiniStatusline.is_truncated(args.trunc_width) then
+						return ""
+					end
+					return vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
+				end) { trunc_width = 120 }
+
 				return MiniStatusline.combine_groups {
 					{ hl = mode_hl, strings = { mode } },
-					{ hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
+					{ hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp, cwd } },
 					"%<", -- Mark general truncate point
 					{ hl = "MiniStatuslineFilename", strings = { filename } },
 					"%=", -- End left alignment
@@ -197,5 +204,6 @@ MiniDeps.now(function()
 		use_icons = true,
 		set_vim_settings = true,
 	}
+
 	require("mini.tabline").setup {}
 end)

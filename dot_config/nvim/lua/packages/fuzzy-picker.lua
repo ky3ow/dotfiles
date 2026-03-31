@@ -1,4 +1,4 @@
-MiniDeps.later(function()
+Config.later(function()
 	local H = {}
 
 	---@param keys string
@@ -551,9 +551,9 @@ MiniDeps.later(function()
 	vim.keymap.set("n", "<leader>sn", "<cmd>Pick narrow<cr>", { desc = "Search narrowing" })
 	vim.keymap.set("n", "<leader>sd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "Search dignostic" })
 
-	vim.keymap.set("n", "<leader>spf", "<cmd>Pick rg_files cwd=vim.g.mini_deps<cr>", { desc = "Search Package files" })
+	vim.keymap.set("n", "<leader>spf", "<cmd>Pick rg_files cwd=vim.g.path_package<cr>", { desc = "Search Package files" })
 
-	vim.keymap.set("n", "<leader>spg", "<cmd>Pick rg_live cwd=vim.g.mini_deps<cr>", { desc = "Search Package grep" })
+	vim.keymap.set("n", "<leader>spg", "<cmd>Pick rg_live cwd=vim.g.path_package<cr>", { desc = "Search Package grep" })
 
 	vim.keymap.set("n", "<leader>sw", "<cmd>Pick grep_word<cr>", { desc = "Search word" })
 	vim.keymap.set("n", "<leader>s/", "<cmd>Pick buf_lines scope='current'<cr>", { desc = "Search /lines" })

@@ -1,10 +1,10 @@
 local au = vim.api.nvim_create_autocmd
 local command = vim.api.nvim_create_user_command
 
-MiniDeps.now(function()
-	MiniDeps.add "folke/lazydev.nvim"
-	MiniDeps.add "Bilal2453/luvit-meta"
-	MiniDeps.add "rafamadriz/friendly-snippets"
+Config.now(function()
+	vim.pack.add { "https://github.com/folke/lazydev.nvim" }
+	vim.pack.add { "https://github.com/Bilal2453/luvit-meta" }
+	vim.pack.add { "https://github.com/rafamadriz/friendly-snippets" }
 
 	local completion = require "mini.completion"
 	completion.setup {
@@ -111,11 +111,11 @@ MiniDeps.now(function()
 	})
 end)
 
-MiniDeps.later(function()
-	MiniDeps.add "williamboman/mason.nvim"
-	MiniDeps.add "neovim/nvim-lspconfig"
-	MiniDeps.add "stevearc/conform.nvim"
-	MiniDeps.add "mfussenegger/nvim-lint"
+Config.later(function()
+	vim.pack.add { "https://github.com/williamboman/mason.nvim" }
+	vim.pack.add { "https://github.com/neovim/nvim-lspconfig" }
+	vim.pack.add { "https://github.com/stevearc/conform.nvim" }
+	vim.pack.add { "https://github.com/mfussenegger/nvim-lint" }
 
 	require("mason").setup {}
 
@@ -176,4 +176,36 @@ MiniDeps.later(function()
 	vim.keymap.set({ "n", "x" }, "gq", vim.g.conformop, { desc = "Format", expr = true })
 	vim.keymap.set("n", "gqq", "<cmd>Format<cr>", { desc = "Format" })
 	vim.keymap.set({ "n", "x" }, "gl", "<cmd>Lint<cr>", { desc = "Lint" })
+end)
+
+Config.later(function()
+	local scope = {
+		current_line = true,
+		severity = { min = "ERROR", max = "ERROR" }
+	}
+
+	local diagnostic_opts = {
+		signs = { priority = 9999, severity = { min = "WARN", max = "ERROR" } },
+		underline = { severity = { min = "HINT", max = "ERROR" } },
+
+		virtual_lines = false,
+		virtual_text = scope,
+
+		update_in_insert = false,
+	}
+
+	vim.diagnostic.config(diagnostic_opts)
+
+	vim.g.diagnostic_mode = "text"
+
+	vim.api.nvim_create_user_command("Errors", function(opts)
+		local last = vim.g.diagnostic_mode
+		local new = last == "text" and "lines" or "text"
+		vim.g.diagnostic_mode = new
+
+		vim.diagnostic.config {
+			["virtual_" .. last] = false,
+			["virtual_" .. new] = scope,
+		}
+	end, {})
 end)

@@ -1,4 +1,4 @@
-MiniDeps.now(function()
+Config.now(function()
 	if vim.fn.executable "tree-sitter" == 0 then
 		vim.cmd "echo 'Installing tree-sitter cli' | redraw"
 
@@ -16,15 +16,16 @@ MiniDeps.now(function()
 		vim.system({ "mv", ts_downloaded_executable, ts_executable }):wait()
 	end
 
-	MiniDeps.add {
-		source = "nvim-treesitter/nvim-treesitter",
-		checkout = "main",
-		hooks = {
-			post_checkout = function()
-				vim.cmd "TSUpdate"
-			end,
+	vim.pack.add {
+		{
+			src = "https://github.com/nvim-treesitter/nvim-treesitter",
+			version = "main",
 		},
 	}
+
+	Config.on_packchanged("nvim-treesitter", { "update" }, function()
+		vim.cmd "TSUpdate"
+	end)
 
 	require("nvim-treesitter").install { "lua", "python", "vimdoc", "vim", "bash", "markdown" }
 
@@ -48,7 +49,7 @@ MiniDeps.now(function()
 	})
 end)
 
-MiniDeps.later(function()
+Config.later(function()
 	local ai = require "mini.ai"
 	local ts = ai.gen_spec.treesitter
 
@@ -67,6 +68,8 @@ MiniDeps.later(function()
 		},
 	}
 
-	MiniDeps.add { source = "nvim-treesitter/nvim-treesitter-textobjects", checkout = "main" }
-	MiniDeps.add "nvim-treesitter/nvim-treesitter-context"
+	vim.pack.add {
+		{ src = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects", version = "main" },
+	}
+	vim.pack.add { "https://github.com/nvim-treesitter/nvim-treesitter-context" }
 end)
