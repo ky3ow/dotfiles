@@ -34,7 +34,12 @@ Config.now(function()
 			"force",
 			{},
 			vim.lsp.protocol.make_client_capabilities(),
-			completion.get_lsp_capabilities()
+			completion.get_lsp_capabilities(),
+			{
+				textDocument = {
+					semanticTokens = vim.NIL
+				}
+			}
 		),
 	})
 
@@ -64,6 +69,14 @@ Config.now(function()
 			map("n", "<leader>wl", function()
 				vim.print(vim.lsp.buf.list_workspace_folders())
 			end, "Workspace List Folders")
+
+			local client = vim.lsp.get_client_by_id(e.data.client_id)
+			if not client then return end
+
+			local config = vim.g.language_servers[client.name] or {}
+			if type(config.callback) == "function" then
+				config.callback(client)
+			end
 		end,
 	})
 

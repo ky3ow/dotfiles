@@ -46,7 +46,12 @@ vim.g.language_servers = {
 	tailwindcss = {},
 	gopls = {},
 	pyright = {},
-	terraformls = {},
+	terraformls = {
+		callback = function(client)
+			-- ---@cast client vim.lsp.Client
+			-- client.server_capabilities.semanticTokensProvider = nil
+		end
+	},
 	-- html = { filetypes = { 'html', 'twig', 'hbs'} },
 	lua_ls = {
 		settings = {
