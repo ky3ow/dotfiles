@@ -18,6 +18,7 @@ Config.now(function()
 			auto_setup = false,
 		},
 	}
+
 	-- @TODO look into MiniSnippets.default_insert() to add dynamic node logic?(if i ever need that?)
 	local gen_loader = require("mini.snippets").gen_loader
 	require("mini.snippets").setup {
@@ -124,6 +125,8 @@ Config.later(function()
 		vim.lsp.enable(server)
 	end
 
+	MiniSnippets.start_lsp_server {}
+
 	vim.schedule(function()
 		-- because we defer starting lsp until first screen
 		-- re-trigger stuff that will attach it for first opened file
@@ -181,7 +184,7 @@ end)
 Config.later(function()
 	local scope = {
 		current_line = true,
-		severity = { min = "ERROR", max = "ERROR" }
+		severity = { min = "ERROR", max = "ERROR" },
 	}
 
 	local diagnostic_opts = {
