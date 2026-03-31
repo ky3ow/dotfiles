@@ -51,7 +51,8 @@ vim.g.language_servers = {
 	lua_ls = {
 		settings = {
 			Lua = {
-				workspace = { checkThirdParty = false },
+				runtime = { version = "LuaJIT", path = vim.split(package.path, ";")},
+				workspace = { checkThirdParty = false, ignoreSubmodules = true },
 				telemetry = { enable = false },
 				diagnostics = {
 					disable = { "missing-fields" },
