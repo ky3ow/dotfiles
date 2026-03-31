@@ -1,6 +1,6 @@
-Config.later(function()
-	local H = {}
+local H = {}
 
+Config.later(function()
 	---@param keys string
 	function H.map_keys(keys)
 		return function()
@@ -552,21 +552,38 @@ Config.later(function()
 		end
 	end
 
-	local visit_label = function()
-		local labels = MiniVisits.list_labels("", nil)
-		vim.ui.select(labels, {}, function(choice)
+	local make_visit_label = function(cwd, desc)
+		return function()
+			local labels = MiniVisits.list_labels("", cwd)
+			H._complete = function(arg_lead)
+				return vim.tbl_filter(function(x)
+					return x:find(arg_lead, 1, true) ~= nil
+				end, labels)
+			end
+			local input_opts = {
+				prompt = desc .. ": ",
+				completion = "customlist,v:lua.require'packages.fuzzy-picker'._complete",
+				cancelreturn = false,
+			}
+			local ok, choice = pcall(vim.fn.input, input_opts)
+			H._complete = nil
+			if not ok or choice == false then
+				return
+			end
+
 			local sort_latest = MiniVisits.gen_sort.default { recency_weight = 1 }
 			MiniExtra.pickers.visit_paths({
-				cwd = nil,
+				cwd = cwd,
 				filter = choice,
 				sort = sort_latest,
-			}, { source = { name = desc } })
-		end)
+			}, { source = { name = desc .. " " .. choice } })
+		end
 	end
 
 	vim.keymap.set("n", "<leader>vc", make_pick_core(nil, "Core visits (cwd)"), { desc = "Core visits (cwd)" })
 	vim.keymap.set("n", "<leader>vC", make_pick_core("", "Core visits (all)"), { desc = "Core visits (all)" })
-	vim.keymap.set("n", "<leader>vl", visit_label, { desc = "Core visits (all)" })
+	vim.keymap.set("n", "<leader>vl", make_visit_label(nil, "Label visit (cwd)"), { desc = "Label visit (cwd)" })
+	vim.keymap.set("n", "<leader>vL", make_visit_label("", "Label visit (all)"), { desc = "Label visit (all)" })
 	vim.keymap.set("n", "<leader>va", '<cmd>lua MiniVisits.add_label("core")<CR>', { desc = "Add core label" })
 	vim.keymap.set("n", "<leader>vr", '<cmd>lua MiniVisits.remove_label("core")<CR>', { desc = "Remove core label" })
 	vim.keymap.set("n", "<leader>vA", "<cmd>lua MiniVisits.add_label()<CR>", { desc = "Add label" })
@@ -597,3 +614,5 @@ Config.later(function()
 
 	vim.ui.select = MiniPick.ui_select
 end)
+
+return H
