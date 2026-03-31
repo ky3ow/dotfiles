@@ -3,7 +3,6 @@
 ---@field setup? function
 ---@field configured? boolean
 
-
 Config.now(function()
 	---@type table<string, Colorscheme>
 	vim.g.colorschemes = {
@@ -99,7 +98,6 @@ Config.now(function()
 				}
 			end,
 		},
-
 	}
 
 	-- [[ Highlight on yank ]]
@@ -147,8 +145,26 @@ Config.now(function()
 	})
 
 	for source, _ in pairs(vim.g.colorschemes) do
-		vim.pack.add({ source })
+		vim.pack.add { source }
 	end
 
 	vim.cmd.colorscheme(vim.g.colors_name)
+end)
+
+Config.later(function()
+	require("mini.extra").setup {}
+
+	local hipatterns = require "mini.hipatterns"
+	local hi_words = MiniExtra.gen_highlighter.words
+	hipatterns.setup {
+		highlighters = {
+			fixme = hi_words({ "FIXME", "Fixme" }, "MiniHipatternsFixme"),
+			hack = hi_words({ "HACK", "Hack" }, "MiniHipatternsHack"),
+			todo = hi_words({ "TODO", "Todo" }, "MiniHipatternsTodo"),
+			note = hi_words({ "NOTE", "Note" }, "MiniHipatternsNote"),
+
+			-- Highlight hex color string (#aabbcc) with that color as a background
+			hex_color = hipatterns.gen_highlighter.hex_color(),
+		},
+	}
 end)
