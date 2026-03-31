@@ -553,7 +553,7 @@ Config.later(function()
 	end
 
 	local visit_label = function()
-		labels = MiniVisits.list_labels("", nil)
+		local labels = MiniVisits.list_labels("", nil)
 		vim.ui.select(labels, {}, function(choice)
 			local sort_latest = MiniVisits.gen_sort.default { recency_weight = 1 }
 			MiniExtra.pickers.visit_paths({
