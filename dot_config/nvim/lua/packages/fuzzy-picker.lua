@@ -224,9 +224,11 @@ Config.later(function()
 		local remember = {}
 
 		function state.name(self)
-			local queries = vim.iter(remember):map(function(mem)
-				return mem.query
-			end):totable()
+			local queries = vim.iter(remember)
+				:map(function(mem)
+					return mem.query
+				end)
+				:totable()
 			return ("%s > %s"):format(State.name(self), table.concat(queries, ","))
 		end
 
@@ -540,6 +542,36 @@ Config.later(function()
 		MiniPick.builtin.buffers(local_opts, { mappings = buffer_mappings })
 	end
 
+	require("mini.visits").setup()
+
+	local make_pick_core = function(cwd, desc)
+		return function()
+			local sort_latest = MiniVisits.gen_sort.default { recency_weight = 1 }
+			local local_opts = { cwd = cwd, filter = "core", sort = sort_latest }
+			MiniExtra.pickers.visit_paths(local_opts, { source = { name = desc } })
+		end
+	end
+
+	local visit_label = function()
+		labels = MiniVisits.list_labels("", nil)
+		vim.ui.select(labels, {}, function(choice)
+			local sort_latest = MiniVisits.gen_sort.default { recency_weight = 1 }
+			MiniExtra.pickers.visit_paths({
+				cwd = nil,
+				filter = choice,
+				sort = sort_latest,
+			}, { source = { name = desc } })
+		end)
+	end
+
+	vim.keymap.set("n", "<leader>vc", make_pick_core(nil, "Core visits (cwd)"), { desc = "Core visits (cwd)" })
+	vim.keymap.set("n", "<leader>vC", make_pick_core("", "Core visits (all)"), { desc = "Core visits (all)" })
+	vim.keymap.set("n", "<leader>vl", visit_label, { desc = "Core visits (all)" })
+	vim.keymap.set("n", "<leader>va", '<cmd>lua MiniVisits.add_label("core")<CR>', { desc = "Add core label" })
+	vim.keymap.set("n", "<leader>vr", '<cmd>lua MiniVisits.remove_label("core")<CR>', { desc = "Remove core label" })
+	vim.keymap.set("n", "<leader>vA", "<cmd>lua MiniVisits.add_label()<CR>", { desc = "Add label" })
+	vim.keymap.set("n", "<leader>vR", "<cmd>lua MiniVisits.remove_label()<CR>", { desc = "Remove label" })
+
 	vim.keymap.set("n", "<leader>sf", "<cmd>Pick rg_files<cr>", { desc = "Search files" })
 	vim.keymap.set("n", "<leader>sg", "<cmd>Pick rg_live<cr>", { desc = "Search grep" })
 	vim.keymap.set("n", "<leader>sG", "<cmd>Pick grep<cr>", { desc = "Search grep(non interactive)" })
@@ -551,7 +583,12 @@ Config.later(function()
 	vim.keymap.set("n", "<leader>sn", "<cmd>Pick narrow<cr>", { desc = "Search narrowing" })
 	vim.keymap.set("n", "<leader>sd", "<cmd>Pick diagnostic scope='current'<cr>", { desc = "Search dignostic" })
 
-	vim.keymap.set("n", "<leader>spf", "<cmd>Pick rg_files cwd=vim.g.path_package<cr>", { desc = "Search Package files" })
+	vim.keymap.set(
+		"n",
+		"<leader>spf",
+		"<cmd>Pick rg_files cwd=vim.g.path_package<cr>",
+		{ desc = "Search Package files" }
+	)
 
 	vim.keymap.set("n", "<leader>spg", "<cmd>Pick rg_live cwd=vim.g.path_package<cr>", { desc = "Search Package grep" })
 
