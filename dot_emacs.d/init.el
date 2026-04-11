@@ -320,6 +320,7 @@
   :ensure t
   :custom
   (org-mem-watch-dirs '("~/notes"))
+  (org-node-alter-candidates t)
   :hook
   (org-mode . org-mem-updater-mode)
   (org-mode . org-node-cache-mode)
