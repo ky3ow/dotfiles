@@ -322,7 +322,9 @@
   (org-mem-watch-dirs '("~/notes"))
   :hook
   (org-mode . org-mem-updater-mode)
-  (org-mode . org-node-cache-mode))
+  (org-mode . org-node-cache-mode)
+  :bind-keymap
+  ("M-o" . org-node-org-prefix-map))
 
 (use-package org-modern
   :ensure t
