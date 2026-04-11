@@ -129,7 +129,7 @@
   (context-menu-mode t)
   (xterm-mouse-mode (not (display-graphic-p)))
 
-  (treesit-font-lock-level 4)
+  (treesit-font-lock-level 3)
 
   (switch-to-prev-buffer-skip 'skip-these-buffers)
 
@@ -203,6 +203,11 @@
   :ensure t)
 
 (use-package dired
+  :preface
+  (defun my-dired-do-delete-skip-trash (&optional arg)
+	(interactive "P")
+	(let ((delete-by-moving-to-trash nil))
+      (dired-do-delete arg)))
   :custom
   (dired-kill-when-opening-new-dired-buffer t)
   (delete-by-moving-to-trash t)
@@ -306,10 +311,18 @@
   (org-agenda-tags-column 0)
   (org-ellipsis "…")
 
-  ;;(org-return-follows-link t)
+  (org-return-follows-link t)
 
   :hook
   (org-mode . org-indent-mode))
+
+(use-package org-node
+  :ensure t
+  :custom
+  (org-mem-watch-dirs '("~/notes"))
+  :hook
+  (org-mode . org-mem-updater-mode)
+  (org-mode . org-node-cache-mode))
 
 (use-package org-modern
   :ensure t
@@ -373,10 +386,20 @@
 
 (use-package eat
   :ensure t
+  :preface
+  (defun my-eat-yank-clipboard ()
+	"Call eat-yank while temporarily enabling system clipboard access."
+	(interactive)
+	(let ((select-enable-clipboard t)
+          (interprogram-paste-function #'gui-selection-value))
+      (call-interactively 'eat-yank)))
   :custom
   (eat-kill-buffer-on-exit t)
   (eat-maximum-latency 0.005)
   (eat-minimum-latency 0.001)
+  :bind
+  (:map eat-mode-map
+		("C-S-v" . my-eat-yank-clipboard))
   :hook
   (eshell-load . eat-eshell-mode))
 
@@ -700,21 +723,28 @@
 (use-package chezmoi
   :ensure t)
 
-;; (use-package epg
-;;   :custom
-;;   (epg-pinentry-mode 'loopback))
+(use-package epg
+  :custom
+  (epg-pinentry-mode 'loopback))
 
 (use-package epa
   :custom
   (epa-file-encrypt-to '("vova2341591@gmail.com")))
 
+(use-package pinentry
+  :ensure t
+  :config
+  (pinentry-start))
+
 (use-package age
   :ensure t
   :custom
-  (age-default-identity "~/.age/key.txt")
+  (age-default-identity "~/.age/key.age")
   (age-default-recipient "age1j7cgzhv04papy5za2dr6wjver2df6c2ewwt2ksygqferau8q8e5sk7z243")
+  (age-program "rage")
   :config
-  (age-file-enable))
+  (age-file-enable)
+  (setenv "PINENTRY_PROGRAM" "pinentry-qt"))
 
 (provide 'init.el)
 ;;; init.el ends here
