@@ -19,11 +19,11 @@ vim.filetype.add {
 		jinja = H.jinja,
 		j2 = H.jinja,
 		tf = "terraform",
-		xsh = "python",
+		xsh = "xonsh",
 	},
 	filename = {
 		[config_location .. "/mini-deps-snap"] = "lua",
-		[".xonshrc"] = "python",
+		[".xonshrc"] = "xonsh",
 	},
 	pattern = {
 		[".*/pack/.*/doc/.*%.txt"] = "help",
@@ -34,6 +34,7 @@ vim.filetype.add {
 
 vim.treesitter.language.register("yaml", "azurepipelines")
 vim.treesitter.language.register("yaml", "gh")
+vim.treesitter.language.register("python", "xonsh")
 
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = { "azurepipelines", "gh" },

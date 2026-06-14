@@ -7,11 +7,10 @@ vim.g.colors_name = "ef-elea-dark"
 vim.g.formatters = {
 	lua = { "stylua" },
 	python = { "black" },
-	markdown = { "markdownlint" },
 	-- Sequential
 	-- python = { "isort", "black" },
 	-- First found
-	-- javascript = { { "prettierd", "prettier" } },
+	javascript = { { "prettierd", "prettier" } },
 }
 
 vim.g.linters = {
@@ -44,6 +43,16 @@ vim.g.language_servers = {
 	},
 	astro = {},
 	ts_ls = {},
+	tsgo  = {},
+	ty    = {},
+	xonsh_lsp = {
+		cmd = { "xonsh-lsp" },
+		filetypes = { "xonsh" },
+		root_markers = { ".xonshrc", ".git" },
+		init_options = {
+			pythonBackend = "ty",
+		},
+	},
 	tailwindcss = {},
 	gopls = {},
 	pyright = {},
