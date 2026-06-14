@@ -5,7 +5,6 @@ from functools import reduce
 
 import subprocess
 
-
 def bin(name: str, cmd: list[str], decorators: list[Callable] = [], **overrides):
     assert XSH.aliases is not None
 

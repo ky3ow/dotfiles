@@ -21,10 +21,15 @@ if h.which("zoxide"):
 
     alias.string("cd", "z")
 
-for exe in ["clip.exe", "xclip", "wlcopy", "pbcopy"]:
+for exe in ["clip.exe", "xclip", "wl-copy", "pbcopy"]:
     if existing := h.which(exe):
         alias.string("@L", f"echo @(@.lastcmd.output) | {existing}")
         break
+
+if h.which("carapace"):
+    script = h.subproc_captured_stdout(["carapace","_carapace","xonsh"])
+    assert h.XSH.execer is not None
+    h.XSH.execer.exec(script, "exec", h.XSH.ctx, filename="carapace")
 
 alias.suffix("@1", "out>/dev/null")
 alias.suffix("@2", "err>/dev/null")

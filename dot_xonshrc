@@ -1,16 +1,30 @@
 import xsh.helpers as h
+import os
+import sys
 
-_module_ensures = [
-    h.Xontrib("coreutils"),
-    h.Xontrib("argcomplete"),
-    h.Xontrib("abbreviations"),
-]
+$XONSH_VENV = os.path.dirname(os.path.dirname(sys.executable))
+$VIRTUAL_ENV = $XONSH_VENV
 
-for _module in _module_ensures:
-    _module.ensure()
+@h.XSH.aliases.return_command
+def _xpip_uv(args, stdin=None):
+    return {"cmd": ["uv", "pip"] + args, "env": {"VIRTUAL_ENV": $XONSH_VENV}}
+
+h.XSH.aliases['xpip'] = _xpip_uv
+
+def _configure():
+    _module_ensures = [
+        h.Xontrib("coreutils"),
+        h.Xontrib("argcomplete"),
+        h.Xontrib("abbreviations"),
+    ]
+
+    for _module in _module_ensures:
+        _module.ensure()
 
 
-_CONFIG_DIR = p"~/.config/xonsh"
+    _CONFIG_DIR = p"~/.config/xonsh"
 
-source @(_CONFIG_DIR / "profile.xsh")
-source @(_CONFIG_DIR / "main.xsh")
+    source @(_CONFIG_DIR / "profile.xsh")
+    source @(_CONFIG_DIR / "main.xsh")
+
+_configure()
