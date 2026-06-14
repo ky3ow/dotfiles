@@ -22,7 +22,7 @@ Config.later(function()
 			vim.keymap.set('n', 'g.', function()
 				local state = MiniFiles.get_explorer_state()
 				if not state then return end
-				vim.cmd.cd(state.branch[state.depth_focus])
+				vim.cmd.tcd(state.branch[state.depth_focus])
 			end, { buffer = args.data.buf_id, desc = 'Set CWD' })
 		end,
 	})

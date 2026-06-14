@@ -7,6 +7,7 @@ vim.g.colors_name = "ef-elea-dark"
 vim.g.formatters = {
 	lua = { "stylua" },
 	python = { "black" },
+	markdown = { "markdownlint" },
 	-- Sequential
 	-- python = { "isort", "black" },
 	-- First found
