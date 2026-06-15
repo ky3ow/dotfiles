@@ -8,9 +8,11 @@ from xonsh.xontribs import xontribs_load, ExitCode
 from xonsh.built_ins import subproc_uncaptured
 from typing import Optional
 
+
 def which(exe: str) -> str | None:
     if located := exes.locate_executable(exe):
         return str(XonshPathLiteral(located).name)
+
 
 def source(*paths: XonshPathLiteral):
     source_alias_fn([str(path.expanduser()) for path in paths])
