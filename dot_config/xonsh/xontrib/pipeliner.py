@@ -43,9 +43,9 @@ PIPELINE_PRESETS = {
 
 def _pipeline(args, stdin, stdout):
     """
-    pl "line, num, args"
-    Example: echo "123" | pl "line[::-1]"
-    Example: echo " 123 " | pl strip
+    % "line, num, args"
+    Example: echo "123" | % "line[::-1]"
+    Example: echo " 123 " | % strip
     """
     lambda_body = 'lambda line, num, args: %s'
 
@@ -83,6 +83,49 @@ def _pipeline(args, stdin, stdout):
         if res is not None:
             print(res, file=stdout, flush=True)
 
+def _reducer(args, stdin, stdout):
+    """
+    %_ acc "acc, line, num, args"
+    """
+    lambda_body = 'lambda acc, line, num, args: %s'
+
+    if len(args) == 0:
+        print_color('{YELLOW}'+f'Need to specify default accumulator'+'{RESET}', file=sys.stderr)
+        return
+
+    acc = args[0]
+    if acc.isdigit():
+        acc = int(acc)
+    elif acc == "[]":
+        acc = []
+    elif acc == "{}":
+        acc = {}
+
+    fn = eval(lambda_body % args[1], __xonsh__.ctx)
+    fn_args = args[2:]
+
+    if stdin is None:
+        try:
+            print(fn(acc, None, 0, fn_args))
+        except:
+            print_color('{YELLOW}' + str(traceback.format_exc()) + '{RESET}', file=sys.stderr)
+        return
+
+    num = 0
+    for line in stdin.readlines():
+        try:
+            res = fn(acc, line.rstrip(os.linesep), num, fn_args)
+            if res is not None:
+                acc = res
+        except Exception as e:
+            print_color('{YELLOW}' + f'Error line {num+1}: {line!r}: {e}' + '{RESET}', file=sys.stderr)
+            return
+        num += 1
+
+    if acc is not None:
+        print(acc, file=stdout, flush=True)
+
 
 def _load_xontrib_(xsh: XonshSession, **_):
     xsh.aliases["%"] = _pipeline
+    xsh.aliases["%_"] = _reducer

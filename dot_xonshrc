@@ -1,26 +1,36 @@
-import xsh.helpers as h
 import os
 import sys
 
-$XONSH_VENV = os.path.dirname(os.path.dirname(sys.executable))
-$VIRTUAL_ENV = $XONSH_VENV
-
-@h.XSH.aliases.return_command
-def _xpip_uv(args, stdin=None):
-    return {"cmd": ["uv", "pip"] + args, "env": {"VIRTUAL_ENV": $XONSH_VENV}}
-
-h.XSH.aliases['xpip'] = _xpip_uv
+_xonsh_home = str(p"~/.config/xonsh")
+try:
+    if _xonsh_home not in $PYTHONPATH:
+        $PYTHONPATH.append(_xonsh_home)
+        sys.path.insert(0, _xonsh_home)
+except KeyError: # no $PYTHONPATH defined
+    $PYTHONPATH = ('', _xonsh_home)
+    sys.path.insert(0, _xonsh_home)
 
 def _configure():
+    from xsh.helpers import Xontrib
+    import xsh.aliases as alias
+
+    $XONSH_VENV = os.path.dirname(os.path.dirname(sys.executable))
+    $VIRTUAL_ENV = $XONSH_VENV
+
+    @alias.function("xpip")
+    @alias.command
+    def _xpip_uv(args):
+        return {"cmd": ["uv", "pip"] + args, "env": {"VIRTUAL_ENV": $XONSH_VENV}}
+
     _module_ensures = [
-        h.Xontrib("coreutils"),
-        h.Xontrib("argcomplete"),
-        h.Xontrib("abbreviations"),
+        Xontrib("coreutils"),
+        Xontrib("argcomplete"),
+        Xontrib("abbreviations"),
+        Xontrib("pipeliner"),
     ]
 
     for _module in _module_ensures:
         _module.ensure()
-
 
     _CONFIG_DIR = p"~/.config/xonsh"
 
