@@ -1,6 +1,6 @@
 from prompt_toolkit.buffer import Buffer
 from xonsh.built_ins import XSH
-from typing import Callable
+from typing import Callable, TextIO
 from functools import reduce
 
 import subprocess
@@ -41,3 +41,6 @@ def match_beginning(expansion: str):
         )
 
     return _impl
+
+def func(name: str, func: Callable[[list[str], TextIO, TextIO, TextIO], None]):
+    XSH.aliases[name] = func
