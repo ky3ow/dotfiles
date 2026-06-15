@@ -39,13 +39,6 @@ alias.suffix("@3", "all>/dev/null")
 
 assert h.XSH.builtins is not None
 
-def _print_regular(_, stdin: TextIO):
-    for line in stdin:
-        if line != "\n":
-            print(line, end="")
-
-alias.func("?p", _print_regular)
-
 @h.XSH.builtins.events.on_ptk_create
 def custom_keybindings(bindings, **_):
     big_word = re.compile(r'("[^"]*"|\'[^\']*\'|\S+)')
