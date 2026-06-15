@@ -59,5 +59,5 @@ def custom_keybindings(bindings, **_):
     @bindings.add("escape", "w")
     def _(event):
         buf = event.current_buffer
-        buf.text = f"lastcmd = $({buf.text}); echo @(lastcmd)"
+        buf.text = f"lastcmd = !({buf.text}); echo @(lastcmd.errors or lastcmd.output)"
         buf.cursor_position = len(buf.text)
