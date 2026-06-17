@@ -61,3 +61,49 @@ def custom_keybindings(bindings, **_):
         buf = event.current_buffer
         buf.text = f"lastcmd = !({buf.text}); echo @(lastcmd.errors or lastcmd.output)"
         buf.cursor_position = len(buf.text)
+
+    @bindings.add("c-a")
+    def _(event):
+        buf = event.current_buffer
+        doc = buf.document
+        line_start = doc.translate_row_col_to_index(doc.cursor_position_row, 0)
+        if doc.cursor_position == line_start:
+            buf.cursor_position = 0
+        else:
+            buf.cursor_position = line_start
+
+    @bindings.add("c-e")
+    def _(event):
+        buf = event.current_buffer
+        doc = buf.document
+        suggestion = buf.suggestion
+        if suggestion and suggestion.text and doc.is_cursor_at_the_end:
+            buf.insert_text(suggestion.text)
+            return
+        line_end = doc.translate_row_col_to_index(
+            doc.cursor_position_row, len(doc.current_line)
+        )
+        if doc.cursor_position == line_end:
+            buf.cursor_position = len(doc.text)
+        else:
+            buf.cursor_position = line_end
+
+    @bindings.add("c-b")
+    def _(event):
+        buf = event.current_buffer
+        if buf.cursor_position > 0:
+            buf.cursor_position -= 1
+
+    @bindings.add("c-f")
+    def _(event):
+        buf = event.current_buffer
+        if buf.cursor_position < len(buf.document.text):
+            buf.cursor_position += 1
+
+    @bindings.add("escape", "k")
+    def _(event):
+        buf = event.current_buffer
+        text_after = buf.document.text_after_cursor
+        if text_after:
+            event.app.clipboard.set_text(text_after)
+            buf.text = buf.document.text[:buf.cursor_position]
