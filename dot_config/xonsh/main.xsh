@@ -1,7 +1,16 @@
+from __future__ import annotations
+from textwrap import dedent
+from typing import TYPE_CHECKING
+
 import xsh.aliases as alias
 import xsh.bigwords as bw
 import xsh.helpers as h
-from typing import Callable, TextIO
+
+if TYPE_CHECKING:
+    import prompt_toolkit.key_binding as ptk_kb
+    Ev = ptk_kb.KeyPressEvent
+
+last = None
 
 # https://xon.sh/tutorial.html#decorator-aliases
 if bin := h.which("nvim"):
@@ -40,25 +49,25 @@ alias.suffix("@3", "all>/dev/null")
 assert h.XSH.builtins is not None
 
 @h.XSH.builtins.events.on_ptk_create
-def custom_keybindings(bindings, **_):
+def custom_keybindings(bindings: ptk_kb.KeyBindings, **_):
     @bindings.add("escape", "c-f")
-    def _(event):
+    def _(event: Ev):
         buf = event.current_buffer
         buf.cursor_position = bw.next_big_word_end(buf.document.text, buf.cursor_position)
 
     @bindings.add("escape", "c-b")
-    def _(event):
+    def _(event: Ev):
         buf = event.current_buffer
         buf.cursor_position = bw.prev_big_word_start(buf.document.text, buf.cursor_position)
 
     @bindings.add("escape", "w")
-    def _(event):
+    def _(event: Ev):
         buf = event.current_buffer
         buf.text = f"lastcmd = !({buf.text}); echo @(lastcmd.errors or lastcmd.output)"
         buf.cursor_position = len(buf.text)
 
     @bindings.add("c-a")
-    def _(event):
+    def _(event: Ev):
         buf = event.current_buffer
         doc = buf.document
         line_start = doc.translate_row_col_to_index(doc.cursor_position_row, 0)
@@ -68,7 +77,7 @@ def custom_keybindings(bindings, **_):
             buf.cursor_position = line_start
 
     @bindings.add("c-e")
-    def _(event):
+    def _(event: Ev):
         buf = event.current_buffer
         doc = buf.document
         suggestion = buf.suggestion
@@ -84,21 +93,63 @@ def custom_keybindings(bindings, **_):
             buf.cursor_position = line_end
 
     @bindings.add("c-b")
-    def _(event):
+    def _(event: Ev):
         buf = event.current_buffer
         if buf.cursor_position > 0:
             buf.cursor_position -= 1
 
     @bindings.add("c-f")
-    def _(event):
+    def _(event: Ev):
         buf = event.current_buffer
         if buf.cursor_position < len(buf.document.text):
             buf.cursor_position += 1
 
     @bindings.add("escape", "k")
-    def _(event):
+    def _(event: Ev):
         buf = event.current_buffer
         text_after = buf.document.text_after_cursor
         if text_after:
             event.app.clipboard.set_text(text_after)
             buf.text = buf.document.text[:buf.cursor_position]
+
+    @bindings.add("c-v")
+    def _(event: Ev):
+        """Paste with textwrap.dedent applied."""
+        buf = event.current_buffer
+        data = event.app.clipboard.get_data()
+        global last
+        last = data
+        buf.insert_text(dedent(data.text))
+
+    @bindings.add("escape", "]")
+    def _(event: Ev):
+        """Indent all lines except first by 2 spaces."""
+        buf = event.current_buffer
+        doc = buf.document
+        if doc.text.count("\n") < 1:
+            return
+
+        first = doc.text.find("\n")
+        head = doc.text[:first]
+        tail = doc.text[first:].replace("\n", "\n  ")
+
+        buf.text = head + tail
+        if doc.cursor_position_row != 0:
+            buf.cursor_position = buf.cursor_position + 2 * doc.cursor_position_row
+
+    @bindings.add("escape", "[")
+    def _(event: Ev):
+        """Dedent all lines except first by 2 spaces."""
+        buf = event.current_buffer
+        doc = buf.document
+        if doc.text.count("\n") < 1:
+            return
+
+        first = doc.text.find("\n")
+        head = doc.text[:first]
+        tail = doc.text[first:].replace("\n  ", "\n")
+
+        buf.text = head + tail
+        if doc.cursor_position_row != 0 and doc.cursor_position_col >= 2:
+            buf.cursor_position = buf.cursor_position - 2 * doc.cursor_position_row
+
