@@ -1,4 +1,17 @@
-_EXPANSIONS = (
+"""
+bash-like shell words (ctrl+alt+f/b), but extended to substitutions
+jumps over non-whitespace characters, strings, substitutions
+
+Examples (|cursor| is placeholder, not actual pipe character):
+
+|cursor|a/bc def -> a/bc|cursor| def
+|cursor|"a bc" def -> "a bc"|cursor| def
+|cursor|$(a b c) def -> $(a b c)|cursor| def
+|cursor|$(a $( b ) c) -> $(a $( b ) c )|cursor|
+$(a |cursor|$( b ) c) -> $(a $( b )|cursor| c )
+"""
+
+_SUBSTITUTIONS = (
     ("@!(", ")"),
     ("$(", ")"),
     ("!(", ")"),
@@ -32,7 +45,7 @@ def _tokenize_range(text: str, begin: int, limit: int, tokens: list):
             i += 1
             continue
         start = i
-        for prefix, close in _EXPANSIONS:
+        for prefix, close in _SUBSTITUTIONS:
             if text.startswith(prefix, i):
                 end = _find_expansion_end(text, i, prefix, close)
                 # Recursively tokenize contents (between opening and closing delimiters)
