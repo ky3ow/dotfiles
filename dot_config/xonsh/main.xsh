@@ -1,6 +1,7 @@
 from __future__ import annotations
-from textwrap import dedent
 from typing import TYPE_CHECKING
+
+# See this for examples: import xonsh.shells.ptk_shell.key_bindings
 
 import xsh.aliases as alias
 import xsh.bigwords as bw
@@ -66,6 +67,8 @@ assert h.XSH.builtins is not None
 
 @h.XSH.builtins.events.on_ptk_create
 def custom_keybindings(bindings: ptk_kb.KeyBindings, **_):
+    from prompt_toolkit.selection import SelectionState
+
     @bindings.add("escape", "c-f")
     def _(event: Ev):
         buf = event.current_buffer
@@ -128,42 +131,33 @@ def custom_keybindings(bindings: ptk_kb.KeyBindings, **_):
             event.app.clipboard.set_text(text_after)
             buf.text = buf.document.text[:buf.cursor_position]
 
-    @bindings.add("c-v")
+    @bindings.add("escape", "a")
     def _(event: Ev):
-        """Paste with textwrap.dedent applied."""
         buf = event.current_buffer
-        data = event.app.clipboard.get_data()
-        buf.insert_text(dedent(data.text))
+        if buf.selection_state is not None:
+            buf.selection_state = None
+        else:
+            buf.selection_state = SelectionState(original_cursor_position=0)
+            buf.cursor_position = len(buf.text)
 
-    @bindings.add("escape", "]")
+    @bindings.add("escape", "c-a")
     def _(event: Ev):
-        """Indent all lines except first by 2 spaces."""
         buf = event.current_buffer
-        doc = buf.document
-        if doc.text.count("\n") < 1:
-            return
 
-        first = doc.text.find("\n")
-        head = doc.text[:first]
-        tail = doc.text[first:].replace("\n", "\n  ")
+        if buf.selection_state is not None:
+            buf.selection_state = None
+        else:
+            doc = buf.document
+            start = doc.translate_row_col_to_index(1, 0)
+            buf.selection_state = SelectionState(original_cursor_position=start)
+            buf.cursor_position = len(buf.text)
 
-        buf.text = head + tail
-        if doc.cursor_position_row != 0:
-            buf.cursor_position = buf.cursor_position + 2 * doc.cursor_position_row
+def fix_kb():
+    # monkey patch
+    from prompt_toolkit.input.ansi_escape_sequences import ANSI_SEQUENCES
+    from prompt_toolkit.keys import Keys
+    ANSI_SEQUENCES["\x1b[27;2;32~"] = " "
+    ANSI_SEQUENCES["\x1b[27;2;9~"] = Keys.BackTab
+    ANSI_SEQUENCES["\x1b[27;7;13~"] = Keys.ControlJ
 
-    @bindings.add("escape", "[")
-    def _(event: Ev):
-        """Dedent all lines except first by 2 spaces."""
-        buf = event.current_buffer
-        doc = buf.document
-        if doc.text.count("\n") < 1:
-            return
-
-        first = doc.text.find("\n")
-        head = doc.text[:first]
-        tail = doc.text[first:].replace("\n  ", "\n")
-
-        buf.text = head + tail
-        if doc.cursor_position_row != 0 and doc.cursor_position_col >= 2:
-            buf.cursor_position = buf.cursor_position - 2 * doc.cursor_position_row
-
+fix_kb()

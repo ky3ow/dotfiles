@@ -17,6 +17,8 @@ def _configure():
     $XONSH_VENV = os.path.dirname(os.path.dirname(sys.executable))
     $VIRTUAL_ENV = $XONSH_VENV
 
+    $XONSH_AUTOPAIR = True
+
     @alias.function("xpip")
     @alias.ret_cmd
     def _xpip_uv(args):
