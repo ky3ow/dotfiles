@@ -1,12 +1,46 @@
 from prompt_toolkit.buffer import Buffer
 from xonsh.built_ins import XSH
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Self
 from functools import reduce
+
+import xsh.helpers as h
 
 import subprocess
 
+class Command:
+    name: str
 
-def bin(name: str, cmd: list[str], decorators: list[Callable] = [], **overrides):
+    def __init__(self, name: str):
+        self.name = name
+
+    def with_name(self, name: str) -> Self:
+        return type(self)(name)
+
+    def sub(self, name: str) -> Self:
+        return type(self)(f"{self.name} {name}")
+
+    def as_(self, alias: str):
+        first(alias, self.name)
+
+        return self
+
+    def with_(self, alias: str, expansion: str):
+        prefix(alias, expansion, self.name)
+
+        return self
+
+    def init_script(self, *parts: str) -> Self:
+        h.evaluate(*parts, script_name=self.name)
+
+        return self
+
+def command(exe_name: str) -> Command | None:
+    if located := h.which(exe_name):
+        return Command(located)
+    return None
+
+
+def bin(name: str, cmd: Iterable[str], decorators: list[Callable] = [], **overrides):
     def _impl(args, stdin=None, stdout=None, stderr=None):
         assert XSH.env is not None
         with XSH.env.swap(**overrides):
@@ -79,4 +113,4 @@ def _match_beginning(expansion: str):
 
 
 function = XSH.aliases.register
-command = XSH.aliases.return_command
+ret_cmd = XSH.aliases.return_command

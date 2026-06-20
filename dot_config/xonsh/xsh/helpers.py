@@ -6,12 +6,18 @@ import xonsh.procs.executables as exes
 from dataclasses import dataclass
 from xonsh.xontribs import xontribs_load, ExitCode
 from xonsh.built_ins import subproc_uncaptured
-from typing import Optional
+from typing import Optional, Iterable, Self
 
 
 def which(exe: str) -> str | None:
     if located := exes.locate_executable(exe):
         return str(XonshPathLiteral(located).name)
+
+
+def evaluate(*commands: str, script_name: str):
+    script = subproc_captured_stdout(commands)
+    assert XSH.execer is not None
+    XSH.execer.exec(script, "exec", XSH.ctx, filename=script_name)
 
 
 def source(*paths: XonshPathLiteral):

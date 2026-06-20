@@ -6,60 +6,56 @@ import xsh.aliases as alias
 import xsh.bigwords as bw
 import xsh.helpers as h
 
+from xonsh.tools import unthreadable, uncapturable
+
 if TYPE_CHECKING:
     import prompt_toolkit.key_binding as ptk_kb
     Ev = ptk_kb.KeyPressEvent
 
 # https://xon.sh/tutorial.html#decorator-aliases
-if bin := h.which("nvim"):
+if cmd := alias.command("nvim"):
     alias.bin(
         "mini",
-        [bin],
-        decorators=[h.unthreadable, h.uncapturable],
+        [cmd.name],
+        decorators=[unthreadable, uncapturable],
         NVIM_APPNAME="minivim",
     )
 
-if bin := h.which("eza"):
-    alias.first("ls", bin)
+if cmd := alias.command("eza"):
+    cmd.as_("ls")
 
-if h.which("zoxide"):
-    zoxide_init = h.subproc_captured_stdout(["zoxide", "init", "xonsh"])
-    assert h.XSH.execer is not None
-    h.XSH.execer.exec(zoxide_init, "exec", h.XSH.ctx, filename="zoxide")
-
-    alias.first("cd", "z")
+# if cmd := alias.command("zoxide"):
+#     cmd.init_script(cmd.name, "init", "xonsh")
+#     cmd.with_name("z").as_("cd")
 
 for exe in ["clip.exe", "xclip", "wl-copy", "pbcopy"]:
-    if existing := h.which(exe):
-        alias.first("@L", f"echo @(@.lastcmd.output) | {existing}")
-        alias.any("@0", f"| {existing}")
+    if cmd := alias.command(exe):
+        alias.first("@L", f"echo @(@.lastcmd.output) | {cmd.name}")
+        alias.any("@0", f"| {cmd.name}")
         break
 
-if h.which("carapace"):
-    script = h.subproc_captured_stdout(["carapace", "_carapace", "xonsh"])
-    assert h.XSH.execer is not None
-    h.XSH.execer.exec(script, "exec", h.XSH.ctx, filename="carapace")
+if cmd := alias.command("carapace"):
+    cmd.init_script(cmd.name, "_carapace", "xonsh")
 
-if h.which("git"):
-    alias.first("gs", "git status")
-    alias.first("ga", "git add")
-    alias.first("gc", "git commit")
-    alias.first("gd", "git diff")
-    alias.prefix("]s", "--staged", "git")
+if cmd := alias.command("git"):
+    cmd.with_("]s", "--staged")
 
-    alias.first("gp", "git push")
-    alias.prefix("]f", "--force-with-lease", "git push")
+    cmd.sub("status").as_("gs")
+    cmd.sub("diff").as_("gd")
 
-    alias.first("gP", "git pull")
+    cmd.sub("add").as_("ga")
+    cmd.sub("commit").as_("gc")
 
-    alias.first("gco", "git switch")
-    alias.prefix("]d", "--detached", "git switch")
+    cmd.sub("push").as_("gp").with_("]f", "--force-with-lease")
+    cmd.sub("pull").as_("gP")
 
-if h.which("chezmoi"):
-    alias.first("chad", "chezmoi add")
-    alias.first("ched", "chezmoi re-add")
-    alias.first("cheg", "chezmoi git pull")
-    alias.first("chap", "chezmoi apply")
+    cmd.sub("switch").as_("gco").with_("]d", "--detached")
+
+if cmd := alias.command("chezmoi"):
+    cmd.sub("add").as_("chad")
+    cmd.sub("re-add").as_("ched")
+    cmd.sub("git pull").as_("cheg")
+    cmd.sub("apply").as_("chap")
     alias.first("ch", "cd ~/.local/share/chezmoi")
 
 alias.any("@1", "out>/dev/null")

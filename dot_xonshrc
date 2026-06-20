@@ -18,7 +18,7 @@ def _configure():
     $VIRTUAL_ENV = $XONSH_VENV
 
     @alias.function("xpip")
-    @alias.command
+    @alias.ret_cmd
     def _xpip_uv(args):
         return {"cmd": ["uv", "pip"] + args, "env": {"VIRTUAL_ENV": $XONSH_VENV}}
 
