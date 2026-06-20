@@ -45,14 +45,20 @@ if h.which("git"):
     alias.first("ga", "git add")
     alias.first("gc", "git commit")
     alias.first("gd", "git diff")
-    alias.first("gco", "git switch")
     alias.prefix("]s", "--staged", "git")
+
+    alias.first("gp", "git push")
+    alias.prefix("]f", "--force-with-lease", "git push")
+
+    alias.first("gP", "git pull")
+
+    alias.first("gco", "git switch")
     alias.prefix("]d", "--detached", "git switch")
 
 if h.which("chezmoi"):
     alias.first("chad", "chezmoi add")
     alias.first("ched", "chezmoi re-add")
-    alias.first("chep", "chezmoi git pull")
+    alias.first("cheg", "chezmoi git pull")
     alias.first("chap", "chezmoi apply")
     alias.first("ch", "cd ~/.local/share/chezmoi")
 
