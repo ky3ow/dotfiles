@@ -35,4 +35,4 @@ class Xontrib:
         if status == ExitCode.NOT_FOUND:
             print(f"{self.module} not installed. Installing {package}")
             subproc_uncaptured(["xpip", "install", package])
-        xontribs_load([self.module])
+            xontribs_load([self.module])
