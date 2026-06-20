@@ -24,9 +24,9 @@ if cmd := alias.command("nvim"):
 if cmd := alias.command("eza"):
     cmd.as_("ls")
 
-# if cmd := alias.command("zoxide"):
-#     cmd.init_script(cmd.name, "init", "xonsh")
-#     cmd.with_name("z").as_("cd")
+if cmd := alias.command("zoxide"):
+    cmd.init_script(cmd.name, "init", "xonsh")
+    cmd.with_name("z").as_("cd")
 
 for exe in ["clip.exe", "xclip", "wl-copy", "pbcopy"]:
     if cmd := alias.command(exe):

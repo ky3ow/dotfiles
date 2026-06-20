@@ -7,6 +7,7 @@ import xsh.helpers as h
 
 import subprocess
 
+
 class Command:
     name: str
 
@@ -21,18 +22,16 @@ class Command:
 
     def as_(self, alias: str):
         first(alias, self.name)
-
         return self
 
     def with_(self, alias: str, expansion: str):
         prefix(alias, expansion, self.name)
-
         return self
 
     def init_script(self, *parts: str) -> Self:
         h.evaluate(*parts, script_name=self.name)
-
         return self
+
 
 def command(exe_name: str) -> Command | None:
     if located := h.which(exe_name):
