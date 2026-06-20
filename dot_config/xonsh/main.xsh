@@ -10,8 +10,6 @@ if TYPE_CHECKING:
     import prompt_toolkit.key_binding as ptk_kb
     Ev = ptk_kb.KeyPressEvent
 
-last = None
-
 # https://xon.sh/tutorial.html#decorator-aliases
 if bin := h.which("nvim"):
     alias.bin(
@@ -22,19 +20,19 @@ if bin := h.which("nvim"):
     )
 
 if bin := h.which("eza"):
-    alias.string("ls", bin)
+    alias.first("ls", bin)
 
 if h.which("zoxide"):
     zoxide_init = h.subproc_captured_stdout(["zoxide", "init", "xonsh"])
     assert h.XSH.execer is not None
     h.XSH.execer.exec(zoxide_init, "exec", h.XSH.ctx, filename="zoxide")
 
-    alias.string("cd", "z")
+    alias.first("cd", "z")
 
 for exe in ["clip.exe", "xclip", "wl-copy", "pbcopy"]:
     if existing := h.which(exe):
-        alias.string("@L", f"echo @(@.lastcmd.output) | {existing}")
-        alias.suffix("@0", f"| {existing}")
+        alias.first("@L", f"echo @(@.lastcmd.output) | {existing}")
+        alias.any("@0", f"| {existing}")
         break
 
 if h.which("carapace"):
@@ -42,9 +40,25 @@ if h.which("carapace"):
     assert h.XSH.execer is not None
     h.XSH.execer.exec(script, "exec", h.XSH.ctx, filename="carapace")
 
-alias.suffix("@1", "out>/dev/null")
-alias.suffix("@2", "err>/dev/null")
-alias.suffix("@3", "all>/dev/null")
+if h.which("git"):
+    alias.first("gs", "git status")
+    alias.first("ga", "git add")
+    alias.first("gc", "git commit")
+    alias.first("gd", "git diff")
+    alias.first("gco", "git switch")
+    alias.prefix("]s", "--staged", "git")
+    alias.prefix("]d", "--detached", "git switch")
+
+if h.which("chezmoi"):
+    alias.first("chad", "chezmoi add")
+    alias.first("ched", "chezmoi re-add")
+    alias.first("chep", "chezmoi git pull")
+    alias.first("chap", "chezmoi apply")
+    alias.first("ch", "cd ~/.local/share/chezmoi")
+
+alias.any("@1", "out>/dev/null")
+alias.any("@2", "err>/dev/null")
+alias.any("@3", "all>/dev/null")
 
 assert h.XSH.builtins is not None
 
@@ -117,8 +131,6 @@ def custom_keybindings(bindings: ptk_kb.KeyBindings, **_):
         """Paste with textwrap.dedent applied."""
         buf = event.current_buffer
         data = event.app.clipboard.get_data()
-        global last
-        last = data
         buf.insert_text(dedent(data.text))
 
     @bindings.add("escape", "]")
