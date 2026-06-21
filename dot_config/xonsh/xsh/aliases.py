@@ -1,12 +1,14 @@
-from prompt_toolkit.buffer import Buffer
-from xonsh.built_ins import XSH
 from typing import Callable, Iterable, Self
 from functools import reduce
+from collections import defaultdict
+import subprocess
+
+from prompt_toolkit.buffer import Buffer
+from xonsh.built_ins import XSH
 
 import xsh.helpers as h
 
-
-import subprocess
+_prefix_filters: defaultdict[str, list[tuple[str, str]]] = defaultdict(list)
 
 
 class Command:
@@ -68,9 +70,15 @@ def any(name: str, cmdline: str):
 
 
 def prefix(name: str, cmdline: str, prefix: str):
-    """Expand alias if its prefixed with `prefix`, uses xontrib-abbrevs"""
+    """Expand alias if its prefixed with `prefix`, uses xontrib-abbrevs.
+    Multiple calls with the same name compound: the abbreviation tries
+    each (expansion, filter) pair in reverse-registration order and
+    returns the expansion for the first matching filter."""
     assert XSH.builtins is not None
-    XSH.builtins.abbrevs[name] = _match_prefix(cmdline, prefix)
+
+    _prefix_filters[name].append((cmdline, prefix))
+    if name not in XSH.builtins.abbrevs:
+        XSH.builtins.abbrevs[name] = _multi_prefix_matcher
 
 
 def _match_cmd_beginning(expansion: str):
@@ -79,6 +87,14 @@ def _match_cmd_beginning(expansion: str):
         return expansion if _at_expr_beginning(buffer, word, expansions) else word
 
     return _impl
+
+
+def _multi_prefix_matcher(buffer: Buffer, word: str):
+    """Dispatcher for compound prefix abbreviations."""
+    for expansion, pfx in reversed(_prefix_filters[word]):
+        if buffer.text.startswith(pfx):
+            return expansion
+    return word
 
 
 def _match_prefix(expansion: str, prefix: str):

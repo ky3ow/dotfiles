@@ -51,7 +51,7 @@ if cmd := alias.command("git"):
     cmd.sub("pull").as_("gP")
 
     cmd.sub("reset").as_("gR").with_("]h", "--hard").with_("]s", "--soft")
-    cmd.sub("restore").as_("gr").with_("]s", "--staged")
+    cmd.sub("restore").as_("gr")
 
     cmd.sub("switch").as_("gco").with_("]d", "--detached")
 
