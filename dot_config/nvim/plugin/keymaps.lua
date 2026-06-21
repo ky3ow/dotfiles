@@ -103,3 +103,4 @@ end
 
 vim.keymap.set({ "n", "x" }, "g=", vim.g.luaop, { desc = "Go lua", expr = true })
 vim.keymap.set("n", "g==", "<cmd>source %<cr>", { desc = "Go lua" })
+vim.keymap.set("n", "<leader>c", ":cd %:p:h", { desc = "Change directory to current file base" })
