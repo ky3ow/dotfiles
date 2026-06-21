@@ -18,18 +18,36 @@ def _configure():
     from xsh.helpers import Xontrib
     import xsh.aliases as alias
 
+    from xonsh.prompt.base import PromptField
+
+    @PromptField.wrap(prefix="{BOLD_YELLOW}", suffix="{RESET}")
+    def up_to_date(fld, ctx):
+       info = $PROMPT_FIELDS['gitstatus.porcelain'].value
+       if info and info['ahead'] == 0 and info['behind'] == 0:
+           fld.value = "*"       # show the symbol (prefix)
+       else:
+           fld.value = None     # hide it
+
+
     $XONSH_VENV = os.path.dirname(os.path.dirname(sys.executable))
     $VIRTUAL_ENV = $XONSH_VENV
 
     $XONSH_AUTOPAIR = True
 
-    $PROMPT = ' {BOLD_YELLOW}{user}{RESET} in {BOLD_CYAN}{cwd_base}{branch_color}{gitstatus: {}} {RED}{last_return_code_if_nonzero:[{BOLD_INTENSE_RED}{}{RED}] }{RESET}{YELLOW}{env_name}{RESET}\n{BOLD_GREEN}{prompt_end}{RESET} '
+    $PROMPT = (
+        " {BOLD_YELLOW}{user}{RESET}"
+        " in {BOLD_CYAN}{cwd_base}{branch_color}{gitstatus: {}}"
+        " {RED}{last_return_code_if_nonzero:[{BOLD_INTENSE_RED}{}{RED}] }{RESET}"
+          "{YELLOW}{env_name}{RESET}\n"
+          "{BOLD_GREEN}{prompt_end}{RESET} ")
+
+    $PROMPT_FIELDS["gitstatus.up_to_date"] = up_to_date
 
     $PROMPT_FIELDS["gitstatus"].fragments = (
         ".branch",
         ".short_head",
         "{BOLD_GREEN}(",
-        ".clean",
+        ".up_to_date",
         ".ahead",
         ".behind",
         "{BOLD_GREEN}){RESET}",
@@ -46,7 +64,7 @@ def _configure():
     $PROMPT_FIELDS['gitstatus.behind'].prefix = ":{BOLD_PURPLE}"
 
     $PROMPT_FIELDS["gitstatus.staged"].prefix = " {BOLD_GREEN}*"
-    $PROMPT_FIELDS["gitstatus.changed"].prefix = " {BOLD_YELLOW}~"
+    $PROMPT_FIELDS["gitstatus.changed"].prefix = " {BOLD_BLUE}~"
     $PROMPT_FIELDS["gitstatus.conflicts"].prefix = " {BOLD_RED}="
     $PROMPT_FIELDS["gitstatus.deleted"].prefix = " {BOLD_RED}-"
     $PROMPT_FIELDS["gitstatus.untracked"].prefix = " {BOLD_RED}?"
