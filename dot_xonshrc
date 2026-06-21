@@ -1,6 +1,10 @@
 import os
 import sys
 
+# https://github.com/jnoortheen/xonsh-rd-parser - rust parser, faster but broken
+# https://github.com/xonsh/xonsh/releases/tag/nightly-build - nightly release has compiled version with nuitka
+# https://github.com/xxh/xxh - run on ssh
+
 _xonsh_home = str(p"~/.config/xonsh")
 try:
     if _xonsh_home not in $PYTHONPATH:
