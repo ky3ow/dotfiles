@@ -50,6 +50,9 @@ if cmd := alias.command("git"):
     cmd.sub("push").as_("gp").with_("]f", "--force-with-lease")
     cmd.sub("pull").as_("gP")
 
+    cmd.sub("reset").as_("gR").with_("]h", "--hard").with_("]s", "--soft")
+    cmd.sub("restore").as_("gr").with_("]s", "--staged")
+
     cmd.sub("switch").as_("gco").with_("]d", "--detached")
 
 if cmd := alias.command("chezmoi"):

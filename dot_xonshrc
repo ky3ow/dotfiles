@@ -23,6 +23,35 @@ def _configure():
 
     $XONSH_AUTOPAIR = True
 
+    $PROMPT = ' {BOLD_YELLOW}{user}{RESET} in {BOLD_CYAN}{cwd_base}{branch_color}{gitstatus: {}} {RED}{last_return_code_if_nonzero:[{BOLD_INTENSE_RED}{}{RED}] }{RESET}{YELLOW}{env_name}{RESET}\n{BOLD_GREEN}{prompt_end}{RESET} '
+
+    $PROMPT_FIELDS["gitstatus"].fragments = (
+        ".branch",
+        ".short_head",
+        "{BOLD_GREEN}(",
+        ".clean",
+        ".ahead",
+        ".behind",
+        "{BOLD_GREEN}){RESET}",
+        ".staged",
+        ".changed",
+        ".conflicts",
+        ".deleted",
+        ".untracked",
+        ".stash_count",
+    )
+    $PROMPT_FIELDS['gitstatus.branch'].prefix = "{BOLD_YELLOW}"
+    $PROMPT_FIELDS['gitstatus.short_head'].prefix = "{BOLD_GREEN}@"
+    $PROMPT_FIELDS['gitstatus.ahead'].prefix = "{BOLD_BLUE}"
+    $PROMPT_FIELDS['gitstatus.behind'].prefix = ":{BOLD_PURPLE}"
+
+    $PROMPT_FIELDS["gitstatus.staged"].prefix = " {BOLD_GREEN}*"
+    $PROMPT_FIELDS["gitstatus.changed"].prefix = " {BOLD_YELLOW}~"
+    $PROMPT_FIELDS["gitstatus.conflicts"].prefix = " {BOLD_RED}="
+    $PROMPT_FIELDS["gitstatus.deleted"].prefix = " {BOLD_RED}-"
+    $PROMPT_FIELDS["gitstatus.untracked"].prefix = " {BOLD_RED}?"
+    $PROMPT_FIELDS["gitstatus.stash_count"].prefix = " {BOLD_PURPLE}$"
+
     @alias.function("xpip")
     @alias.ret_cmd
     def _xpip_uv(args):
