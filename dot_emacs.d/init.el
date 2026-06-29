@@ -537,7 +537,9 @@
   (projectile-run-use-comint-mode t)
   (projectile-switch-project-action #'projectile-dired)
   (projectile-project-search-path '("~/code/" ("~/.config" . 1)))
-  (projectile-mode-line-prefix " Dir"))
+  (projectile-mode-line-prefix " Dir")
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
 
 (use-package transient)
 
@@ -677,12 +679,14 @@
   (sideline-backends-right '(sideline-flymake)))
 
 (use-package treesit
-  :custom
-  (treesit-language-source-alist
+  :config
+  (setq treesit-language-source-alist
    '((lua "https://github.com/tree-sitter-grammars/tree-sitter-lua"
-		  :commit "88e446476a1e97a8724dff7a23e2d709855077f2")
+		  "v0.0.18")
 	 (python "https://github.com/tree-sitter/tree-sitter-python"
-			 :commit "bffb65a8cfe4e46290331dfef0dbf0ef3679de11"))))
+			 "v0.20.4")
+	 (go "https://github.com/tree-sitter/tree-sitter-go"
+			 "v0.20.0"))))
 
 (use-package kmacro-x
   :ensure t
