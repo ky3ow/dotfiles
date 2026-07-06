@@ -319,7 +319,7 @@
 (use-package org-node
   :ensure t
   :custom
-  (org-mem-watch-dirs '("~/notes"))
+  (org-mem-watch-dirs '("~/Notes"))
   (org-node-alter-candidates t)
   :hook
   (org-mode . org-mem-updater-mode)
@@ -419,8 +419,18 @@
   (xclip-mode (not (display-graphic-p))))
 
 (use-package ediff
+  :preface
+  (defun ediff-copy-both-to-C ()
+	(interactive)
+	(ediff-copy-diff ediff-current-difference nil 'C nil
+					 (concat
+                      (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+                      (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
   :custom
-  (ediff-window-setup-function 'ediff-setup-windows-plain))
+  (ediff-window-setup-function 'ediff-setup-windows-plain)
+  :config
+  (defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+  (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map))
 
 (use-package smerge-mode
   :ensure nil
