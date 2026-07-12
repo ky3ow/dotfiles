@@ -97,5 +97,24 @@ Config.keys = {
       end
     end)
   },
+
+  {
+    key = "0",
+    mods = "LEADER",
+    action = wezterm.action.ActivateTab(-1)
+  },
+  {
+    key = "x",
+    mods = "LEADER",
+    action = wezterm.action.CloseCurrentPane { confirm = true },
+  }
 }
+
+for i = 1, 9, 1 do
+  table.insert(Config.keys, {
+    key = tostring(i),
+    mods = "LEADER",
+    action = wezterm.action.ActivateTab(i - 1)
+  })
+end
 
