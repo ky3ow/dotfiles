@@ -1,5 +1,8 @@
 import os
 import sys
+import subprocess
+
+from pathlib import Path
 
 # https://github.com/jnoortheen/xonsh-rd-parser - rust parser, faster but broken
 # https://github.com/xonsh/xonsh/releases/tag/nightly-build - nightly release has compiled version with nuitka
@@ -15,19 +18,38 @@ except KeyError: # no $PYTHONPATH defined
     sys.path.insert(0, _xonsh_home)
 
 def _configure():
-    from xsh.helpers import Xontrib
     import xsh.aliases as alias
 
+    from xsh.helpers import Xontrib
     from xonsh.prompt.base import PromptField
+    from xonsh.prompt.gitstatus import repo_path
 
     @PromptField.wrap(prefix="{BOLD_YELLOW}", suffix="{RESET}")
     def up_to_date(fld: PromptField, ctx):
-       info = $PROMPT_FIELDS['gitstatus.porcelain'].value
-       if info and info['ahead'] == 0 and info['behind'] == 0:
-           fld.value = "*"       # show the symbol (prefix)
-       else:
-           fld.value = ""     # hide it
+        info = $PROMPT_FIELDS['gitstatus.porcelain'].value
+        if info and info['ahead'] == 0 and info['behind'] == 0:
+            fld.value = "*"       # show the symbol (prefix)
+        else:
+            fld.value = ""     # hide it
 
+    @PromptField.wrap(prefix="{BOLD_CYAN}", suffix="{RESET}")
+    def project_cwd(fld: PromptField, ctx):
+        if git_path := ctx.pick_val(repo_path):
+            root = Path(git_path).absolute().parent
+            current = Path.cwd()
+            fld.value = str(root.name / current.relative_to(root))
+        else:
+            fld.value = str(Path.cwd())
+
+    class GitBase:
+        def __repr__(self):
+            res = subprocess.run(["git", "rev-parse", "--git-dir"], capture_output=True, text=True)
+            if res.returncode == 0:
+                abs_path = os.path.abspath(res.stdout.strip())
+                return os.path.dirname(abs_path)
+            return "."
+
+    $BASE = GitBase()
 
     $XONSH_VENV = os.path.dirname(os.path.dirname(sys.executable))
     $VIRTUAL_ENV = $XONSH_VENV
@@ -36,11 +58,12 @@ def _configure():
 
     $PROMPT = (
         " {BOLD_YELLOW}{user}{RESET}"
-        " in {BOLD_CYAN}{cwd_base}{branch_color}{gitstatus: {}}"
+        " in {BOLD_CYAN}{project_cwd}{branch_color}{gitstatus: {}}"
         " {RED}{last_return_code_if_nonzero:[{BOLD_INTENSE_RED}{}{RED}] }{RESET}"
           "{YELLOW}{env_name}{RESET}\n"
           "{BOLD_GREEN}{prompt_end}{RESET} ")
 
+    $PROMPT_FIELDS["project_cwd"] = project_cwd
     $PROMPT_FIELDS["gitstatus.up_to_date"] = up_to_date
 
     $PROMPT_FIELDS["gitstatus"].fragments = (
