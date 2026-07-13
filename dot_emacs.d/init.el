@@ -44,6 +44,21 @@
 	"Function for `switch-to-prev-buffer-skip'."
 	(string-match "\\*[^*]+\\*" (buffer-name buffer)))
 
+  (defun my-git-yeet-file ()
+	"Just commit and push a file."
+	(let* ( (file-name (buffer-file-name))
+			(default-directory (file-name-directory file-name))
+			(timestamp (format-time-string "%y-%m-%d %H:%M"))
+			(commit-msg (format "Yeet: %s" timestamp)) )
+	  (message "Comitting %s" file-name)
+	  (start-process-shell-command
+	   "git-yeet-file" "*yeet-buffer*"
+	   (format "git add %s && git commit -m %s && git push"
+			   (shell-quote-argument file-name)
+			   (shell-quote-argument commit-msg))
+	   )
+	  ))
+
   :custom
   (tool-bar-mode nil)
   (menu-bar-mode nil)
@@ -739,19 +754,6 @@
 
 (use-package chezmoi
   :ensure t)
-
-(use-package epg
-  :custom
-  (epg-pinentry-mode 'loopback))
-
-(use-package epa
-  :custom
-  (epa-file-encrypt-to '("vova2341591@gmail.com")))
-
-(use-package pinentry
-  :ensure t
-  :config
-  (pinentry-start))
 
 (use-package age
   :ensure t
