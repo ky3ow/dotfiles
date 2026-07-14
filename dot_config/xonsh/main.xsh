@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING as tp
 # See this for examples: import xonsh.shells.ptk_shell.key_bindings
 
 import xsh.aliases as alias
-import xsh.bigwords as bw
 import xsh.helpers as h
 
 from xonsh.tools import unthreadable, uncapturable
@@ -71,6 +70,7 @@ assert h.XSH.builtins is not None
 @h.XSH.builtins.events.on_ptk_create
 def custom_keybindings(bindings: "ptk_kb.KeyBindings", **_):
     from prompt_toolkit.selection import SelectionState
+    import xsh.bigwords as bw
 
     @bindings.add("escape", "c-f")
     def _(event: "Ev"):
