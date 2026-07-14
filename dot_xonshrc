@@ -59,10 +59,11 @@ def _configure():
     $VIRTUAL_ENV = $XONSH_VENV
 
     $XONSH_AUTOPAIR = True
+    $ENABLE_ASYNC_PROMPT = True
 
     $PROMPT = (
         " {BOLD_YELLOW}{user}{RESET}"
-        " in {BOLD_CYAN}{project_cwd}{branch_color}{gitstatus: {}}"
+        " in {BOLD_CYAN}{project_cwd}{gitstatus: {}}"
         " {RED}{last_return_code_if_nonzero:[{BOLD_INTENSE_RED}{}{RED}] }{RESET}"
           "{YELLOW}{env_name}{RESET}\n"
           "{BOLD_GREEN}{prompt_end}{RESET} ")
@@ -116,5 +117,7 @@ def _configure():
 
     source @(_CONFIG_DIR / "profile.xsh")
     source @(_CONFIG_DIR / "main.xsh")
+    source @(_CONFIG_DIR / "patches.xsh")
+
 
 _configure()

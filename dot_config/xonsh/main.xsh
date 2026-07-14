@@ -154,13 +154,3 @@ def custom_keybindings(bindings: "ptk_kb.KeyBindings", **_):
             start = doc.translate_row_col_to_index(1, 0)
             buf.selection_state = SelectionState(original_cursor_position=start)
             buf.cursor_position = len(buf.text)
-
-def fix_kb():
-    # monkey patch
-    from prompt_toolkit.input.ansi_escape_sequences import ANSI_SEQUENCES
-    from prompt_toolkit.keys import Keys
-    ANSI_SEQUENCES["\x1b[27;2;32~"] = " " # ty: ignore[invalid-assignment]
-    ANSI_SEQUENCES["\x1b[27;2;9~"] = Keys.BackTab
-    ANSI_SEQUENCES["\x1b[27;7;13~"] = Keys.ControlJ
-
-fix_kb()
