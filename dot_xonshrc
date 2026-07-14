@@ -32,14 +32,18 @@ def _configure():
         else:
             fld.value = ""     # hide it
 
-    @PromptField.wrap(prefix="{BOLD_CYAN}", suffix="{RESET}")
+    @PromptField.wrap(prefix="{BOLD_CYAN}", suffix="{RESET}", sync_only=True)
     def project_cwd(fld: PromptField, ctx):
         if git_path := ctx.pick_val(repo_path):
             root = Path(git_path).absolute().parent
             current = Path.cwd()
             fld.value = str(root.name / current.relative_to(root))
         else:
-            fld.value = str(Path.cwd())
+            p = Path.cwd()
+            h = Path.home()
+            if p.is_relative_to(h):
+                p = Path("~") / p.relative_to(h)
+            fld.value = str(p)
 
     class GitBase:
         def __repr__(self):
