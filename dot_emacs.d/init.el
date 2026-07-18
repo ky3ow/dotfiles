@@ -11,7 +11,7 @@
 			 ("melpa" . "https://melpa.org/packages/"))))
 
 (use-package unclutter
-  :custom (unclutter-use-customize nil))
+  :custom (unclutter-use-customize t))
 
 (use-package emacs
   :preface
@@ -245,7 +245,7 @@
 (use-package ef-themes
   :ensure t
   :config
-  (load-theme 'ef-elea-dark :no-confirm)
+  (load-theme 'ef-elea-light :no-confirm)
   (ef-themes-with-colors
 	(custom-set-faces
 	 `(whitespace-space ((,c :foreground ,bg-dim)))

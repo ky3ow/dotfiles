@@ -1,4 +1,8 @@
 #!/usr/bin/env sh
+if ! emacsclient -e 't'; then
+  emacs --daemon
+fi
+
 EXIST=$(emacsclient -e '(if (filtered-frame-list (lambda (f) (string= (frame-parameter f '\''name) "notes"))) 1 0 )')
 
 if [ $EXIST -eq 1 ]; then
