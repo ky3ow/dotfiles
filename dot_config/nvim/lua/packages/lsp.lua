@@ -34,12 +34,7 @@ Config.now(function()
 			"force",
 			{},
 			vim.lsp.protocol.make_client_capabilities(),
-			completion.get_lsp_capabilities(),
-			{
-				textDocument = {
-					semanticTokens = vim.NIL
-				}
-			}
+			completion.get_lsp_capabilities()
 		),
 	})
 

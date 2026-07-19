@@ -54,13 +54,21 @@ vim.g.language_servers = {
 		},
 	},
 	tailwindcss = {},
-	gopls = {},
+	gopls = {
+		filetypes = { "go", "gomod", "html" },
+		settings = {
+			gopls = {
+				["build.templateExtensions"] = { "tmpl", "html" }
+			}
+		}
+	},
 	pyright = {},
 	terraformls = {
-		callback = function(client)
-			-- ---@cast client vim.lsp.Client
-			-- client.server_capabilities.semanticTokensProvider = nil
-		end
+		-- disabling semantic tokens *reliably* is apparently only this
+		on_init = function(client)
+			---@cast client vim.lsp.Client
+			client.server_capabilities.semanticTokensProvider = nil
+		end,
 	},
 	-- html = { filetypes = { 'html', 'twig', 'hbs'} },
 	lua_ls = {
