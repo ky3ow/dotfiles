@@ -314,6 +314,13 @@
   (which-key-mode t))
 
 (use-package org
+  :config
+  (defvar-keymap my-org-repeat-map
+	:repeat t
+	"f" #'org-forward-heading-same-level
+	"b" #'org-backward-heading-same-level
+	"n" #'org-next-visible-heading
+	"p" #'org-previous-visible-heading)
   :custom
   (org-auto-align-tags nil)
   (org-tags-column 0)
