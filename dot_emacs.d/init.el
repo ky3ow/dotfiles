@@ -314,13 +314,6 @@
   (which-key-mode t))
 
 (use-package org
-  :config
-  (defvar-keymap my-org-repeat-map
-	:repeat t
-	"f" #'org-forward-heading-same-level
-	"b" #'org-backward-heading-same-level
-	"n" #'org-next-visible-heading
-	"p" #'org-previous-visible-heading)
   :custom
   (org-auto-align-tags nil)
   (org-tags-column 0)
@@ -334,6 +327,12 @@
   (org-ellipsis "…")
 
   (org-return-follows-link t)
+
+  :bind (:repeat-map my-org-repeat-map
+					 ("f" . org-forward-heading-same-level)
+					 ("b" . org-backward-heading-same-level)
+					 ("n" . org-next-visible-heading)
+					 ("p" . org-previous-visible-heading))
 
   :hook
   (org-mode . org-indent-mode))
