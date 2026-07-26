@@ -138,7 +138,7 @@ start_bonsai() {
 
 _xonsh() {
   # need to do first:
-  # uv tool install xonsh[all] --with pip
+  # uv tool install xonsh[full] --with pip
   local temp_path=$(echo "$PATH" | tr ':' '\n' | grep -v "/mnt/c/" | tr '\n' ':' | sed 's/:$//')
   PATH="$temp_path" PYTHONPATH="$PYTHONPATH:$HOME/.config/xonsh" xonsh
 }
