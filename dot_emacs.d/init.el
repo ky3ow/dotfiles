@@ -263,7 +263,6 @@
   :delight (hs-minor-mode)
   :custom
   (outline-blank-line t)
-  :bind-keymap ("C-c o" . hs-minor-mode-map)
   :bind (:map hs-minor-mode-map
 			  ("C-c o TAB" . hs-toggle-hiding)
 			  ("C-c o o" . hs-show-block)
@@ -390,10 +389,6 @@
 
   :hook
   (org-mode . org-modern-mode))
-
-(use-package toc-org ;; probably don't need that
-  :commands toc-org-enable
-  :hook (org-mode . toc-org-mode))
 
 (use-package olivetti
   :ensure t
