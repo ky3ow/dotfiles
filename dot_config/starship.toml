@@ -6,7 +6,7 @@ add_newline = false
 
 # Change the default prompt format
 format = """ \
-$username$directory$git_branch$git_commit$git_status$python$fill$line_break\
+$username$directory$vcs$python$fill$line_break\
 $character\
 """
 
@@ -16,6 +16,30 @@ symbol = " "
 [character]
 success_symbol = "[>](bold green)"
 error_symbol = "[>](bold red)"
+
+[vcs]
+order = ["jj", "git", "hg", "pijul", "fossil"]
+git_modules = "$git_branch$git_commit$git_status"
+jj_modules = "$jj_bookmark$jj_change$jj_status"
+
+[jj_bookmark]
+format = "[$bookmark(@$remote)$diverged(\\[+$overflow_count\\])]($style)"
+style = 'bold yellow'
+
+[jj_change]
+format = "[@](bold green)$change:$commit "
+suffix_style = "bold black"
+
+[jj_status]
+format = "([($conflicted )($description )($hidden )($immutable )($added )($copied )($deleted )($modified )($rename )]($style) )"
+conflicted = '='
+description_empty = '[?](bold yellow)'
+immutable = '<>'
+added = '[+$count](bold green)'
+deleted = '-${count}'
+renamed = '>>${count}'
+modified = '!${count}'
+copied = '&${count}'
 
 [git_branch]
 format = '[$branch(:$remote_branch)]($style)'
